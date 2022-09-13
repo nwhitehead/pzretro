@@ -115,7 +115,7 @@ void retro_set_environment(retro_environment_t cb)
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
-    // Empty
+    audio_batch_cb = cb;
 }
 
 void retro_set_video_refresh(retro_video_refresh_t cb)
@@ -125,7 +125,7 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
 {
-    audio_cb = cb;
+    //audio_cb = cb;
 }
 
 void retro_set_input_poll(retro_input_poll_t cb)
@@ -144,11 +144,11 @@ void retro_init(void)
     struct retro_log_callback log;
     unsigned level = 4;
 
-    if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log))
+    if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log)) {
         log_cb = log.log;
-    else
+    } else {
         log_cb = NULL;
-
+    }
     // the performance level is guide to frontend to give an idea of how intensive this core is to run
     environ_cb(RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL, &level);
 
@@ -174,11 +174,11 @@ void retro_get_system_info(struct retro_system_info *info)
  */
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-    int pixel_format = RETRO_PIXEL_FORMAT_XRGB8888;
+    int pixel_format = RETRO_PIXEL_FORMAT_RGB565;
 
     memset(info, 0, sizeof(*info));
-    info->timing.fps            = 60.0f;
-    info->timing.sample_rate    = 441000;
+    info->timing.fps            = 30.0f;
+    info->timing.sample_rate    = 44100;
     info->geometry.base_width   = 640;
     info->geometry.base_height  = 480;
     info->geometry.max_width    = 640;
@@ -196,28 +196,29 @@ void retro_reset(void)
     // Do stuff
 }
 
-uint32_t framebuffer[640*480];
+constexpr int audio_buffer_len{44100/30*2};
+
+uint16_t framebuffer[640*480];
 
 uint8_t offset{0};
+int16_t audio_buffer[audio_buffer_len];
 
 // Run a single frames with out Vectrex emulation.
 void retro_run(void)
 {
     // Run one frame
 
-    // 735 audio samples per frame (44.1kHz @ 60 fps)
-    for (int i = 0; i < 735; i++) {
-        audio_cb(1, 1);
-    }
+    audio_batch_cb(audio_buffer, audio_buffer_len / 2);
 
     for (int row = 0; row < 480; row++) {
         for (int col = 0; col < 640; col++) {
             uint8_t r = col % 256;
             uint8_t g = row % 256;
             uint8_t b = (row + col + offset) % 256;
-            framebuffer[row * 640 + col] = (r << 16) | (g << 8) | b;
+            framebuffer[row * 640 + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
         }
     }
     offset++;
-    video_cb(framebuffer, 640, 480, sizeof(uint32_t) * 640);
+    offset = offset & 0xff;
+    video_cb(framebuffer, 640, 480, sizeof(uint16_t) * 640);
 }
