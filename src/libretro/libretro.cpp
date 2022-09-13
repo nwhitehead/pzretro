@@ -1,17 +1,4 @@
-/*
-Copyright (C) 2016 Beardypig
-This file is part of Vectrexia.
-Vectrexia is free software: you can redistribute it and/or modify
-        it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-Vectrexia is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with Vectrexia.  If not, see <http://www.gnu.org/licenses/>.
-*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,7 +20,6 @@ unsigned retro_api_version(void)
     return RETRO_API_VERSION;
 }
 
-// Cheats
 void retro_cheat_reset(void) 
 {
     // Empty
@@ -44,7 +30,6 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
     // Empty
 }
 
-// Load a cartridge
 bool retro_load_game(const struct retro_game_info *info)
 {
     return true;
@@ -55,7 +40,6 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info *i
     return false;
 }
 
-// Unload the cartridge
 void retro_unload_game(void)
 {
     // Empty
@@ -66,7 +50,6 @@ unsigned retro_get_region(void)
     return RETRO_REGION_NTSC;
 }
 
-// libretro unused api functions
 void retro_set_controller_port_device(unsigned port, unsigned device)
 {
     // Empty
@@ -83,7 +66,6 @@ size_t retro_get_memory_size(unsigned id)
     return 0;
 }
 
-// Serialisation methods
 size_t retro_serialize_size(void)
 {
     return 0;
@@ -99,7 +81,6 @@ bool retro_unserialize(const void *data, size_t size)
     return false;
 }
 
-// End of retrolib
 void retro_deinit(void)
 {
     // Empty
@@ -109,8 +90,21 @@ void retro_deinit(void)
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;
+
+    // Allow running core with no game selected
     bool no_rom = true;
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
+
+    static const struct retro_controller_description controllers[] = {
+        { "PuzzleScript Controller", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0) },
+    };
+
+    static const struct retro_controller_info ports[] = {
+        { controllers, 1 },
+        { NULL, 0 },
+    };
+
+//   cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
@@ -155,23 +149,15 @@ void retro_init(void)
     // Do stuff...
 }
 
-
-/*
- * Tell libretro about this core, it's name, version and which rom files it supports.
- */
 void retro_get_system_info(struct retro_system_info *info)
 {
     memset(info, 0, sizeof(*info));
     info->library_name = "PuzzleScript";
-    info->library_version = "0.1";
+    info->library_version = "0.2";
     info->need_fullpath = false;
     info->valid_extensions = "pz";
 }
 
-/*
- * Tell libretro about the AV system; the fps, sound sample rate and the
- * resolution of the display.
- */
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
     int pixel_format = RETRO_PIXEL_FORMAT_RGB565;
@@ -189,8 +175,6 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
 }
 
-
-// Reset the Vectrex
 void retro_reset(void)
 {
     // Do stuff
@@ -203,7 +187,7 @@ uint16_t framebuffer[640*480];
 uint8_t offset{0};
 int16_t audio_buffer[audio_buffer_len];
 
-// Run a single frames with out Vectrex emulation.
+// Run a single frame
 void retro_run(void)
 {
     // Run one frame
