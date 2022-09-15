@@ -1,0 +1,5 @@
+shared_library("puzzlescript_libretro") {
+  sources = [
+    "src/libretro/libretro.cpp",
+  ]
+}

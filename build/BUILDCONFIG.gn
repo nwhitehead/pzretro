@@ -1,0 +1,4 @@
+set_default_toolchain("//build/toolchains:clang")
+cflags = ["-fPIC", "-g"]
+cflags_cc = ["-std=c++17"]
+ldflags = ["-Wl,--version-script=../export.map"]

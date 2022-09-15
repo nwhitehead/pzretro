@@ -16,14 +16,14 @@ https://v8.dev/docs/embed
 
 ## Building
 
-To compile, do something like:
+To compile, first install gn. https://gn.googlesource.com/gn/
 
-    mkdir build
-    cd build
-    cmake ..
-    make
+Build with:
 
-The output will be `src/puzzlescript_libretro.so` which can be copied to your RetroArch core folder. Mine is set to `~/.config/retroarch/cores/`.
+    gn gen out
+    ninja -C out
+
+The output will be `out/puzzlescript_libretro.so` which can be copied to your RetroArch core folder. Mine is set to `~/.config/retroarch/cores/`.
 
 To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross toolchain.
 
@@ -43,49 +43,85 @@ Cross compile with instructions at: https://v8.dev/docs/embed
 
 Set options using this command:
 
-    gn args out.gn/arm.release/
+    gn args out/x64.release/
 
 The options I set are:
 
-    dcheck_always_on = false
+    is_component_build = true
     is_debug = false
-    target_os = "linux"
+    target_cpu = "x64"
+    use_goma = false
+    v8_enable_backtrace = true
+    v8_enable_disassembler = true
+    v8_enable_object_print = true
+    v8_enable_verify_heap = true
+    dcheck_always_on = false
+    v8_use_external_startup_data = false
+    use_sysroot = false
+
+Build with:
+
+    ninja -C out/x64.release v8
+
+Similarly for ARM, use options:
+
+    is_component_build = true
+    is_debug = false
     target_cpu = "arm"
     v8_target_cpu = "arm"
-    is_component_build = false
-    v8_monolithic = true
-    use_custom_libcxx = false
+    use_goma = false
+    v8_enable_backtrace = true
+    v8_enable_disassembler = true
+    v8_enable_object_print = true
+    v8_enable_verify_heap = true
+    dcheck_always_on = false
     v8_use_external_startup_data = false
-    is_clang = false
-    use_sysroot = false
 
 Then build with:
 
-    ninja -C out.gn/arm.release v8_monolith
+    ninja -C out/arm.release v8
 
-### WIP
 
-Trying to get monolithic static lib to work, but building sample and linking it is hard. The hello world embedded sample works with:
+## Using V8 build
 
-    ninja -C out/x64.release/ v8_hello_world -v -d keeprsp
+This results in a bunch of `.so` files in the `out/x64.release` directory including things related to V8 and a custom `libc++`.
 
-To duplicate this by hand, I'm doing (from `out/x64.release`):
+To build an application using these files, set `V8ROOT` to point to the base of the V8 project then do something like:
 
     clang++ \
         -std=c++17 \
-        -I../.. \
-        -I../../buildtools/third_party/libc++ \
-        -I../../include \
+        -DV8_COMPRESS_POINTERS \
+        -I$V8ROOT \
+        -I$V8ROOT/buildtools/third_party/libc++ \
+        -I$V8ROOT/include \
         -nostdinc++ \
-        -isystem../../buildtools/third_party/libc++/trunk/include \
+        -isystem $V8ROOT/buildtools/third_party/libc++/trunk/include \
         -c \
-        ../../samples/hello-world.cc \
-        -o obj/v8_hello_world/hello-world.o \
-        -DV8_COMPRESS_POINTERS
+        hello-world.cc \
+        -o hello-world.o
 
-    clang++ -o v8_hello_world -Wl,--start-group @"./v8_hello_world.rsp" -Wl,--end-group
+    clang++ \
+        -o hello_world \
+        hello-world.o \
+        -L$V8ROOT/out/x64.release/ \
+        -lv8 -lv8_libbase -lv8_libplatform \
+        -stdlib=libc++ \
+        -Wl,-rpath,$V8ROOT/out/x64.release
 
-Some notes:
+### NOTES
 
-* Building the sample needs to be done with clang, mixing g++ and clang doesn't work for serious C++ linking.
-* The `v8_hello_world.rsp` file doesn't use the monolith library, it lists all the objs separately.
+The `is_component_build` means the build will generate `.so` files instead of statically linking. You can theoretically get
+a monolithic static build but I had trouble using the final monolithic build since it requires linking against the custom
+libc++ library. I found it easier to build the `.so` files and then link to them, that avoids the issues of listing lots
+of random `.o` files.
+
+## Building on ARM
+
+OLD
+
+On Ubuntu you need to install packages with the cross compiler:
+
+    sudo apt install gcc make gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+    set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
+    set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)

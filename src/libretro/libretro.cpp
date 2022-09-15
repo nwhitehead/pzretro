@@ -1,10 +1,16 @@
 
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <memory>
+#include <iostream>
 
 #include "libretro.h"
+#include "../sysfont.h"
+
+#define STBI_NO_LINEAR
+#define STBI_NO_HDR
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb_image.h"
 
 // Callbacks
 static retro_log_printf_t log_cb;
@@ -104,7 +110,7 @@ void retro_set_environment(retro_environment_t cb)
         { NULL, 0 },
     };
 
-//   cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
+    cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
@@ -146,7 +152,13 @@ void retro_init(void)
     // the performance level is guide to frontend to give an idea of how intensive this core is to run
     environ_cb(RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL, &level);
 
-    // Do stuff...
+    int width{0};
+    int height{0};
+    int channels{0};
+    void *mem = malloc(1024*160);
+    std::cout << "sysfont_png = " << (void*)sysfont_png << std::endl;
+    stbi_uc *sysfont_data = stbi_load_from_memory(sysfont_png, sysfont_png_len, &width, &height, &channels, 0);
+    std::cout << "sysfont is (" << width << " x " << height << ")" << std::endl;
 }
 
 void retro_get_system_info(struct retro_system_info *info)
