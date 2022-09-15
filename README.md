@@ -25,15 +25,16 @@ Build with:
 
 The output will be `out/puzzlescript_libretro.so` which can be copied to your RetroArch core folder. Mine is set to `~/.config/retroarch/cores/`.
 
+To quickly test output, do:
+
+    ninja -C out && retroarch -L out/puzzlescript_libretro.so
+
 To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross toolchain.
 
-    mkdir build
-    cd build
-    cmake -DCMAKE_TOOLCHAIN_FILE=../arm.cmake ..
-    make
+    TODO
 
 The output will be the same file, should be copied to the appropriate place for your installation of RetroArch. You will need to install cross-compile
-toolchain, the `arm.cmake` file has some comments on which packages are needed.
+toolchain.
 
 ## Building V8
 

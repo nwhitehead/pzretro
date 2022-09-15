@@ -7,8 +7,6 @@
 #include "libretro.h"
 #include "../sysfont.h"
 
-#define STBI_NO_LINEAR
-#define STBI_NO_HDR
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"
 
@@ -20,6 +18,11 @@ static retro_input_state_t input_state_cb;
 static retro_environment_t environ_cb;
 static retro_audio_sample_t audio_cb;
 static retro_audio_sample_batch_t audio_batch_cb;
+
+// Font data
+static uint16_t *sysfont_data;
+static int sysfont_width;
+static int sysfont_height;
 
 unsigned retro_api_version(void)
 {
@@ -152,13 +155,29 @@ void retro_init(void)
     // the performance level is guide to frontend to give an idea of how intensive this core is to run
     environ_cb(RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL, &level);
 
-    int width{0};
-    int height{0};
     int channels{0};
-    void *mem = malloc(1024*160);
-    std::cout << "sysfont_png = " << (void*)sysfont_png << std::endl;
-    stbi_uc *sysfont_data = stbi_load_from_memory(sysfont_png, sysfont_png_len, &width, &height, &channels, 0);
-    std::cout << "sysfont is (" << width << " x " << height << ")" << std::endl;
+    stbi_uc *data = stbi_load_from_memory(sysfont_png, sysfont_png_len, &sysfont_width, &sysfont_height, &channels, 0);
+    sysfont_data = new uint16_t[256 * 9 * sysfont_height]();
+
+    std::cout << "sysfont is " << sysfont_width << " x " << sysfont_height << std::endl;
+    std::cout << "sysfont_data =" << (void*)sysfont_data << std::endl;
+    for (int r = 0; r < 9; r++) {
+        for (int c = 0; c < 9; c++) {
+            std::cout << (int)*(sysfont_data + c * 3 + r * 3 * sysfont_width) << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << std::endl;
+    for (int r = 0; r < 9; r++) {
+        for (int ch = 0; ch < sysfont_width / 9; ch++) {
+            for (int c = 0; c < 9; c++) {
+                stbi_uc col = *(data + r * sysfont_width * 3 + ch * 9 * 3 + c * 3);
+                if (col) {
+                    sysfont_data[r * 256 * 9 + (ch + 33) * 9 + c] = 0xffff;
+                }
+            }
+        }
+    }
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -201,6 +220,26 @@ int16_t audio_buffer[audio_buffer_len];
 
 int x{320};
 int y{240};
+int cursor_x{0};
+int cursor_y{0};
+
+void draw_letter(int x, int y, int letter)
+{
+    uint16_t *fb = &framebuffer[x + 640*y];
+    uint16_t *rom = &sysfont_data[letter * 9];
+    for (int r = 0; r < 9; r++) {
+        for (int c = 0; c < 9; c++) {
+            *(fb + r * 640 + c) = *(rom + r * 256 * 9 + c);
+        }
+    }
+}
+
+void draw_text(int col, int row, std::string txt)
+{
+    for (int i = 0; i < txt.size(); i++) {
+        draw_letter(col * 9 + i * 9, row * 9, txt[i]);
+    }
+}
 
 // Run a single frame
 void retro_run(void)
@@ -241,5 +280,9 @@ void retro_run(void)
     }
     offset++;
     offset = offset & 0xff;
+
+    // Draw text
+    draw_text(20, 10, "Hello, Zoe!");
+
     video_cb(framebuffer, 640, 480, sizeof(uint16_t) * 640);
 }
