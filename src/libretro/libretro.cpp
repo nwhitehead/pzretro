@@ -187,19 +187,44 @@ uint16_t framebuffer[640*480];
 uint8_t offset{0};
 int16_t audio_buffer[audio_buffer_len];
 
+int x{320};
+int y{240};
+
 // Run a single frame
 void retro_run(void)
 {
     // Run one frame
 
+    // Get input for frame
+    input_poll_cb();
+    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP)) {
+        y--;
+    }
+    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN)) {
+        y++;
+    }
+    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT)) {
+        x--;
+    }
+    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT)) {
+        x++;
+    }
+
+    // Render audio frame
     audio_batch_cb(audio_buffer, audio_buffer_len / 2);
 
+    // Render video frame
     for (int row = 0; row < 480; row++) {
         for (int col = 0; col < 640; col++) {
             uint8_t r = col % 256;
             uint8_t g = row % 256;
             uint8_t b = (row + col + offset) % 256;
             framebuffer[row * 640 + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
+        }
+    }
+    for (int h = 0; h < 20; h++) {
+        for (int w = 0; w < 20; w++) {
+            framebuffer[(h + y)* 640 + (w + x)] = 0x00000000;
         }
     }
     offset++;
