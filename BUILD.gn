@@ -1,7 +1,11 @@
 
 cflags = ["-fPIC"]
 cflags_cc = [ "-std=c++17" ]
-ldflags = [ "-Wl,--version-script=" + rebase_path("export.map", root_build_dir) ]
+ldflags = [
+    "-nostdlib++",
+    "-Wl,--no-allow-shlib-undefined",
+    "-Wl,--version-script=" + rebase_path("export.map", root_build_dir)
+]
 
 if (target_cpu == "arm") {
     v8root = "/home/nwhitehead/v8/v8"
@@ -20,7 +24,7 @@ if (target_cpu == "arm") {
 }
 
 shared_library("puzzlescript_libretro") {
-  sources = [
-    "src/libretro/libretro.cpp",
-  ]
+    sources = [
+        "src/libretro/libretro.cpp",
+    ]
 }
