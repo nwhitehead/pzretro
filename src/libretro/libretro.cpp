@@ -10,6 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"
 
+#include "duktape.h"
+
 // Callbacks
 static retro_log_printf_t log_cb;
 static retro_video_refresh_t video_cb;
@@ -23,6 +25,10 @@ static retro_audio_sample_batch_t audio_batch_cb;
 static uint16_t *sysfont_data;
 static int sysfont_width;
 static int sysfont_height;
+
+// JavaScript context
+static duk_context *js_ctx;
+
 
 unsigned retro_api_version(void)
 {
@@ -90,11 +96,6 @@ bool retro_unserialize(const void *data, size_t size)
     return false;
 }
 
-void retro_deinit(void)
-{
-    // Empty
-}
-
 // libretro global setters
 void retro_set_environment(retro_environment_t cb)
 {
@@ -141,6 +142,46 @@ void retro_set_input_state(retro_input_state_t cb)
     input_state_cb = cb;
 }
 
+constexpr int audio_buffer_len{44100/30*2};
+
+uint16_t framebuffer[640*480];
+
+uint8_t offset{0};
+int16_t audio_buffer[audio_buffer_len];
+
+int x{320};
+int y{240};
+int cursor_x{0};
+int cursor_y{0};
+
+void draw_letter(int x, int y, int letter)
+{
+    uint16_t *fb = &framebuffer[x + 640*y];
+    uint16_t *rom = &sysfont_data[letter * 9];
+    for (int r = 0; r < 9; r++) {
+        for (int c = 0; c < 9; c++) {
+            *(fb + r * 640 + c) = *(rom + r * 256 * 9 + c);
+        }
+    }
+}
+
+void draw_text(int col, int row, std::string txt)
+{
+    for (int i = 0; i < txt.size(); i++) {
+        draw_letter(col * 9 + i * 9, row * 9, txt[i]);
+    }
+}
+
+static duk_ret_t native_print(duk_context *ctx) {
+	duk_push_string(ctx, " ");
+	duk_insert(ctx, 0);
+	duk_join(ctx, duk_get_top(ctx) - 1);
+    std::string msg{duk_safe_to_string(ctx, -1)};
+	std::cout << msg << std::endl;
+    draw_text(10, 21, msg);
+	return 0;
+}
+
 void retro_init(void)
 {
     /* set up some logging */
@@ -178,6 +219,16 @@ void retro_init(void)
             }
         }
     }
+    // Setup duktape
+	js_ctx = duk_create_heap_default();
+    // Register print function
+	duk_push_c_function(js_ctx, native_print, DUK_VARARGS);
+	duk_put_global_string(js_ctx, "print");
+}
+
+void retro_deinit(void)
+{
+	duk_destroy_heap(js_ctx);
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -209,36 +260,6 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 void retro_reset(void)
 {
     // Do stuff
-}
-
-constexpr int audio_buffer_len{44100/30*2};
-
-uint16_t framebuffer[640*480];
-
-uint8_t offset{0};
-int16_t audio_buffer[audio_buffer_len];
-
-int x{320};
-int y{240};
-int cursor_x{0};
-int cursor_y{0};
-
-void draw_letter(int x, int y, int letter)
-{
-    uint16_t *fb = &framebuffer[x + 640*y];
-    uint16_t *rom = &sysfont_data[letter * 9];
-    for (int r = 0; r < 9; r++) {
-        for (int c = 0; c < 9; c++) {
-            *(fb + r * 640 + c) = *(rom + r * 256 * 9 + c);
-        }
-    }
-}
-
-void draw_text(int col, int row, std::string txt)
-{
-    for (int i = 0; i < txt.size(); i++) {
-        draw_letter(col * 9 + i * 9, row * 9, txt[i]);
-    }
 }
 
 // Run a single frame
@@ -283,6 +304,9 @@ void retro_run(void)
 
     // Draw text
     draw_text(20, 10, "Hello, Zoe!");
+
+    // Try print function
+	duk_eval_string(js_ctx, "print('Hello world!');");
 
     video_cb(framebuffer, 640, 480, sizeof(uint16_t) * 640);
 }

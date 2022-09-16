@@ -1,13 +1,25 @@
 
-cflags = [ "-fPIC" ]
-cflags_cc = [ "-std=c++17" ]
+cflags = [ 
+    "-fPIC",
+    "-I" + rebase_path("src/duktape/duktape-2.7.0/src", root_build_dir),
+]
+cflags_cc = [
+    "-std=c++17"
+]
 ldflags = [
     "-Wl,--no-allow-shlib-undefined",
-    "-Wl,--version-script=" + rebase_path("export.map", root_build_dir)
+    "-Wl,--version-script=" + rebase_path("export.map", root_build_dir),
 ]
+
+if (target_cpu == "arm") {
+    ldflags += [
+        "-static-libstdc++",
+    ]
+}
 
 shared_library("puzzlescript_libretro") {
     sources = [
         "src/libretro/libretro.cpp",
+        "src/duktape/duktape-2.7.0/src/duktape.c",
     ]
 }

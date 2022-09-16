@@ -69,7 +69,7 @@ toolchain("arm") {
   sysroot = linaro + "/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf/"
   tool("cc") {
     depfile = "{{output}}.d"
-    command = linaro_bin + "arm-linux-gnueabihf-gcc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} --sysroot " + sysroot + "-c {{source}} -o {{output}}"
+    command = linaro_bin + "arm-linux-gnueabihf-gcc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} --sysroot " + sysroot + " -c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CC {{output}}"
     outputs = [
