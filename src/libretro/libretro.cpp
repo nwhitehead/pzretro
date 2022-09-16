@@ -1,8 +1,10 @@
 
+#include <cassert>
 #include <cstring>
 #include <cstdlib>
 #include <memory>
 #include <iostream>
+#include <vector>
 
 #include "libretro.h"
 #include "../sysfont.h"
@@ -38,7 +40,8 @@ int16_t audio_buffer[audio_buffer_len];
 // Graphics
 constexpr int graphics_width{640};
 constexpr int graphics_height{480};
-constexpr int graphics_framebuffer_len{graphics_width * graphics_height};
+constexpr int graphics_stride{graphics_width};
+constexpr int graphics_framebuffer_len{graphics_stride * graphics_height};
 // Format is fixed RGB 565
 uint16_t graphics_framebuffer[graphics_framebuffer_len];
 
@@ -53,22 +56,31 @@ class Sprite {
 public:
     int width{-1};
     int height{-1};
-    uint16_t *data{nullptr};
+    std::vector<uint16_t> data{};
 
     Sprite(int width, int height) :
         width(width),
         height(height),
-        data(new uint16_t[width * height]()) {
+        data(width * height) {
     }
 
     ~Sprite() {
-        delete[] data;
     }
-    void draw(int /*x*/, int /*y*/, int w, int h) {
+
+    void draw(int x, int y, int w, int h) {
+        std::cout << "width=" << width << " w=" << w << std::endl;
         assert(w == width);
         assert(h == height);
+        for (int r = 0; r < h; r++) {
+            for (int c = 0; c < w; c++) {
+                *(graphics_framebuffer + y * graphics_stride + r * graphics_stride + x + c) = data[r * w + c];
+            }
+        }
     }
 };
+
+// Sprite Lists
+std::vector<Sprite> sprites{};
 
 unsigned retro_api_version(void)
 {
@@ -193,13 +205,24 @@ void draw_letter(int x, int y, int letter)
     }
 }
 
-static duk_ret_t native_print(duk_context *ctx) {
+duk_ret_t native_print(duk_context *ctx) {
 	duk_push_string(ctx, " ");
 	duk_insert(ctx, 0);
 	duk_join(ctx, duk_get_top(ctx) - 1);
     std::string msg{duk_safe_to_string(ctx, -1)};
+    // Do actual print operation
 	std::cout << msg << std::endl;
 	return 0;
+}
+
+duk_ret_t native_create_context(duk_context *ctx) {
+    int width{duk_get_int(ctx, 0)};
+    int height{duk_get_int(ctx, 1)};
+    // Add new sprite
+    sprites.emplace_back(width, height);
+    // Return existing number of sprites already in list
+    duk_push_int(ctx, sprites.size() - 1);
+    return 1;
 }
 
 void retro_init(void)
@@ -244,10 +267,22 @@ void retro_init(void)
     // Register print function
 	duk_push_c_function(js_ctx, native_print, DUK_VARARGS);
 	duk_put_global_string(js_ctx, "print");
+	duk_push_c_function(js_ctx, native_create_context, DUK_VARARGS);
+	duk_put_global_string(js_ctx, "native_create_context");
+
+    // Add a sprite
+    std::cout << "Adding sprite" << std::endl;
+    sprites.emplace_back(32, 32);
+
+	duk_eval_string(js_ctx, "native_create_context(64, 64);");
+
 }
 
 void retro_deinit(void)
 {
+    std::cout << "retro_deinit" << std::endl;
+    sprites.clear();
+    std::cout << "retro_deinit calling duk_destroy_heap" << std::endl;
 	duk_destroy_heap(js_ctx);
 }
 
@@ -314,18 +349,21 @@ void retro_run(void)
             uint8_t r = col % 256;
             uint8_t g = row % 256;
             uint8_t b = (row + col) % 256;
-            graphics_framebuffer[row * graphics_width + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
+            graphics_framebuffer[row * graphics_stride + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
         }
     }
     for (int h = 0; h < 20; h++) {
         for (int w = 0; w < 20; w++) {
-            graphics_framebuffer[(h + y)* graphics_width + (w + x)] = 0x00000000;
+            graphics_framebuffer[(h + y)* graphics_stride + (w + x)] = 0x00000000;
         }
     }
-
+    std::cout << "Drawing " << sprites.size() << " sprites" << std::endl;
+    for (auto &sprite : sprites) {
+        sprite.draw(0, 0, sprite.width, sprite.height);
+    }
 
     // Try print function
 	duk_eval_string(js_ctx, "print('Hello world!');");
 
-    video_cb(graphics_framebuffer, graphics_width, graphics_height, sizeof(uint16_t) * graphics_width);
+    video_cb(graphics_framebuffer, graphics_width, graphics_height, sizeof(uint16_t) * graphics_stride);
 }

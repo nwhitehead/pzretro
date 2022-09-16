@@ -1,5 +1,6 @@
 
-cflags = [ 
+cflags = [
+    "-g",
     "-fPIC",
     "-I" + rebase_path("src/duktape/duktape-2.7.0/src", root_build_dir),
     "-Wall",
