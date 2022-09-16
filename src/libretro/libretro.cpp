@@ -239,10 +239,10 @@ uint16_t webcolor(std::string hexcolor)
         r = hexcolor.substr(1, 1) + hexcolor.substr(1, 1);
         g = hexcolor.substr(2, 1) + hexcolor.substr(2, 1);
         b = hexcolor.substr(3, 1) + hexcolor.substr(3, 1);
-    } else if (hexcolor.size() > 7) {
+    } else if (hexcolor.size() >= 7) {
         r = hexcolor.substr(1, 2);
-        r = hexcolor.substr(3, 2);
-        r = hexcolor.substr(5, 2);
+        g = hexcolor.substr(3, 2);
+        b = hexcolor.substr(5, 2);
     } else {
         throw std::invalid_argument("Illegal color");
     }
@@ -331,7 +331,9 @@ void retro_init(void)
 	duk_put_global_string(js_ctx, "native_fill_rect");
 
 	duk_eval_string(js_ctx, "id = native_create_context(64, 64);");
-    duk_eval_string(js_ctx, "native_fill_rect(id, '#a83', 32, 32, 32, 32);");
+    duk_eval_string(js_ctx, "native_fill_rect(id, '#ff0000', 0, 0, 16, 64);");
+    duk_eval_string(js_ctx, "native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
+    duk_eval_string(js_ctx, "native_fill_rect(id, '#0000ff', 32, 0, 16, 64);");
 }
 
 void retro_deinit(void)
