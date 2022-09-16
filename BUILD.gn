@@ -2,6 +2,9 @@
 cflags = [ 
     "-fPIC",
     "-I" + rebase_path("src/duktape/duktape-2.7.0/src", root_build_dir),
+    "-Wall",
+    "-Wextra",
+    "-Werror",
 ]
 cflags_cc = [
     "-std=c++17"

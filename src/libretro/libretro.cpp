@@ -29,6 +29,27 @@ static int sysfont_height;
 // JavaScript context
 static duk_context *js_ctx;
 
+// Sprints
+struct spriteInstance {
+    int id;
+    int x;
+    int y;
+};
+
+class Sprite {
+public:
+    uint8_t *data{nullptr};
+
+    Sprite(int width, int height) {
+        init(width, height);
+    }
+    void init(int width, int height) {
+        data = new uint8_t[width * height * 4]();
+    }
+    ~Sprite() {
+        delete[] data;
+    }
+};
 
 unsigned retro_api_version(void)
 {
@@ -40,17 +61,17 @@ void retro_cheat_reset(void)
     // Empty
 }
 
-void retro_cheat_set(unsigned index, bool enabled, const char *code)
+void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
 {
     // Empty
 }
 
-bool retro_load_game(const struct retro_game_info *info)
+bool retro_load_game(const struct retro_game_info */*info*/)
 {
     return true;
 }
 
-bool retro_load_game_special(unsigned game_type, const struct retro_game_info *info, size_t num_info)
+bool retro_load_game_special(unsigned /*game_type*/, const struct retro_game_info */*info*/, size_t /*num_info*/)
 {
     return false;
 }
@@ -65,18 +86,18 @@ unsigned retro_get_region(void)
     return RETRO_REGION_NTSC;
 }
 
-void retro_set_controller_port_device(unsigned port, unsigned device)
+void retro_set_controller_port_device(unsigned /*port*/, unsigned /*device*/)
 {
     // Empty
 }
 
 
-void *retro_get_memory_data(unsigned id)
+void *retro_get_memory_data(unsigned /*id*/)
 {
-    return NULL;
+    return nullptr;
 }
 
-size_t retro_get_memory_size(unsigned id)
+size_t retro_get_memory_size(unsigned /*id*/)
 {
     return 0;
 }
@@ -86,12 +107,12 @@ size_t retro_serialize_size(void)
     return 0;
 }
 
-bool retro_serialize(void *data, size_t size)
+bool retro_serialize(void */*data*/, size_t /*size*/)
 {
     return false;
 }
 
-bool retro_unserialize(const void *data, size_t size)
+bool retro_unserialize(const void */*data*/, size_t /*size*/)
 {
     return false;
 }
@@ -129,7 +150,7 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
 {
-    //audio_cb = cb;
+    audio_cb = cb;
 }
 
 void retro_set_input_poll(retro_input_poll_t cb)
@@ -167,7 +188,7 @@ void draw_letter(int x, int y, int letter)
 
 void draw_text(int col, int row, std::string txt)
 {
-    for (int i = 0; i < txt.size(); i++) {
+    for (size_t i = 0; i < txt.size(); i++) {
         draw_letter(col * 9 + i * 9, row * 9, txt[i]);
     }
 }
