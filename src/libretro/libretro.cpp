@@ -207,7 +207,8 @@ void draw_letter(int x, int y, int letter)
     }
 }
 
-duk_ret_t native_print(duk_context *ctx) {
+duk_ret_t native_print(duk_context *ctx)
+{
 	duk_push_string(ctx, " ");
 	duk_insert(ctx, 0);
 	duk_join(ctx, duk_get_top(ctx) - 1);
@@ -217,7 +218,8 @@ duk_ret_t native_print(duk_context *ctx) {
 	return 0;
 }
 
-duk_ret_t native_create_context(duk_context *ctx) {
+duk_ret_t native_create_context(duk_context *ctx)
+{
     int width{duk_get_int(ctx, 0)};
     int height{duk_get_int(ctx, 1)};
     // Add new sprite
@@ -225,6 +227,12 @@ duk_ret_t native_create_context(duk_context *ctx) {
     // Return existing number of sprites already in list
     duk_push_int(ctx, sprites.size() - 1);
     return 1;
+}
+
+duk_ret_t native_clear_contexts(duk_context */*ctx*/)
+{
+    sprites.clear();
+    return 0;
 }
 
 uint16_t webcolor(std::string hexcolor)
@@ -327,6 +335,8 @@ void retro_init(void)
 	duk_put_global_string(js_ctx, "print");
 	duk_push_c_function(js_ctx, native_create_context, 2);
 	duk_put_global_string(js_ctx, "native_create_context");
+	duk_push_c_function(js_ctx, native_clear_contexts, 0);
+	duk_put_global_string(js_ctx, "native_clear_contexts");
 	duk_push_c_function(js_ctx, native_fill_rect, 6);
 	duk_put_global_string(js_ctx, "native_fill_rect");
 
