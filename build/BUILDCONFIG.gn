@@ -6,3 +6,7 @@ if (target_cpu == "arm") {
 } else {
     set_default_toolchain("//build/toolchains:gcc")
 }
+
+declare_args() {
+    linaro = ""
+}

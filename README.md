@@ -41,6 +41,11 @@ To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross t
 Add in:
 
     target_cpu = "arm"
+    linaro = "~/linaro"
+
+Download and untar the linaro toolchain and sysroot into `~/linaro`:
+
+    https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
 Build with:
 
