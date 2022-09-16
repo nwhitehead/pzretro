@@ -1,4 +1,5 @@
-target_cpu = "arm"
+# Optional:
+# target_cpu = "arm"
 
 set_default_toolchain("//build/toolchains:clang")
 
