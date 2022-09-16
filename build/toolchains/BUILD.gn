@@ -64,7 +64,7 @@ toolchain("gcc") {
 }
 
 toolchain("arm") {
-  linaro = "/home/nwhitehead/linaro/"
+  linaro = "/home/nwhitehead/linaro/" # FIXME
   linaro_gcc = linaro + "gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/"
   linaro_bin = linaro_gcc + "bin/"
   sysroot = linaro + "sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf/"
