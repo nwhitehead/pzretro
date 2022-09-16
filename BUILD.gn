@@ -1,27 +1,10 @@
 
-cflags = ["-fPIC"]
+cflags = [ "-fPIC" ]
 cflags_cc = [ "-std=c++17" ]
 ldflags = [
-    "-nostdlib++",
     "-Wl,--no-allow-shlib-undefined",
     "-Wl,--version-script=" + rebase_path("export.map", root_build_dir)
 ]
-
-if (target_cpu == "arm") {
-    v8root = "/home/nwhitehead/v8/v8"
-    sysroot = v8root + "/build/linux/debian_bullseye_arm-sysroot"
-    armtarget = [ "--target=arm-linux-gnueabihf", "-march=armv7-a", "-mfloat-abi=hard", "-mfpu=neon" ]
-    cflags += armtarget + [
-        "-I" + v8root,
-        "-I" + v8root + "/buildtools/third_party/libc++",
-        "-I" + v8root + "/include",
-        "-nostdinc++",
-        "-isystem" + v8root + "/buildtools/third_party/libc++/trunk/include",
-        "-isystem" + v8root + "/buildtools/third_party/libc++abi/trunk/include",
-        "--sysroot=" + sysroot,
-    ]
-    ldflags += armtarget
-}
 
 shared_library("puzzlescript_libretro") {
     sources = [

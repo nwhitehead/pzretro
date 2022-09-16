@@ -14,29 +14,56 @@ https://github.com/Narkhos/Puzzlescript-Wrapper
 Docs for using V8:
 https://v8.dev/docs/embed
 
+Linaro toolchain:
+https://releases.linaro.org/components/toolchain/binaries/
+
+
 ## Building
 
 To compile, first install gn. https://gn.googlesource.com/gn/
 
 Build with:
 
-    gn gen out
-    ninja -C out
+    gn gen out/x64
+    ninja -C out/x64
 
-The output will be `out/puzzlescript_libretro.so` which can be copied to your RetroArch core folder. Mine is set to `~/.config/retroarch/cores/`.
+The output will be `out/x64/puzzlescript_libretro.so` which can be copied to your RetroArch core folder. Mine is set to `~/.config/retroarch/cores/`.
 
 To quickly test output, do:
 
-    ninja -C out && retroarch -L out/puzzlescript_libretro.so
+    ninja -C out/x86 && retroarch -L out/x64/puzzlescript_libretro.so
 
-To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross toolchain.
+To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross toolchain. Set args:
 
-    TODO
+    gn gen out/arm
+    gn args out/arm
 
-The output will be the same file, should be copied to the appropriate place for your installation of RetroArch. You will need to install cross-compile
-toolchain.
+Add in:
+
+    target_cpu = "arm"
+
+Build with:
+
+    ninja -C out/arm
+
+## Compatibility
+
+Using the Ubuntu 22.04 default ARM cross compiler has a glibc that is too new for the SEGA Genesis Mini. I got errors like:
+
+    [ERROR] Failed to open libretro core: "/opt/project_lunar/opt/retroarch/config/retroarch/cores/puzzlescript_libretro.so"
+    [ERROR] Error(s): /lib/libm.so.6: version `GLIBC_2.27' not found (required by /opt/project_lunar/opt/retroarch/config/retroarch/cores/puzzlescript_libretro.so)
+
+I switched to using Linaro 7.5, that works fine. I believe it has GLIBC 2.25.
+https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
 ## Building V8
+
+I did some experiments with building with V8. Main issue is that V8 does a hermetic build, if you try to use local
+tools and things you will usually encounter errors. So you have to use recent clang, and the sysroot from Debian Bullseye
+on ARM. In the end that means your app also needs to use those things, which is too new for the SEGA Genesis Mini system
+I have with Project Lunar.
+
+Some notes:
 
 Download V8 following instructions at: https://v8.dev/docs/build
 

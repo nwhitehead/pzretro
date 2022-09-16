@@ -1,4 +1,8 @@
 # Optional:
 # target_cpu = "arm"
 
-set_default_toolchain("//build/toolchains:clang")
+if (target_cpu == "arm") {
+    set_default_toolchain("//build/toolchains:arm")
+} else {
+    set_default_toolchain("//build/toolchains:gcc")
+}

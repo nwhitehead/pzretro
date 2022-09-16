@@ -1,7 +1,7 @@
-toolchain("clang") {
+toolchain("gcc") {
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "clang -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+    command = "gcc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CC {{output}}"
     outputs = [
@@ -10,7 +10,7 @@ toolchain("clang") {
   }
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    command = "g++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CXX {{output}}"
     outputs = [
@@ -32,7 +32,7 @@ toolchain("clang") {
     soname = "{{target_output_name}}{{output_extension}}"
     # e.g. "libfoo.so".
     rspfile = soname + ".rsp"
-    command = "clang++ -shared {{ldflags}} -o $soname -Wl,-soname=$soname @$rspfile"
+    command = "g++ -shared {{ldflags}} -o $soname -Wl,-soname=$soname @$rspfile"
     rspfile_content = "-Wl,--whole-archive {{inputs}} {{solibs}} -Wl,--no-whole-archive {{libs}}"
     description = "SOLINK $soname"
     default_output_extension = ".so"
@@ -46,7 +46,7 @@ toolchain("clang") {
   tool("link") {
     outfile = "{{target_output_name}}{{output_extension}}"
     rspfile = "$outfile.rsp"
-    command = "clang++ {{ldflags}} -o $outfile -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}}"
+    command = "g++ {{ldflags}} -o $outfile -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}}"
     description = "LINK $outfile"
     rspfile_content = "{{inputs}}"
     outputs = [
@@ -64,9 +64,13 @@ toolchain("clang") {
 }
 
 toolchain("arm") {
+  linaro = "/home/nwhitehead/linaro/"
+  linaro_gcc = linaro + "gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/"
+  linaro_bin = linaro_gcc + "bin/"
+  sysroot = linaro + "sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf/"
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "clang -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+    command = linaro_bin + "arm-linux-gnueabihf-gcc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} --sysroot " + sysroot + "-c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CC {{output}}"
     outputs = [
@@ -75,7 +79,7 @@ toolchain("arm") {
   }
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "clang++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    command = linaro_bin + "arm-linux-gnueabihf-g++ -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} --sysroot " + sysroot + " -c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CXX {{output}}"
     outputs = [
@@ -84,7 +88,7 @@ toolchain("arm") {
   }
   tool("alink") {
     rspfile = "{{output}}.rsp"
-    command = "rm -f {{output}} && ar rcs {{output}} @$rspfile"
+    command = "rm -f {{output}} && " + linaro_bin + "arm-linux-gnueabihf-ar rcs {{output}} @$rspfile"
     description = "AR {{target_output_name}}{{output_extension}}"
     rspfile_content = "{{inputs}}"
     outputs = [
@@ -97,7 +101,7 @@ toolchain("arm") {
     soname = "{{target_output_name}}{{output_extension}}"
     # e.g. "libfoo.so".
     rspfile = soname + ".rsp"
-    command = "clang++ -shared {{ldflags}} -o $soname -Wl,-soname=$soname @$rspfile"
+    command = linaro_bin + "arm-linux-gnueabihf-g++ -shared {{ldflags}} --sysroot " + sysroot + " -o $soname -Wl,-soname=$soname @$rspfile"
     rspfile_content = "-Wl,--whole-archive {{inputs}} {{solibs}} -Wl,--no-whole-archive {{libs}}"
     description = "SOLINK $soname"
     default_output_extension = ".so"
@@ -111,7 +115,7 @@ toolchain("arm") {
   tool("link") {
     outfile = "{{target_output_name}}{{output_extension}}"
     rspfile = "$outfile.rsp"
-    command = "clang++ {{ldflags}} -o $outfile -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}}"
+    command = linaro_bin + "arm-linux-gnueabihf-g++ {{ldflags}} -o $outfile -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}}"
     description = "LINK $outfile"
     rspfile_content = "{{inputs}}"
     outputs = [
