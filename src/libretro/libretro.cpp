@@ -29,8 +29,21 @@ static int sysfont_height;
 // JavaScript context
 static duk_context *js_ctx;
 
-// Sprints
-struct spriteInstance {
+// Audio
+constexpr int target_fps{30};
+constexpr int audio_framerate{44100};
+constexpr int audio_buffer_len{audio_framerate / target_fps * 2};
+int16_t audio_buffer[audio_buffer_len];
+
+// Graphics
+constexpr int graphics_width{640};
+constexpr int graphics_height{480};
+constexpr int graphics_framebuffer_len{graphics_width * graphics_height};
+// Format is fixed RGB 565
+uint16_t graphics_framebuffer[graphics_framebuffer_len];
+
+// Sprites
+struct SpriteInstance {
     int id;
     int x;
     int y;
@@ -38,16 +51,22 @@ struct spriteInstance {
 
 class Sprite {
 public:
-    uint8_t *data{nullptr};
+    int width{-1};
+    int height{-1};
+    uint16_t *data{nullptr};
 
-    Sprite(int width, int height) {
-        init(width, height);
+    Sprite(int width, int height) :
+        width(width),
+        height(height),
+        data(new uint16_t[width * height]()) {
     }
-    void init(int width, int height) {
-        data = new uint8_t[width * height * 4]();
-    }
+
     ~Sprite() {
         delete[] data;
+    }
+    void draw(int /*x*/, int /*y*/, int w, int h) {
+        assert(w == width);
+        assert(h == height);
     }
 };
 
@@ -163,33 +182,14 @@ void retro_set_input_state(retro_input_state_t cb)
     input_state_cb = cb;
 }
 
-constexpr int audio_buffer_len{44100/30*2};
-
-uint16_t framebuffer[640*480];
-
-uint8_t offset{0};
-int16_t audio_buffer[audio_buffer_len];
-
-int x{320};
-int y{240};
-int cursor_x{0};
-int cursor_y{0};
-
 void draw_letter(int x, int y, int letter)
 {
-    uint16_t *fb = &framebuffer[x + 640*y];
+    uint16_t *fb = &graphics_framebuffer[x + 640*y];
     uint16_t *rom = &sysfont_data[letter * 9];
     for (int r = 0; r < 9; r++) {
         for (int c = 0; c < 9; c++) {
             *(fb + r * 640 + c) = *(rom + r * 256 * 9 + c);
         }
-    }
-}
-
-void draw_text(int col, int row, std::string txt)
-{
-    for (size_t i = 0; i < txt.size(); i++) {
-        draw_letter(col * 9 + i * 9, row * 9, txt[i]);
     }
 }
 
@@ -199,7 +199,6 @@ static duk_ret_t native_print(duk_context *ctx) {
 	duk_join(ctx, duk_get_top(ctx) - 1);
     std::string msg{duk_safe_to_string(ctx, -1)};
 	std::cout << msg << std::endl;
-    draw_text(10, 21, msg);
 	return 0;
 }
 
@@ -265,7 +264,7 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 {
     int pixel_format = RETRO_PIXEL_FORMAT_RGB565;
 
-    memset(info, 0, sizeof(*info));
+    *info = retro_system_av_info{};
     info->timing.fps            = 30.0f;
     info->timing.sample_rate    = 44100;
     info->geometry.base_width   = 640;
@@ -282,6 +281,9 @@ void retro_reset(void)
 {
     // Do stuff
 }
+
+int x{graphics_width / 2};
+int y{graphics_height / 2};
 
 // Run a single frame
 void retro_run(void)
@@ -307,27 +309,23 @@ void retro_run(void)
     audio_batch_cb(audio_buffer, audio_buffer_len / 2);
 
     // Render video frame
-    for (int row = 0; row < 480; row++) {
-        for (int col = 0; col < 640; col++) {
+    for (int row = 0; row < graphics_height; row++) {
+        for (int col = 0; col < graphics_width; col++) {
             uint8_t r = col % 256;
             uint8_t g = row % 256;
-            uint8_t b = (row + col + offset) % 256;
-            framebuffer[row * 640 + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
+            uint8_t b = (row + col) % 256;
+            graphics_framebuffer[row * graphics_width + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
         }
     }
     for (int h = 0; h < 20; h++) {
         for (int w = 0; w < 20; w++) {
-            framebuffer[(h + y)* 640 + (w + x)] = 0x00000000;
+            graphics_framebuffer[(h + y)* graphics_width + (w + x)] = 0x00000000;
         }
     }
-    offset++;
-    offset = offset & 0xff;
 
-    // Draw text
-    draw_text(20, 10, "Hello, Zoe!");
 
     // Try print function
 	duk_eval_string(js_ctx, "print('Hello world!');");
 
-    video_cb(framebuffer, 640, 480, sizeof(uint16_t) * 640);
+    video_cb(graphics_framebuffer, graphics_width, graphics_height, sizeof(uint16_t) * graphics_width);
 }
