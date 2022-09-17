@@ -2,7 +2,6 @@
 cflags = [
     "-g",
     "-fPIC",
-    "-I" + rebase_path("src/duktape/duktape-2.7.0/src", root_build_dir),
     "-Wall",
     "-Wextra",
     "-Werror",
@@ -12,7 +11,7 @@ cflags_cc = [
 ]
 ldflags = [
     "-Wl,--no-allow-shlib-undefined",
-    "-Wl,--version-script=" + rebase_path("export.map", root_build_dir),
+    "-Wl,--version-script=" + rebase_path("src/export.map", root_build_dir),
 ]
 
 if (target_cpu == "arm") {
@@ -22,11 +21,11 @@ if (target_cpu == "arm") {
 }
 
 action("generate_internal_data") {
-    script = "src/bundle_files.py"
+    script = "tools/bundle_files.py"
     inputs = [
-        "sysfont.png",
-        "src/PuzzleScript/src/js/colors.js",
-        "src/PuzzleScript/src/js/compiler.js",
+        "data/sysfont.png",
+        "data/PuzzleScript/src/js/colors.js",
+        "data/PuzzleScript/src/js/compiler.js",
     ]
     args = [
         "--inpath", rebase_path(".", root_build_dir),
@@ -37,8 +36,13 @@ action("generate_internal_data") {
 
 shared_library("puzzlescript_libretro") {
     sources = [
-        "src/libretro/libretro.cpp",
+        "src/core.cpp",
         "src/duktape/duktape-2.7.0/src/duktape.c",
     ]
-    include_dirs = [ target_gen_dir ]
+    include_dirs = [
+        "src/duktape/duktape-2.7.0/src",
+        "src/libretro",
+        "src/stb",
+        target_gen_dir
+    ]
 }
