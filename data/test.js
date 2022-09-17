@@ -1,6 +1,7 @@
 print("Hello JS world");
 
 id = native_sprite_add(64, 64);
+native_sprite_add_instance(id, 100, 100);
 native_fill_rect(id, '#ff0000', 0, 0, 16, 64);
 native_fill_rect(id, '#00ff00', 16, 0, 16, 64);
 native_fill_rect(id, '#0000ff', 32, 0, 16, 64);

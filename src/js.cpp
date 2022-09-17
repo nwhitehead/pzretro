@@ -62,13 +62,34 @@ duk_ret_t native_sprite_add(duk_context *ctx)
 {
     int width{duk_get_int(ctx, 0)};
     int height{duk_get_int(ctx, 1)};
-    duk_push_int(ctx, sprite::add(width, height));
+    duk_push_int(ctx, sprite::add_sprite(width, height));
     return 1;
 }
 
 duk_ret_t native_sprite_clear(duk_context */*ctx*/)
 {
-    sprite::clear();
+    sprite::clear_sprites();
+    return 0;
+}
+
+duk_ret_t native_sprite_instances_clear(duk_context */*ctx*/)
+{
+    sprite::clear_instances();
+    return 0;
+}
+
+duk_ret_t native_sprite_add_instance(duk_context *ctx)
+{
+    int index{duk_get_int(ctx, 0)};
+    int width{duk_get_int(ctx, 1)};
+    int height{duk_get_int(ctx, 2)};
+    duk_push_int(ctx, sprite::add_instance(index, width, height));
+    return 1;
+}
+
+duk_ret_t native_sprite_draw_instances(duk_context */*ctx*/)
+{
+    sprite::draw_instances();
     return 0;
 }
 
@@ -101,10 +122,16 @@ Context::Context()
 	duk_put_global_string(ctx, "print");
 	duk_push_c_function(ctx, native_sprite_add, 2);
 	duk_put_global_string(ctx, "native_sprite_add");
+	duk_push_c_function(ctx, native_sprite_add_instance, 3);
+	duk_put_global_string(ctx, "native_sprite_add_instance");
 	duk_push_c_function(ctx, native_sprite_clear, 0);
 	duk_put_global_string(ctx, "native_sprite_clear");
+	duk_push_c_function(ctx, native_sprite_instances_clear, 0);
+	duk_put_global_string(ctx, "native_sprite_instances_clear");
 	duk_push_c_function(ctx, native_fill_rect, 6);
 	duk_put_global_string(ctx, "native_fill_rect");
+	duk_push_c_function(ctx, native_sprite_draw_instances, 0);
+	duk_put_global_string(ctx, "native_sprite_draw_instances");
     duk_push_c_function(ctx, native_sleep, 1);
     duk_put_global_string(ctx, "native_sleep");
 }

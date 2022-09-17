@@ -206,7 +206,8 @@ void retro_init()
 
 void retro_deinit()
 {
-    sprite::sprites.clear();
+    sprite::clear_instances();
+    sprite::clear_sprites();
     js_context.reset(nullptr);
 }
 
@@ -273,9 +274,7 @@ void retro_run()
     // Render video frame
     graphics::clear();
     graphics::fill(x, y, 20, 20, 0xf000);
-    for (auto &sprite : sprite::sprites) {
-        sprite.draw(0, 0, sprite.width, sprite.height);
-    }
+    sprite::draw_instances();
 
     {
         std::lock_guard<std::mutex> guard(graphics::mutex);
