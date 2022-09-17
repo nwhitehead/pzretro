@@ -15,8 +15,8 @@ class Context {
     std::mutex mutex;
     duk_context *ctx;
     std::thread js_thread; 
-public:
     std::atomic<bool> js_thread_active;
+public:
     Context();
     ~Context();
 

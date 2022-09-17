@@ -1,5 +1,6 @@
 #include "js.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -9,9 +10,9 @@
 
 namespace js {
 
-void fatal_handler(void */*udata*/, const char *msg)
+void fatal_handler(void *udata, const char *msg)
 {
-    std::cerr << "******* JS ERROR: " << msg << std::endl;
+    std::cerr << "******* JS ERROR: " << msg << "\nContext = 0x" << udata << std::endl;
     abort();
 }
 
@@ -81,16 +82,32 @@ duk_ret_t native_fill_rect(duk_context *ctx) {
     uint16_t color{webcolor(fill)};
     sprite::Sprite &sprite{sprite::get(id)};
     int pitch{sprite.width};
+    if (x < 0) {
+        x = 0;
+    }
+    if (x > sprite.width) {
+        x = sprite.width;
+    }
+    if (y < 0) {
+        y = 0;
+    }
+    if (y > sprite.height) {
+        y = sprite.height;
+    }
+    if (x + w > sprite.width) {
+        w = sprite.width - x;
+    }
+    if (y + h > sprite.height) {
+        h = sprite.height - y;
+    }
     for (int j = 0; j < h; j++) {
-        for (int i = 0; i < w; i++) {
-            sprite.data[x + i + pitch * j + pitch * y] = color;
-        }
+        std::fill(sprite.data.data() + x + pitch * j + pitch * y, sprite.data.data() + x + pitch * j + pitch * y + w, color);
     }
     return 0;
 }
 
 Context::Context()
-: ctx(duk_create_heap(nullptr, nullptr, nullptr, nullptr, fatal_handler))
+: ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
     // Register native functions
 	duk_push_c_function(ctx, native_print, DUK_VARARGS);
@@ -101,7 +118,6 @@ Context::Context()
 	duk_put_global_string(ctx, "native_sprite_clear");
 	duk_push_c_function(ctx, native_fill_rect, 6);
 	duk_put_global_string(ctx, "native_fill_rect");
-
 }
 
 Context::~Context()
@@ -114,6 +130,7 @@ Context::~Context()
 
 void Context::eval(std::string code)
 {
+    std::lock_guard<std::mutex> guard(mutex);
     duk_eval_string(ctx, code.c_str());
 }
 
@@ -133,7 +150,9 @@ void Context::logic_update()
 {
     using namespace std::chrono_literals;
 
+    eval("x = 0;");
     while(js_thread_active) {
+        eval("native_fill_rect(id, '#ffff00', x, 0, 16, 64); x++;");
         std::this_thread::sleep_for(100ms);
     }
 }

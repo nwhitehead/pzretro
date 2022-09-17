@@ -199,6 +199,7 @@ void retro_init()
     }
     // Setup duktape
     js_context = std::make_unique<js::Context>();
+    js_context->eval("print('hi');");
     js_context->eval("id = native_sprite_add(64, 64);");
     js_context->eval("native_fill_rect(id, '#ff0000', 0, 0, 16, 64);");
     js_context->eval("native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
