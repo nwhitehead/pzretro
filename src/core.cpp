@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <memory>
+#include <mutex>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -414,7 +415,10 @@ void retro_run()
     }
 
     // Render audio frame
-    audio_batch_cb(audio::buffer, audio::buffer_len / 2);
+    {
+        std::lock_guard<std::mutex> guard(audio::mutex);
+        audio_batch_cb(audio::buffer, audio::buffer_len / 2);
+    }
 
     // Render video frame
     graphics::clear();
@@ -426,5 +430,8 @@ void retro_run()
     // Try print function
 	duk_eval_string(js_ctx, "print('Hello world!', id);");
 
-    video_cb(graphics::framebuffer, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
+    {
+        std::lock_guard<std::mutex> guard(graphics::mutex);
+        video_cb(graphics::framebuffer, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
+    }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <mutex>
 
 namespace graphics {
 
@@ -12,6 +13,9 @@ constexpr int framebuffer_len{stride * height};
 
 // Format is always fixed RGB 565
 extern uint16_t framebuffer[];
+
+// Mutex for all graphics access to framebuffer
+extern std::mutex mutex;
 
 // Clear all framebuffer
 void clear();
