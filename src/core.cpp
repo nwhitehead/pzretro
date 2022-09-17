@@ -17,27 +17,26 @@ namespace bundled {
 #include "bundled.h"
 }
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "duktape.h"
 
 // Callbacks
-static retro_log_printf_t log_cb;
-static retro_video_refresh_t video_cb;
-static retro_input_poll_t input_poll_cb;
-static retro_input_state_t input_state_cb;
-static retro_environment_t environ_cb;
-static retro_audio_sample_t audio_cb;
-static retro_audio_sample_batch_t audio_batch_cb;
+retro_log_printf_t log_cb;
+retro_video_refresh_t video_cb;
+retro_input_poll_t input_poll_cb;
+retro_input_state_t input_state_cb;
+retro_environment_t environ_cb;
+retro_audio_sample_t audio_cb;
+retro_audio_sample_batch_t audio_batch_cb;
 
 // Font data
-static uint16_t *sysfont_data;
-static int sysfont_width;
-static int sysfont_height;
+uint16_t *sysfont_data;
+int sysfont_width;
+int sysfont_height;
 
 // JavaScript context
-static duk_context *js_ctx;
+duk_context *js_ctx;
 
 // Graphics
 constexpr int graphics_fps{30};
@@ -76,7 +75,6 @@ public:
     }
 
     void draw(int x, int y, int w, int h) {
-        std::cout << "width=" << width << " w=" << w << std::endl;
         assert(w == width);
         assert(h == height);
         for (int r = 0; r < h; r++) {
@@ -130,7 +128,6 @@ void retro_set_controller_port_device(unsigned /*port*/, unsigned /*device*/)
     // Empty
 }
 
-
 void *retro_get_memory_data(unsigned /*id*/)
 {
     return nullptr;
@@ -156,7 +153,6 @@ bool retro_unserialize(const void */*data*/, size_t /*size*/)
     return false;
 }
 
-// libretro global setters
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;

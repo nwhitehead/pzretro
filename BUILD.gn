@@ -37,6 +37,7 @@ action("generate_internal_data") {
 shared_library("puzzlescript_libretro") {
     sources = [
         "src/core.cpp",
+        "src/stb/stb_image.cpp",
         "src/duktape/duktape-2.7.0/src/duktape.c",
     ]
     include_dirs = [
