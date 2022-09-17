@@ -19,6 +19,8 @@
 
 #include "audio.h"
 #include "graphics.h"
+#include "js.h"
+#include "sprite.h"
 
 // Callbacks
 retro_log_printf_t log_cb;
@@ -35,43 +37,7 @@ int sysfont_width;
 int sysfont_height;
 
 // JavaScript context
-duk_context *js_ctx;
-
-// Sprites
-struct SpriteInstance {
-    int id;
-    int x;
-    int y;
-};
-
-class Sprite {
-public:
-    int width{-1};
-    int height{-1};
-    std::vector<uint16_t> data{};
-
-    Sprite(int width, int height) :
-        width(width),
-        height(height),
-        data(width * height) {
-    }
-
-    ~Sprite() {
-    }
-
-    void draw(int x, int y, int w, int h) {
-        assert(w == width);
-        assert(h == height);
-        for (int r = 0; r < h; r++) {
-            for (int c = 0; c < w; c++) {
-                *(graphics::framebuffer + y * graphics::stride + r * graphics::stride + x + c) = data[r * w + c];
-            }
-        }
-    }
-};
-
-// Sprite Lists
-std::vector<Sprite> sprites{};
+std::unique_ptr<js::Context> js_context;
 
 unsigned retro_api_version()
 {
@@ -194,89 +160,6 @@ void draw_letter(int x, int y, int letter)
     }
 }
 
-duk_ret_t native_print(duk_context *ctx)
-{
-	duk_push_string(ctx, " ");
-	duk_insert(ctx, 0);
-	duk_join(ctx, duk_get_top(ctx) - 1);
-    std::string msg{duk_safe_to_string(ctx, -1)};
-    // Do actual print operation
-	std::cout << msg << std::endl;
-	return 0;
-}
-
-duk_ret_t native_create_context(duk_context *ctx)
-{
-    int width{duk_get_int(ctx, 0)};
-    int height{duk_get_int(ctx, 1)};
-    // Add new sprite
-    sprites.emplace_back(width, height);
-    // Return existing number of sprites already in list
-    duk_push_int(ctx, sprites.size() - 1);
-    return 1;
-}
-
-duk_ret_t native_clear_contexts(duk_context */*ctx*/)
-{
-    sprites.clear();
-    return 0;
-}
-
-uint16_t webcolor(std::string hexcolor)
-{
-    std::string r;
-    std::string g;
-    std::string b;
-    uint16_t ri{0};
-    uint16_t gi{0};
-    uint16_t bi{0};
-    if (hexcolor.size() == 4) {
-        r = hexcolor.substr(1, 1) + hexcolor.substr(1, 1);
-        g = hexcolor.substr(2, 1) + hexcolor.substr(2, 1);
-        b = hexcolor.substr(3, 1) + hexcolor.substr(3, 1);
-    } else if (hexcolor.size() >= 7) {
-        r = hexcolor.substr(1, 2);
-        g = hexcolor.substr(3, 2);
-        b = hexcolor.substr(5, 2);
-    } else {
-        throw std::invalid_argument("Illegal color");
-    }
-    std::stringstream sr;
-    sr << std::hex << r;
-    sr >> ri;
-    std::stringstream sg;
-    sg << std::hex << g;
-    sg >> gi;
-    std::stringstream sb;
-    sb << std::hex << b;
-    sb >> bi;
-    return ((ri >> (8 - 5)) << (6 + 5)) | ((gi >> (8 - 6)) << 5) | (bi >> (8 - 5));
-}
-
-duk_ret_t native_fill_rect(duk_context *ctx) {
-    int contextid{duk_get_int(ctx, 0)};
-    std::string fill{duk_safe_to_string(ctx, 1)};
-    int x{duk_get_int(ctx, 2)};
-    int y{duk_get_int(ctx, 3)};
-    int w{duk_get_int(ctx, 4)};
-    int h{duk_get_int(ctx, 5)};
-    uint16_t color{webcolor(fill)};
-    Sprite &sprite{sprites[contextid]};
-    int pitch{sprite.width};
-    for (int j = 0; j < h; j++) {
-        for (int i = 0; i < w; i++) {
-            sprite.data[x + i + pitch * j + pitch * y] = color;
-        }
-    }
-    return 0;
-}
-
-void js_fatal_handler(void */*udata*/, const char *msg)
-{
-    std::cerr << "******* JS ERROR: " << msg << std::endl;
-    abort();
-}
-
 std::thread logic_thread; 
 
 uint8_t g_offset{0};
@@ -330,32 +213,19 @@ void retro_init()
         }
     }
     // Setup duktape
-	js_ctx = duk_create_heap(nullptr, nullptr, nullptr, nullptr, js_fatal_handler);
-
-    // Register print function
-	duk_push_c_function(js_ctx, native_print, DUK_VARARGS);
-	duk_put_global_string(js_ctx, "print");
-	duk_push_c_function(js_ctx, native_create_context, 2);
-	duk_put_global_string(js_ctx, "native_create_context");
-	duk_push_c_function(js_ctx, native_clear_contexts, 0);
-	duk_put_global_string(js_ctx, "native_clear_contexts");
-	duk_push_c_function(js_ctx, native_fill_rect, 6);
-	duk_put_global_string(js_ctx, "native_fill_rect");
-
-	duk_eval_string(js_ctx, "id = native_create_context(64, 64);");
-    duk_eval_string(js_ctx, "native_fill_rect(id, '#ff0000', 0, 0, 16, 64);");
-    duk_eval_string(js_ctx, "native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
-    duk_eval_string(js_ctx, "native_fill_rect(id, '#0000ff', 32, 0, 16, 64);");
+    js_context = std::make_unique<js::Context>();
+    js_context->eval("id = native_sprite_add(64, 64);");
+    js_context->eval("native_fill_rect(id, '#ff0000', 0, 0, 16, 64);");
+    js_context->eval("native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
+    js_context->eval("native_fill_rect(id, '#0000ff', 32, 0, 16, 64);");
 
     logic_thread = std::thread(logic_update);
 }
 
 void retro_deinit()
 {
-    std::cout << "retro_deinit" << std::endl;
-    sprites.clear();
-    std::cout << "retro_deinit calling duk_destroy_heap" << std::endl;
-	duk_destroy_heap(js_ctx);
+    sprite::sprites.clear();
+    js_context.reset(nullptr);
     logic_thread_active = false;
     logic_thread.join();
 }
@@ -423,12 +293,9 @@ void retro_run()
     // Render video frame
     graphics::clear();
     graphics::fill(x, y, 20, 20, 0xf000);
-    for (auto &sprite : sprites) {
+    for (auto &sprite : sprite::sprites) {
         sprite.draw(0, 0, sprite.width, sprite.height);
     }
-
-    // Try print function
-	duk_eval_string(js_ctx, "print('Hello world!', id);");
 
     {
         std::lock_guard<std::mutex> guard(graphics::mutex);
