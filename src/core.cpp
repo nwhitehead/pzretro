@@ -160,21 +160,6 @@ void draw_letter(int x, int y, int letter)
     }
 }
 
-std::thread logic_thread; 
-
-uint8_t g_offset{0};
-std::atomic<bool> logic_thread_active{true};
-
-void logic_update()
-{
-    using namespace std::chrono_literals;
-
-    while(logic_thread_active) {
-        g_offset++;
-        std::this_thread::sleep_for(100ms);
-    }
-}
-
 void retro_init()
 {
     /* set up some logging */
@@ -219,15 +204,13 @@ void retro_init()
     js_context->eval("native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
     js_context->eval("native_fill_rect(id, '#0000ff', 32, 0, 16, 64);");
 
-    logic_thread = std::thread(logic_update);
+    js_context->start_thread();
 }
 
 void retro_deinit()
 {
     sprite::sprites.clear();
     js_context.reset(nullptr);
-    logic_thread_active = false;
-    logic_thread.join();
 }
 
 void retro_get_system_info(struct retro_system_info *info)

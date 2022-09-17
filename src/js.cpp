@@ -1,5 +1,6 @@
 #include "js.h"
 
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -105,12 +106,36 @@ Context::Context()
 
 Context::~Context()
 {
+    if (js_thread_active) {
+        stop_thread();
+    }
     duk_destroy_heap(ctx);
 }
 
 void Context::eval(std::string code)
 {
     duk_eval_string(ctx, code.c_str());
+}
+
+void Context::start_thread()
+{
+    js_thread_active = true;
+    js_thread = std::thread(&Context::logic_update, this);
+}
+
+void Context::stop_thread()
+{
+    js_thread_active = false;
+    js_thread.join();
+}
+
+void Context::logic_update()
+{
+    using namespace std::chrono_literals;
+
+    while(js_thread_active) {
+        std::this_thread::sleep_for(100ms);
+    }
 }
 
 } // namespace js
