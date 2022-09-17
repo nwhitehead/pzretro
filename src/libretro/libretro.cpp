@@ -1,11 +1,14 @@
 
+#include <atomic>
 #include <cassert>
+#include <chrono>
 #include <cstring>
 #include <cstdlib>
 #include <memory>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 
 #include "libretro.h"
@@ -87,12 +90,12 @@ public:
 // Sprite Lists
 std::vector<Sprite> sprites{};
 
-unsigned retro_api_version(void)
+unsigned retro_api_version()
 {
     return RETRO_API_VERSION;
 }
 
-void retro_cheat_reset(void) 
+void retro_cheat_reset() 
 {
     // Empty
 }
@@ -112,12 +115,12 @@ bool retro_load_game_special(unsigned /*game_type*/, const struct retro_game_inf
     return false;
 }
 
-void retro_unload_game(void)
+void retro_unload_game()
 {
     // Empty
 }
 
-unsigned retro_get_region(void)
+unsigned retro_get_region()
 {
     return RETRO_REGION_NTSC;
 }
@@ -138,7 +141,7 @@ size_t retro_get_memory_size(unsigned /*id*/)
     return 0;
 }
 
-size_t retro_serialize_size(void)
+size_t retro_serialize_size()
 {
     return 0;
 }
@@ -293,7 +296,22 @@ void js_fatal_handler(void */*udata*/, const char *msg)
     abort();
 }
 
-void retro_init(void)
+std::thread logic_thread; 
+
+uint8_t g_offset{0};
+std::atomic<bool> logic_thread_active{true};
+
+void logic_update()
+{
+    using namespace std::chrono_literals;
+
+    while(logic_thread_active) {
+        g_offset++;
+        std::this_thread::sleep_for(100ms);
+    }
+}
+
+void retro_init()
 {
     /* set up some logging */
     struct retro_log_callback log;
@@ -347,14 +365,18 @@ void retro_init(void)
     duk_eval_string(js_ctx, "native_fill_rect(id, '#ff0000', 0, 0, 16, 64);");
     duk_eval_string(js_ctx, "native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
     duk_eval_string(js_ctx, "native_fill_rect(id, '#0000ff', 32, 0, 16, 64);");
+
+    logic_thread = std::thread(logic_update);
 }
 
-void retro_deinit(void)
+void retro_deinit()
 {
     std::cout << "retro_deinit" << std::endl;
     sprites.clear();
     std::cout << "retro_deinit calling duk_destroy_heap" << std::endl;
 	duk_destroy_heap(js_ctx);
+    logic_thread_active = false;
+    logic_thread.join();
 }
 
 void retro_get_system_info(struct retro_system_info *info)
@@ -383,7 +405,7 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
 }
 
-void retro_reset(void)
+void retro_reset()
 {
     // Do stuff
 }
@@ -392,7 +414,7 @@ int x{graphics_width / 2};
 int y{graphics_height / 2};
 
 // Run a single frame
-void retro_run(void)
+void retro_run()
 {
     // Run one frame
 
@@ -419,7 +441,7 @@ void retro_run(void)
         for (int col = 0; col < graphics_width; col++) {
             uint8_t r = col % 256;
             uint8_t g = row % 256;
-            uint8_t b = (row + col) % 256;
+            uint8_t b = (row + col + g_offset) % 256;
             graphics_framebuffer[row * graphics_stride + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
         }
     }
