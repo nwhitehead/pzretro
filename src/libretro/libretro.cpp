@@ -33,19 +33,19 @@ static int sysfont_height;
 // JavaScript context
 static duk_context *js_ctx;
 
-// Audio
-constexpr int target_fps{30};
-constexpr int audio_framerate{44100};
-constexpr int audio_buffer_len{audio_framerate / target_fps * 2};
-int16_t audio_buffer[audio_buffer_len];
-
 // Graphics
+constexpr int graphics_fps{30};
 constexpr int graphics_width{640};
 constexpr int graphics_height{480};
 constexpr int graphics_stride{graphics_width};
 constexpr int graphics_framebuffer_len{graphics_stride * graphics_height};
 // Format is fixed RGB 565
 uint16_t graphics_framebuffer[graphics_framebuffer_len];
+
+// Audio
+constexpr int audio_framerate{44100};
+constexpr int audio_buffer_len{audio_framerate / graphics_fps * 2};
+int16_t audio_buffer[audio_buffer_len];
 
 // Sprites
 struct SpriteInstance {
@@ -198,11 +198,11 @@ void retro_set_input_state(retro_input_state_t cb)
 
 void draw_letter(int x, int y, int letter)
 {
-    uint16_t *fb = &graphics_framebuffer[x + 640*y];
+    uint16_t *fb = &graphics_framebuffer[x + graphics_stride*y];
     uint16_t *rom = &sysfont_data[letter * 9];
     for (int r = 0; r < 9; r++) {
         for (int c = 0; c < 9; c++) {
-            *(fb + r * 640 + c) = *(rom + r * 256 * 9 + c);
+            *(fb + r * graphics_stride + c) = *(rom + r * 256 * 9 + c);
         }
     }
 }
@@ -368,12 +368,12 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     int pixel_format = RETRO_PIXEL_FORMAT_RGB565;
 
     *info = retro_system_av_info{};
-    info->timing.fps            = 30.0f;
-    info->timing.sample_rate    = 44100;
-    info->geometry.base_width   = 640;
-    info->geometry.base_height  = 480;
-    info->geometry.max_width    = 640;
-    info->geometry.max_height   = 480;
+    info->timing.fps            = graphics_fps;
+    info->timing.sample_rate    = audio_framerate;
+    info->geometry.base_width   = graphics_width;
+    info->geometry.base_height  = graphics_height;
+    info->geometry.max_width    = graphics_width;
+    info->geometry.max_height   = graphics_height;
     // Don't request any specific aspect ratio
 
     // the performance level is guide to frontend to give an idea of how intensive this core is to run
