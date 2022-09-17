@@ -12,14 +12,12 @@
 #include <vector>
 
 #include "libretro.h"
-
-namespace bundled {
-#include "bundled.h"
-}
-
+#include "namespaced_bundled.h"
 #include "stb_image.h"
-
 #include "duktape.h"
+
+#include "audio.h"
+#include "graphics.h"
 
 // Callbacks
 retro_log_printf_t log_cb;
@@ -37,20 +35,6 @@ int sysfont_height;
 
 // JavaScript context
 duk_context *js_ctx;
-
-// Graphics
-constexpr int graphics_fps{30};
-constexpr int graphics_width{640};
-constexpr int graphics_height{480};
-constexpr int graphics_stride{graphics_width};
-constexpr int graphics_framebuffer_len{graphics_stride * graphics_height};
-// Format is fixed RGB 565
-uint16_t graphics_framebuffer[graphics_framebuffer_len];
-
-// Audio
-constexpr int audio_framerate{44100};
-constexpr int audio_buffer_len{audio_framerate / graphics_fps * 2};
-int16_t audio_buffer[audio_buffer_len];
 
 // Sprites
 struct SpriteInstance {
@@ -79,7 +63,7 @@ public:
         assert(h == height);
         for (int r = 0; r < h; r++) {
             for (int c = 0; c < w; c++) {
-                *(graphics_framebuffer + y * graphics_stride + r * graphics_stride + x + c) = data[r * w + c];
+                *(graphics::framebuffer + y * graphics::stride + r * graphics::stride + x + c) = data[r * w + c];
             }
         }
     }
@@ -200,11 +184,11 @@ void retro_set_input_state(retro_input_state_t cb)
 
 void draw_letter(int x, int y, int letter)
 {
-    uint16_t *fb = &graphics_framebuffer[x + graphics_stride*y];
+    uint16_t *fb = &graphics::framebuffer[x + graphics::stride * y];
     uint16_t *rom = &sysfont_data[letter * 9];
     for (int r = 0; r < 9; r++) {
         for (int c = 0; c < 9; c++) {
-            *(fb + r * graphics_stride + c) = *(rom + r * 256 * 9 + c);
+            *(fb + r * graphics::stride + c) = *(rom + r * 256 * 9 + c);
         }
     }
 }
@@ -389,12 +373,12 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
     int pixel_format = RETRO_PIXEL_FORMAT_RGB565;
 
     *info = retro_system_av_info{};
-    info->timing.fps            = graphics_fps;
-    info->timing.sample_rate    = audio_framerate;
-    info->geometry.base_width   = graphics_width;
-    info->geometry.base_height  = graphics_height;
-    info->geometry.max_width    = graphics_width;
-    info->geometry.max_height   = graphics_height;
+    info->timing.fps            = graphics::fps;
+    info->timing.sample_rate    = audio::framerate;
+    info->geometry.base_width   = graphics::width;
+    info->geometry.base_height  = graphics::height;
+    info->geometry.max_width    = graphics::width;
+    info->geometry.max_height   = graphics::height;
     // Don't request any specific aspect ratio
 
     // the performance level is guide to frontend to give an idea of how intensive this core is to run
@@ -406,8 +390,8 @@ void retro_reset()
     // Do stuff
 }
 
-int x{graphics_width / 2};
-int y{graphics_height / 2};
+int x{graphics::width / 2};
+int y{graphics::height / 2};
 
 // Run a single frame
 void retro_run()
@@ -430,22 +414,11 @@ void retro_run()
     }
 
     // Render audio frame
-    audio_batch_cb(audio_buffer, audio_buffer_len / 2);
+    audio_batch_cb(audio::buffer, audio::buffer_len / 2);
 
     // Render video frame
-    for (int row = 0; row < graphics_height; row++) {
-        for (int col = 0; col < graphics_width; col++) {
-            uint8_t r = col % 256;
-            uint8_t g = row % 256;
-            uint8_t b = (row + col + g_offset) % 256;
-            graphics_framebuffer[row * graphics_stride + col] = ((r >> 3) << (5 + 6)) | ((g >> 2) << 5) | (b >> 3);
-        }
-    }
-    for (int h = 0; h < 20; h++) {
-        for (int w = 0; w < 20; w++) {
-            graphics_framebuffer[(h + y)* graphics_stride + (w + x)] = 0x00000000;
-        }
-    }
+    graphics::clear();
+    graphics::fill(x, y, 20, 20, 0xf000);
     for (auto &sprite : sprites) {
         sprite.draw(0, 0, sprite.width, sprite.height);
     }
@@ -453,5 +426,5 @@ void retro_run()
     // Try print function
 	duk_eval_string(js_ctx, "print('Hello world!', id);");
 
-    video_cb(graphics_framebuffer, graphics_width, graphics_height, sizeof(uint16_t) * graphics_stride);
+    video_cb(graphics::framebuffer, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
 }
