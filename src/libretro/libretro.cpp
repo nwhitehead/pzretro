@@ -9,7 +9,10 @@
 #include <vector>
 
 #include "libretro.h"
-#include "../sysfont.h"
+
+namespace bundled {
+#include "bundled.h"
+}
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"
@@ -305,7 +308,7 @@ void retro_init(void)
     environ_cb(RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL, &level);
 
     int channels{0};
-    stbi_uc *data = stbi_load_from_memory(sysfont_png, sysfont_png_len, &sysfont_width, &sysfont_height, &channels, 0);
+    stbi_uc *data = stbi_load_from_memory(bundled::sysfont_png, bundled::sysfont_png_len, &sysfont_width, &sysfont_height, &channels, 0);
     sysfont_data = new uint16_t[256 * 9 * sysfont_height]();
 
     std::cout << "sysfont is " << sysfont_width << " x " << sysfont_height << std::endl;

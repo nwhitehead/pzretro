@@ -21,9 +21,24 @@ if (target_cpu == "arm") {
     ]
 }
 
+action("generate_internal_data") {
+    script = "src/bundle_files.py"
+    inputs = [
+        "sysfont.png",
+        "src/PuzzleScript/src/js/colors.js",
+        "src/PuzzleScript/src/js/compiler.js",
+    ]
+    args = [
+        "--inpath", rebase_path(".", root_build_dir),
+        "--out", rebase_path(target_gen_dir + "/bundled.h", root_build_dir),
+    ] + inputs
+    outputs = [ "$target_gen_dir/bundled.h" ]
+}
+
 shared_library("puzzlescript_libretro") {
     sources = [
         "src/libretro/libretro.cpp",
         "src/duktape/duktape-2.7.0/src/duktape.c",
     ]
+    include_dirs = [ target_gen_dir ]
 }
