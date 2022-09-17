@@ -49,7 +49,7 @@ void clear();
 // Add a sprite, returns index of added sprite in list
 int add(int width, int height);
 
-// Get specific sprite at index
-Sprite &get(int index);
+// Fill in rect on sprite
+void fill_rect(int index, int x, int y, int w, int h, uint16_t color);
 
 } // namespace sprite

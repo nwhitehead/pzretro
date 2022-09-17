@@ -8,6 +8,7 @@
 #include <mutex>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <stdexcept>
 #include <thread>
 #include <vector>
@@ -199,13 +200,8 @@ void retro_init()
     }
     // Setup duktape
     js_context = std::make_unique<js::Context>();
-    js_context->eval("print('hi');");
-    js_context->eval("id = native_sprite_add(64, 64);");
-    js_context->eval("native_fill_rect(id, '#ff0000', 0, 0, 16, 64);");
-    js_context->eval("native_fill_rect(id, '#00ff00', 16, 0, 16, 64);");
-    js_context->eval("native_fill_rect(id, '#0000ff', 32, 0, 16, 64);");
-
-    js_context->start_thread();
+    js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len));
+    js_context->start_thread("main();");
 }
 
 void retro_deinit()

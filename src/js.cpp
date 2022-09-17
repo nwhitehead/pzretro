@@ -72,7 +72,8 @@ duk_ret_t native_sprite_clear(duk_context */*ctx*/)
     return 0;
 }
 
-duk_ret_t native_fill_rect(duk_context *ctx) {
+duk_ret_t native_fill_rect(duk_context *ctx)
+{
     int id{duk_get_int(ctx, 0)};
     std::string fill{duk_safe_to_string(ctx, 1)};
     int x{duk_get_int(ctx, 2)};
@@ -80,29 +81,15 @@ duk_ret_t native_fill_rect(duk_context *ctx) {
     int w{duk_get_int(ctx, 4)};
     int h{duk_get_int(ctx, 5)};
     uint16_t color{webcolor(fill)};
-    sprite::Sprite &sprite{sprite::get(id)};
-    int pitch{sprite.width};
-    if (x < 0) {
-        x = 0;
-    }
-    if (x > sprite.width) {
-        x = sprite.width;
-    }
-    if (y < 0) {
-        y = 0;
-    }
-    if (y > sprite.height) {
-        y = sprite.height;
-    }
-    if (x + w > sprite.width) {
-        w = sprite.width - x;
-    }
-    if (y + h > sprite.height) {
-        h = sprite.height - y;
-    }
-    for (int j = 0; j < h; j++) {
-        std::fill(sprite.data.data() + x + pitch * j + pitch * y, sprite.data.data() + x + pitch * j + pitch * y + w, color);
-    }
+    sprite::fill_rect(id, x, y, w, h, color);
+    return 0;
+}
+
+duk_ret_t native_sleep(duk_context *ctx)
+{
+    using namespace std::chrono_literals;
+    double delay_s{duk_get_number(ctx, 0)};
+    std::this_thread::sleep_for(1s * delay_s);
     return 0;
 }
 
@@ -118,6 +105,8 @@ Context::Context()
 	duk_put_global_string(ctx, "native_sprite_clear");
 	duk_push_c_function(ctx, native_fill_rect, 6);
 	duk_put_global_string(ctx, "native_fill_rect");
+    duk_push_c_function(ctx, native_sleep, 1);
+    duk_put_global_string(ctx, "native_sleep");
 }
 
 Context::~Context()
@@ -134,10 +123,11 @@ void Context::eval(std::string code)
     duk_eval_string(ctx, code.c_str());
 }
 
-void Context::start_thread()
+void Context::start_thread(std::string code)
 {
+    thread_code = code;
     js_thread_active = true;
-    js_thread = std::thread(&Context::logic_update, this);
+    js_thread = std::thread(&Context::thread_loop, this);
 }
 
 void Context::stop_thread()
@@ -146,14 +136,10 @@ void Context::stop_thread()
     js_thread.join();
 }
 
-void Context::logic_update()
+void Context::thread_loop()
 {
-    using namespace std::chrono_literals;
-
-    eval("x = 0;");
     while(js_thread_active) {
-        eval("native_fill_rect(id, '#ffff00', x, 0, 16, 64); x++;");
-        std::this_thread::sleep_for(100ms);
+        eval(thread_code);
     }
 }
 
