@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "graphics.h"
 #include "pztime.h"
 #include "sprite.h"
 
@@ -121,6 +122,18 @@ duk_ret_t native_elapsed(duk_context *ctx)
     return 1;
 }
 
+duk_ret_t native_get_width(duk_context *ctx)
+{
+    duk_push_int(ctx, graphics::width);
+    return 1;
+}
+
+duk_ret_t native_get_height(duk_context *ctx)
+{
+    duk_push_int(ctx, graphics::height);
+    return 1;
+}
+
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
@@ -143,6 +156,10 @@ Context::Context()
     duk_put_global_string(ctx, "native_sleep");
     duk_push_c_function(ctx, native_elapsed, 0);
     duk_put_global_string(ctx, "native_elapsed");
+    duk_push_c_function(ctx, native_get_width, 0);
+    duk_put_global_string(ctx, "native_get_width");
+    duk_push_c_function(ctx, native_get_height, 0);
+    duk_put_global_string(ctx, "native_get_height");
 }
 
 Context::~Context()

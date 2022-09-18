@@ -1,4 +1,5 @@
 print("Hello JS world");
+print("Size is " + native_get_width() + " x " + native_get_height());
 var rng = new RNG(123);
 for (var i = 0; i < 10; i++) {
     print(rng.random(0, 10));
