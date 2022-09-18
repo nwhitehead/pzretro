@@ -222,6 +222,9 @@ void retro_init()
         bundled::data_PuzzleScript_src_es5_sfxr_js,
         bundled::data_PuzzleScript_src_es5_sfxr_js + bundled::data_PuzzleScript_src_es5_sfxr_js_len), "sfxr.js");
     js_context->eval(std::string(
+        bundled::data_postsetup_js,
+        bundled::data_postsetup_js + bundled::data_postsetup_js_len), "postsetup.js");
+    js_context->eval(std::string(
         bundled::data_PuzzleScript_src_es5_rng_js,
         bundled::data_PuzzleScript_src_es5_rng_js + bundled::data_PuzzleScript_src_es5_rng_js_len), "rng.js");
     js_context->eval(std::string(

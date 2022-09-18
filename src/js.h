@@ -16,8 +16,8 @@ class Context {
     duk_context *ctx;
     std::thread js_thread; 
     std::atomic<bool> js_thread_active;
-    std::string thread_code;
-    std::string thread_filename;
+    std::string thread_code{};
+    std::string thread_filename{};
     void thread_loop();
 public:
     Context();
@@ -31,6 +31,9 @@ public:
 
     // Stop thread from calling it's code
     void stop_thread();
+
+    // Used by fatal error handler
+    void backtrace();
 };
 
 } // namespace js

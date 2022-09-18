@@ -14,7 +14,11 @@ namespace js {
 
 void fatal_handler(void *udata, const char *msg)
 {
+    Context *that(reinterpret_cast<Context *>(udata));
     std::cerr << "******* JS ERROR: " << msg << "\nContext = 0x" << udata << std::endl;
+    std::cerr << "Backtrace:" << std::endl;
+    that->backtrace();
+    std::cerr << "ABORTING" << std::endl;
     abort();
 }
 
@@ -137,6 +141,7 @@ duk_ret_t native_get_height(duk_context *ctx)
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
+    std::cout << "Created Context at " << (void*)this << std::endl;
     // Register native functions
 	duk_push_c_function(ctx, native_print, DUK_VARARGS);
 	duk_put_global_string(ctx, "print");
@@ -164,16 +169,37 @@ Context::Context()
 
 Context::~Context()
 {
+    std::cout << "Destruct Context at " << (void*)this << std::endl;
     if (js_thread_active) {
         stop_thread();
     }
     duk_destroy_heap(ctx);
 }
 
-void Context::eval(std::string code, std::string /*filename*/)
+void Context::eval(std::string code, std::string filename)
 {
     std::lock_guard<std::mutex> guard(mutex);
-    duk_eval_string(ctx, code.c_str());
+    duk_push_string(ctx, code.c_str());
+    duk_push_string(ctx, filename.c_str());
+    duk_compile(ctx, 0);
+    if (DUK_EXEC_ERROR == duk_pcall(ctx, 0)) {
+        std::cerr << "There was an error" << std::endl;
+        if (duk_is_error(ctx, -1)) {
+            // See if there's a stack trace. That includes the actual error message so we can use
+            // that as exception message. Otherwise just get what is on stack top.
+            std::string error;
+            if (duk_has_prop_string(ctx, -1, "stack")) {
+            duk_get_prop_string(ctx, -1, "stack"); // Puts stack trace on the stack.
+                error = duk_require_string(ctx, -1);
+            } else {
+                error = duk_safe_to_string(ctx, -1);
+            }
+            duk_pop(ctx); // Remove error from stack.
+
+            throw std::runtime_error(error);
+        }
+    }
+    duk_pop(ctx); // remove result value
 }
 
 void Context::start_thread(std::string code, std::string filename)
@@ -194,6 +220,39 @@ void Context::thread_loop()
 {
     while(js_thread_active) {
         eval(thread_code, thread_filename);
+    }
+}
+
+void Context::backtrace()
+{
+    int level{-1};
+    std::string functionName;
+    // std::string fileName;
+    int line;
+    int pc;
+
+    while (true)
+    {
+        duk_inspect_callstack_entry(ctx, level);
+        if (duk_is_undefined(ctx, -1))
+        {
+            duk_pop(ctx);
+            break;
+        }
+
+        duk_get_prop_string(ctx, -1, "function");
+        functionName = duk_to_string(ctx, -1);
+
+        duk_get_prop_string(ctx, -2, "lineNumber");
+        line = duk_to_int(ctx, -2);
+
+        duk_get_prop_string(ctx, -3, "pc");
+        pc = duk_to_int(ctx, -1);
+
+        // duk_pop(ctx);
+        std::cerr << "Trace " << level << " functionName=" << functionName << " line=" << line << " pc=" << pc << std::endl;
+        // std::cerr << "Trace " << pc << " " <<  << " " fnName);
+        level--;
     }
 }
 

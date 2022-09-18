@@ -13,10 +13,10 @@ var console = {};
 console.log = function(t){
 	print(t);
 };
-var window={};
+var window = {};
 var setInterval = window.setInterval = function (updateFunc, deltaTime) {}
-window.addEventListener = function(type, listener, useCapture){};
-window.setInterval = setInterval;
+window.addEventListener = function(type, listener, useCapture) {};
+var setTimeout = window.setTimeout = function (updateFunc, deltaTime) {}
 window.console = console;
 var localStorage = {};
 localStorage.removeItem = function (item) {
@@ -36,8 +36,7 @@ localStorage.serialize = function(){
 			data += 'localStorage.' + key + '=' + this[key] + ';\n';
 		}
 	}
-
-   return data;
+    return data;
 }
 window.localStorage = localStorage;
 
@@ -225,5 +224,3 @@ hideFirstChars: function(n, inner) {
     finally { this.lineStart -= n; }
 }
 };
-
-// SFXR
