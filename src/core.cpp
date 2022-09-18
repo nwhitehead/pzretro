@@ -200,6 +200,9 @@ void retro_init()
     }
     // Setup duktape
     js_context = std::make_unique<js::Context>();
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_js_rng_js,
+        bundled::data_PuzzleScript_src_js_rng_js + bundled::data_PuzzleScript_src_js_rng_js_len));
     js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len));
     js_context->start_thread("main();");
 }

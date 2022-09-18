@@ -1,4 +1,8 @@
 print("Hello JS world");
+var rng = new RNG(123);
+for (var i = 0; i < 10; i++) {
+    print(rng.random(0, 10));
+}
 
 id = native_sprite_add(64, 64);
 native_sprite_add_instance(id, 100, 100);
@@ -11,5 +15,5 @@ main = function() {
     native_fill_rect(id, '#888', 0, 0, 64, 64);
     native_fill_rect(id, '#ffff00', x, 0, 16, 64);
     x++;
-    native_sleep(0.001);
+    native_sleep(0.1);
 }

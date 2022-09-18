@@ -27,6 +27,7 @@ action("generate_internal_data") {
         "data/sysfont.png",
         "data/PuzzleScript/src/js/colors.js",
         "data/PuzzleScript/src/js/compiler.js",
+        "data/PuzzleScript/src/js/rng.js",
     ]
     args = [
         "--inpath", rebase_path(".", root_build_dir),
