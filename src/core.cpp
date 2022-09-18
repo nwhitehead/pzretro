@@ -302,7 +302,10 @@ void retro_reset()
 }
 
 std::map<int, char> joypad_keys = {
-    { RETRO_DEVICE_ID_JOYPAD_A, 13 },
+    { RETRO_DEVICE_ID_JOYPAD_A, 13 }, // Enter (action)
+    { RETRO_DEVICE_ID_JOYPAD_L, 27 }, // Escape
+    { RETRO_DEVICE_ID_JOYPAD_B, 85 }, // Z (undo)
+    { RETRO_DEVICE_ID_JOYPAD_START, 82 }, // R (restart)
     { RETRO_DEVICE_ID_JOYPAD_LEFT, 37 },
     { RETRO_DEVICE_ID_JOYPAD_UP, 38 },
     { RETRO_DEVICE_ID_JOYPAD_RIGHT, 39 },
@@ -338,8 +341,6 @@ void retro_run()
     // Render video frame
     graphics::clear();
     sprite::draw_instances();
-
-    //std::cout << "SPRITES " << sprite::sprites_size() << " with " << sprite::instances_size() << " instances" << std::endl;
 
     {
         std::lock_guard<std::mutex> guard(graphics::mutex);
