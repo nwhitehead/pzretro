@@ -28,7 +28,17 @@ action("generate_internal_data") {
         "data/test.js",
         "data/PuzzleScript/src/js/colors.js",
         "data/PuzzleScript/src/js/compiler.js",
+        "data/PuzzleScript/src/js/debug_off.js",
+        "data/PuzzleScript/src/js/engine.js",
+        "data/PuzzleScript/src/js/font.js",
+        "data/PuzzleScript/src/js/globalVariables.js",
+        "data/PuzzleScript/src/js/graphics.js",
+        "data/PuzzleScript/src/js/inputoutput.js",
+        "data/PuzzleScript/src/js/parser.js",
+        "data/PuzzleScript/src/js/riffwave.js",
         "data/PuzzleScript/src/js/rng.js",
+        "data/PuzzleScript/src/js/sfxr.js",
+        "data/PuzzleScript/src/js/storagewrapper.js",
     ]
     args = [
         "--inpath", rebase_path(".", root_build_dir),

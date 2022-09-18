@@ -204,6 +204,18 @@ void retro_init()
         bundled::data_setup_js,
         bundled::data_setup_js + bundled::data_setup_js_len));
     js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_js_storagewrapper_js,
+        bundled::data_PuzzleScript_src_js_storagewrapper_js + bundled::data_PuzzleScript_src_js_storagewrapper_js_len));
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_js_globalVariables_js,
+        bundled::data_PuzzleScript_src_js_globalVariables_js + bundled::data_PuzzleScript_src_js_globalVariables_js_len));
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_js_debug_off_js,
+        bundled::data_PuzzleScript_src_js_debug_off_js + bundled::data_PuzzleScript_src_js_debug_off_js_len));
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_js_font_js,
+        bundled::data_PuzzleScript_src_js_font_js + bundled::data_PuzzleScript_src_js_font_js_len));
+    js_context->eval(std::string(
         bundled::data_PuzzleScript_src_js_rng_js,
         bundled::data_PuzzleScript_src_js_rng_js + bundled::data_PuzzleScript_src_js_rng_js_len));
     js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len));

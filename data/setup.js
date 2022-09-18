@@ -1,3 +1,13 @@
+// navigator
+Object.setAttribute = function() {}
+var navigator = {}
+navigator.userAgent={}
+navigator.userAgent.match = function(version) {
+	return 'version number';
+}
+navigator.vendor={};
+navigator.platform={};
+
 // window
 var console = {};
 console.log = function(t){
