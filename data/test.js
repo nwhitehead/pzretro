@@ -1,5 +1,9 @@
 print("Hello JS world");
 print("Screen size is " + native_get_width() + " x " + native_get_height());
+
+var evt = native_get_event();
+print('evt is ' + JSON.stringify(evt));
+
 var rng = new RNG(123);
 for (var i = 0; i < 5; i++) {
     print(rng.random(0, 10));
@@ -8,7 +12,6 @@ var sourceCode = "title orthogonal rule test\n\n========\nOBJECTS\n========\n\nB
 
 compile(["restart"], sourceCode);
 
-onKeyDown({keyCode: 13});
 
 print("Game title is '" + state.metadata.title + "'");
 print(JSON.stringify(state));
@@ -17,16 +20,15 @@ print("deltatime is " + deltatime);
 localStorage.setItem('level', '0');
 print("State serialization is " + localStorage.serialize());
 
-id = native_sprite_add(64, 64);
-native_sprite_add_instance(id, 100, 100);
-native_fill_rect(id, '#ff0000', 0, 0, 16, 64);
-native_fill_rect(id, '#00ff00', 16, 0, 16, 64);
-native_fill_rect(id, '#0000ff', 32, 0, 16, 64);
-x = 0;
 main = function() {
-    print("Elapsed time is " + native_elapsed())
-    native_fill_rect(id, '#888', 0, 0, 64, 64);
-    native_fill_rect(id, '#ffff00', x, 0, 16, 64);
-    x++;
+    var evt = native_get_event();
+    if (evt.key !== 0) {
+        print("Event " + JSON.stringify(evt));
+        if (evt.isPress) {
+            onKeyDown({keyCode: evt.key});
+        } else {
+            onKeyUp({keyCode: evt.key});
+        }
+    }
     native_sleep(0.1);
 }

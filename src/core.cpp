@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <iostream>
@@ -18,6 +19,7 @@
 #include "duktape.h"
 
 #include "audio.h"
+#include "event.h"
 #include "graphics.h"
 #include "js.h"
 #include "pztime.h"
@@ -287,8 +289,15 @@ void retro_reset()
     // Do stuff
 }
 
-int x{graphics::width / 2};
-int y{graphics::height / 2};
+std::map<int, char> joypad_keys = {
+    { RETRO_DEVICE_ID_JOYPAD_A, 13 },
+    { RETRO_DEVICE_ID_JOYPAD_LEFT, 37 },
+    { RETRO_DEVICE_ID_JOYPAD_UP, 38 },
+    { RETRO_DEVICE_ID_JOYPAD_RIGHT, 39 },
+    { RETRO_DEVICE_ID_JOYPAD_DOWN, 40 },
+};
+
+std::map<int, bool> joypad_old_state{};
 
 // Run a single frame
 void retro_run()
@@ -297,17 +306,15 @@ void retro_run()
 
     // Get input for frame
     input_poll_cb();
-    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP)) {
-        y--;
-    }
-    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN)) {
-        y++;
-    }
-    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT)) {
-        x--;
-    }
-    if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT)) {
-        x++;
+    for (auto const & [key, val] : joypad_keys) {
+        if (!joypad_old_state[key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
+            joypad_old_state[key] = true;
+            event::push(event::Event(true, val));
+        }
+        if (joypad_old_state[key] && !input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
+            joypad_old_state[key] = false;
+            event::push(event::Event(false, val));
+        }
     }
 
     // Render audio frame
@@ -318,7 +325,6 @@ void retro_run()
 
     // Render video frame
     graphics::clear();
-    graphics::fill(x, y, 20, 20, 0xf000);
     sprite::draw_instances();
 
     {

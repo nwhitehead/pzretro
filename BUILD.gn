@@ -52,6 +52,7 @@ shared_library("puzzlescript_libretro") {
     sources = [
         "src/core.cpp",
         "src/audio.cpp",
+        "src/event.cpp",
         "src/graphics.cpp",
         "src/js.cpp",
         "src/sprite.cpp",

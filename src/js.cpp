@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "event.h"
 #include "graphics.h"
 #include "pztime.h"
 #include "sprite.h"
@@ -138,6 +139,17 @@ duk_ret_t native_get_height(duk_context *ctx)
     return 1;
 }
 
+duk_ret_t native_get_event(duk_context *ctx)
+{
+    event::Event evt{event::pop()};
+    duk_idx_t obj_idx{duk_push_object(ctx)};
+    duk_push_int(ctx, evt.key);
+    duk_put_prop_string(ctx, obj_idx, "key");
+    duk_push_boolean(ctx, evt.isPress);
+    duk_put_prop_string(ctx, obj_idx, "isPress");
+    return 1;
+}
+
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
@@ -165,6 +177,8 @@ Context::Context()
     duk_put_global_string(ctx, "native_get_width");
     duk_push_c_function(ctx, native_get_height, 0);
     duk_put_global_string(ctx, "native_get_height");
+    duk_push_c_function(ctx, native_get_event, 0);
+    duk_put_global_string(ctx, "native_get_event");
 }
 
 Context::~Context()
