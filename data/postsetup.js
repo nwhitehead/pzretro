@@ -4,10 +4,10 @@ SoundEffect.generate = function(seed, params) {
 	var sound = {};
 	sound.seed = seed;
 	sound.play = function() {
-		nativePlaySound(parseInt(this.seed));
+		print("SFXR play " + parseInt(this.seed));
 	}
 
-	nativeGenerateSound(
+	native_generate_sound(
 		parseInt(seed), 
 		// Envelope
 		params.p_env_attack,   // Attack time
@@ -81,3 +81,5 @@ function showAudioButton() {}
 function toggleMute() {}
 function muteAudio() {}
 function unMuteAudio() {}
+
+var AUDIO_CONTEXT = {};

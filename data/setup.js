@@ -22,13 +22,13 @@ var localStorage = {};
 localStorage.removeItem = function (item) {
     delete this[item];
 }
-localStorage.setItem = function(key,value) {
-	this[key]=value;
+localStorage.setItem = function(key, value) {
+	this[key] = value;
 }
 localStorage.getItem = function(key) {
 	return this[key] ? this[key] : null;
 }
-localStorage.serialize = function(){
+localStorage.serialize = function() {
 	var data = '';
 	for(var key in this){
 		if(typeof this[key] !== 'function' && typeof this[key] !== 'undefined')
@@ -104,16 +104,16 @@ function createCanvas(width, height){
 	}
 }
 
-document.getElementsByTagName = function(tagName){
+document.getElementsByTagName = function(tagName) {
 	var res = [];
 	return res;
 }
 
-document.createElement = function(tagName, options){
+document.createElement = function(tagName, options) {
 	return createCanvas(cellwidth, cellheight);
 }
 
-document.addEventListener = function(type, listener, useCapture){};
+document.addEventListener = function(type, listener, useCapture) {};
 
 document.body = {};
 document.body.style = {};

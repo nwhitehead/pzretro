@@ -8,6 +8,15 @@ var sourceCode = "title orthogonal rule test\n\n========\nOBJECTS\n========\n\nB
 
 compile(["restart"], sourceCode);
 
+onKeyDown({keyCode: 13});
+
+print("Game title is '" + state.metadata.title + "'");
+print(JSON.stringify(state));
+print("Cells are " + cellwidth +" x " + cellheight);
+print("deltatime is " + deltatime);
+localStorage.setItem('level', '0');
+print("State serialization is " + localStorage.serialize());
+
 id = native_sprite_add(64, 64);
 native_sprite_add_instance(id, 100, 100);
 native_fill_rect(id, '#ff0000', 0, 0, 16, 64);
