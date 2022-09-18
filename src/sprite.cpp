@@ -53,7 +53,10 @@ void fill_rect(int index, int x, int y, int w, int h, uint16_t color)
     }
     int pitch{sprite.width};
     for (int j = 0; j < h; j++) {
-        std::fill(sprite.data.data() + x + pitch * j + pitch * y, sprite.data.data() + x + pitch * j + pitch * y + w, color);
+        std::fill(
+            sprite.data.data() + x + pitch * j + pitch * y,
+            sprite.data.data() + x + pitch * j + pitch * y + w,
+            color);
     }
 }
 
@@ -77,9 +80,10 @@ void clear_instances()
 void Sprite::draw(int x, int y)
 {
     for (int r = 0; r < height; r++) {
-        for (int c = 0; c < width; c++) {
-            *(graphics::framebuffer + y * graphics::stride + r * graphics::stride + x + c) = data[r * width + c];
-        }
+        std::copy(
+            data.data() + r * width,
+            data.data() + r * width + width,
+            graphics::framebuffer + y * graphics::stride + r * graphics::stride + x);
     }
 }
 

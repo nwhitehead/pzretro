@@ -1,7 +1,6 @@
 
 #include <atomic>
 #include <cassert>
-#include <chrono>
 #include <cstring>
 #include <cstdlib>
 #include <memory>
@@ -21,6 +20,7 @@
 #include "audio.h"
 #include "graphics.h"
 #include "js.h"
+#include "pztime.h"
 #include "sprite.h"
 
 // Callbacks
@@ -280,4 +280,6 @@ void retro_run()
         std::lock_guard<std::mutex> guard(graphics::mutex);
         video_cb(graphics::framebuffer, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
     }
+
+    pztime::increment(1000 / graphics::fps);
 }

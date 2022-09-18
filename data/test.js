@@ -7,8 +7,9 @@ native_fill_rect(id, '#00ff00', 16, 0, 16, 64);
 native_fill_rect(id, '#0000ff', 32, 0, 16, 64);
 x = 0;
 main = function() {
+    print("Elapsed time is " + native_elapsed())
     native_fill_rect(id, '#888', 0, 0, 64, 64);
     native_fill_rect(id, '#ffff00', x, 0, 16, 64);
     x++;
-    native_sleep(0.2);
+    native_sleep(0.001);
 }

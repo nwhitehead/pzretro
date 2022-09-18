@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "pztime.h"
 #include "sprite.h"
 
 namespace js {
@@ -114,6 +115,12 @@ duk_ret_t native_sleep(duk_context *ctx)
     return 0;
 }
 
+duk_ret_t native_elapsed(duk_context *ctx)
+{
+    duk_push_int(ctx, pztime::elapsed());
+    return 1;
+}
+
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
@@ -134,6 +141,8 @@ Context::Context()
 	duk_put_global_string(ctx, "native_sprite_draw_instances");
     duk_push_c_function(ctx, native_sleep, 1);
     duk_put_global_string(ctx, "native_sleep");
+    duk_push_c_function(ctx, native_elapsed, 0);
+    duk_put_global_string(ctx, "native_elapsed");
 }
 
 Context::~Context()

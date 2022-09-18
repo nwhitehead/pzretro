@@ -42,6 +42,7 @@ shared_library("puzzlescript_libretro") {
         "src/graphics.cpp",
         "src/js.cpp",
         "src/sprite.cpp",
+        "src/pztime.cpp",
         "src/stb/stb_image.cpp",
         "src/duktape/duktape-2.7.0/src/duktape.c",
     ]
