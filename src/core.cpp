@@ -202,24 +202,48 @@ void retro_init()
     js_context = std::make_unique<js::Context>();
     js_context->eval(std::string(
         bundled::data_setup_js,
-        bundled::data_setup_js + bundled::data_setup_js_len));
+        bundled::data_setup_js + bundled::data_setup_js_len), "setup.js");
     js_context->eval(std::string(
-        bundled::data_PuzzleScript_src_js_storagewrapper_js,
-        bundled::data_PuzzleScript_src_js_storagewrapper_js + bundled::data_PuzzleScript_src_js_storagewrapper_js_len));
+        bundled::data_PuzzleScript_src_es5_storagewrapper_js,
+        bundled::data_PuzzleScript_src_es5_storagewrapper_js + bundled::data_PuzzleScript_src_es5_storagewrapper_js_len), "storagewrapper.js");
     js_context->eval(std::string(
-        bundled::data_PuzzleScript_src_js_globalVariables_js,
-        bundled::data_PuzzleScript_src_js_globalVariables_js + bundled::data_PuzzleScript_src_js_globalVariables_js_len));
+        bundled::data_PuzzleScript_src_es5_globalVariables_js,
+        bundled::data_PuzzleScript_src_es5_globalVariables_js + bundled::data_PuzzleScript_src_es5_globalVariables_js_len), "globalVariables.js");
     js_context->eval(std::string(
-        bundled::data_PuzzleScript_src_js_debug_off_js,
-        bundled::data_PuzzleScript_src_js_debug_off_js + bundled::data_PuzzleScript_src_js_debug_off_js_len));
+        bundled::data_PuzzleScript_src_es5_debug_off_js,
+        bundled::data_PuzzleScript_src_es5_debug_off_js + bundled::data_PuzzleScript_src_es5_debug_off_js_len), "debug_off.js");
     js_context->eval(std::string(
-        bundled::data_PuzzleScript_src_js_font_js,
-        bundled::data_PuzzleScript_src_js_font_js + bundled::data_PuzzleScript_src_js_font_js_len));
+        bundled::data_PuzzleScript_src_es5_font_js,
+        bundled::data_PuzzleScript_src_es5_font_js + bundled::data_PuzzleScript_src_es5_font_js_len), "font.js");
     js_context->eval(std::string(
-        bundled::data_PuzzleScript_src_js_rng_js,
-        bundled::data_PuzzleScript_src_js_rng_js + bundled::data_PuzzleScript_src_js_rng_js_len));
-    js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len));
-    js_context->start_thread("main();");
+        bundled::data_PuzzleScript_src_es5_riffwave_js,
+        bundled::data_PuzzleScript_src_es5_riffwave_js + bundled::data_PuzzleScript_src_es5_riffwave_js_len), "riffwave.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_sfxr_js,
+        bundled::data_PuzzleScript_src_es5_sfxr_js + bundled::data_PuzzleScript_src_es5_sfxr_js_len), "sfxr.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_rng_js,
+        bundled::data_PuzzleScript_src_es5_rng_js + bundled::data_PuzzleScript_src_es5_rng_js_len), "rng.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_colors_js,
+        bundled::data_PuzzleScript_src_es5_colors_js + bundled::data_PuzzleScript_src_es5_colors_js_len), "colors.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_graphics_js,
+        bundled::data_PuzzleScript_src_es5_graphics_js + bundled::data_PuzzleScript_src_es5_graphics_js_len), "graphics.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_engine_js,
+        bundled::data_PuzzleScript_src_es5_engine_js + bundled::data_PuzzleScript_src_es5_engine_js_len), "engine.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_parser_js,
+        bundled::data_PuzzleScript_src_es5_parser_js + bundled::data_PuzzleScript_src_es5_parser_js_len), "parser.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_compiler_js,
+        bundled::data_PuzzleScript_src_es5_compiler_js + bundled::data_PuzzleScript_src_es5_compiler_js_len), "compiler.js");
+    js_context->eval(std::string(
+        bundled::data_PuzzleScript_src_es5_inputoutput_js,
+        bundled::data_PuzzleScript_src_es5_inputoutput_js + bundled::data_PuzzleScript_src_es5_inputoutput_js_len), "inputoutput.js");
+    js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len), "test.js");
+    js_context->start_thread("main();", "main");
 }
 
 void retro_deinit()

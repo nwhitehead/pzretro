@@ -170,15 +170,16 @@ Context::~Context()
     duk_destroy_heap(ctx);
 }
 
-void Context::eval(std::string code)
+void Context::eval(std::string code, std::string /*filename*/)
 {
     std::lock_guard<std::mutex> guard(mutex);
     duk_eval_string(ctx, code.c_str());
 }
 
-void Context::start_thread(std::string code)
+void Context::start_thread(std::string code, std::string filename)
 {
     thread_code = code;
+    thread_filename = filename;
     js_thread_active = true;
     js_thread = std::thread(&Context::thread_loop, this);
 }
@@ -192,7 +193,7 @@ void Context::stop_thread()
 void Context::thread_loop()
 {
     while(js_thread_active) {
-        eval(thread_code);
+        eval(thread_code, thread_filename);
     }
 }
 

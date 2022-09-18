@@ -51,6 +51,20 @@ Build with:
 
     ninja -C out/arm
 
+## Babel
+
+I had to convert the PuzzleScript JS sources to older version of JavaScript to make it compatible with Duktape, there were
+some issues with backtick literals (template strings). I used Babel and the CLI for this. Installed and converted the
+directory.
+
+    npm install --save-dev @babel/core @babel/cli
+    npm install @babel/preset-env
+    cd data/PuzzleScript/src
+    mkdir es5
+    npx babel js --out-dir es5
+
+The project level `.babelrc` configures some options to make it work (like turn off the "use strict").
+
 ## Compatibility
 
 Using the Ubuntu 22.04 default ARM cross compiler has a glibc that is too new for the SEGA Genesis Mini. I got errors like:
