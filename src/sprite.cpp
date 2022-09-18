@@ -1,6 +1,7 @@
 #include "sprite.h"
 
 #include <algorithm>
+#include <iostream>
 #include <mutex>
 #include <vector>
 
@@ -80,10 +81,12 @@ void clear_instances()
 void Sprite::draw(int x, int y)
 {
     for (int r = 0; r < height; r++) {
-        std::copy(
-            data.data() + r * width,
-            data.data() + r * width + width,
-            graphics::framebuffer + y * graphics::stride + r * graphics::stride + x);
+        for (int c = 0; c < width; c++) {
+            uint16_t pixel{data[r * width + c]};
+            if (pixel != 0xDEAD) {
+                *(graphics::framebuffer + y * graphics::stride + r * graphics::stride + x + c) = pixel;
+            }
+        }
     }
 }
 
@@ -96,6 +99,7 @@ void draw_instances()
         if (index >= 0 && static_cast<size_t>(index) < sprites.size())
         {
             Sprite &sprite{sprites.at(index)};
+//            std::cout << "Sprite idx=" << index << " at (" << instance.x << ", " << instance.y << ")" << "\n";
             sprite.draw(instance.x, instance.y);
         }
     }

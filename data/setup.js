@@ -69,7 +69,7 @@ function createContext(width, height) {
 	context.nativeId = native_sprite_add(width, height);
 	
 	context.clearRect = function(x, y, w, h){
-		native_fill_rect(this.nativeId, "#000", x, y, w, h);
+		native_fill_rect(this.nativeId, "#d8d468", x, y, w, h);
 	};
 	
 	context.fillRect = function(x, y, w, h){

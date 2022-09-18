@@ -16,7 +16,7 @@ public:
     Sprite(int width, int height) :
         width(width),
         height(height),
-        data(width * height) {
+        data(width * height, 0xDEAD) {
     }
 
     ~Sprite() {

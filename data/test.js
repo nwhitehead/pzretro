@@ -30,9 +30,6 @@ main = function() {
             onKeyUp({keyCode: evt.key});
         }
     }
-    native_sleep(0.1);
+    native_sleep(0.01);
     update();
-
-    print(JSON.stringify(level, null, 2));
-
 }
