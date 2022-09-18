@@ -31,9 +31,6 @@ public:
 
     // Stop thread from calling it's code
     void stop_thread();
-
-    // Used by fatal error handler
-    void backtrace();
 };
 
 } // namespace js

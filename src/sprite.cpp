@@ -101,4 +101,16 @@ void draw_instances()
     }
 }
 
+int sprites_size()
+{
+    std::lock_guard<std::mutex> guard(mutex);
+    return sprites.size();
+}
+
+int instances_size()
+{
+    std::lock_guard<std::mutex> guard(mutex);
+    return instances.size();
+}
+
 } // namespace sprite

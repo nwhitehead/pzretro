@@ -31,4 +31,8 @@ main = function() {
         }
     }
     native_sleep(0.1);
+    update();
+
+    print(JSON.stringify(level, null, 2));
+
 }

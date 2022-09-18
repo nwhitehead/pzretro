@@ -25,6 +25,9 @@
 #include "pztime.h"
 #include "sprite.h"
 
+// PuzzleScript engine debug setting
+constexpr bool debug = false;
+
 // Callbacks
 retro_log_printf_t log_cb;
 retro_video_refresh_t video_cb;
@@ -211,9 +214,15 @@ void retro_init()
     js_context->eval(std::string(
         bundled::data_PuzzleScript_src_es5_globalVariables_js,
         bundled::data_PuzzleScript_src_es5_globalVariables_js + bundled::data_PuzzleScript_src_es5_globalVariables_js_len), "globalVariables.js");
-    js_context->eval(std::string(
-        bundled::data_PuzzleScript_src_es5_debug_off_js,
-        bundled::data_PuzzleScript_src_es5_debug_off_js + bundled::data_PuzzleScript_src_es5_debug_off_js_len), "debug_off.js");
+    if (debug) {
+        js_context->eval(std::string(
+            bundled::data_PuzzleScript_src_es5_debug_js,
+            bundled::data_PuzzleScript_src_es5_debug_js + bundled::data_PuzzleScript_src_es5_debug_js_len), "debug.js");
+    } else {
+        js_context->eval(std::string(
+            bundled::data_PuzzleScript_src_es5_debug_off_js,
+            bundled::data_PuzzleScript_src_es5_debug_off_js + bundled::data_PuzzleScript_src_es5_debug_off_js_len), "debug_off.js");
+    }
     js_context->eval(std::string(
         bundled::data_PuzzleScript_src_es5_font_js,
         bundled::data_PuzzleScript_src_es5_font_js + bundled::data_PuzzleScript_src_es5_font_js_len), "font.js");
@@ -247,6 +256,9 @@ void retro_init()
     js_context->eval(std::string(
         bundled::data_PuzzleScript_src_es5_inputoutput_js,
         bundled::data_PuzzleScript_src_es5_inputoutput_js + bundled::data_PuzzleScript_src_es5_inputoutput_js_len), "inputoutput.js");
+    js_context->eval(std::string(
+        bundled::data_overload_js,
+        bundled::data_overload_js + bundled::data_overload_js_len), "setup.js");
     js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len), "test.js");
     js_context->start_thread("main();", "main");
 }
@@ -326,6 +338,8 @@ void retro_run()
     // Render video frame
     graphics::clear();
     sprite::draw_instances();
+
+    //std::cout << "SPRITES " << sprite::sprites_size() << " with " << sprite::instances_size() << " instances" << std::endl;
 
     {
         std::lock_guard<std::mutex> guard(graphics::mutex);

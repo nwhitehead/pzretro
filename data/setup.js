@@ -13,6 +13,7 @@ var console = {};
 console.log = function(t){
 	print(t);
 };
+var consoleCacheDump = function() {}
 var window = {};
 var setInterval = window.setInterval = function (updateFunc, deltaTime) {}
 window.addEventListener = function(type, listener, useCapture) {};

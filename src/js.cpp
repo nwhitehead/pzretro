@@ -13,13 +13,10 @@
 
 namespace js {
 
-void fatal_handler(void *udata, const char *msg)
+void fatal_handler(void */*udata*/, const char *msg)
 {
-    Context *that(reinterpret_cast<Context *>(udata));
-    std::cerr << "******* JS ERROR: " << msg << "\nContext = 0x" << udata << std::endl;
-    std::cerr << "Backtrace:" << std::endl;
-    that->backtrace();
-    std::cerr << "ABORTING" << std::endl;
+    std::cerr << "******* JS ERROR: " << msg << std::endl;
+    std::cerr << "FATAL, ABORTING" << std::endl;
     abort();
 }
 
@@ -153,7 +150,6 @@ duk_ret_t native_get_event(duk_context *ctx)
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
-    std::cout << "Created Context at " << (void*)this << std::endl;
     // Register native functions
 	duk_push_c_function(ctx, native_print, DUK_VARARGS);
 	duk_put_global_string(ctx, "print");
@@ -183,7 +179,6 @@ Context::Context()
 
 Context::~Context()
 {
-    std::cout << "Destruct Context at " << (void*)this << std::endl;
     if (js_thread_active) {
         stop_thread();
     }
@@ -234,39 +229,6 @@ void Context::thread_loop()
 {
     while(js_thread_active) {
         eval(thread_code, thread_filename);
-    }
-}
-
-void Context::backtrace()
-{
-    int level{-1};
-    std::string functionName;
-    // std::string fileName;
-    int line;
-    int pc;
-
-    while (true)
-    {
-        duk_inspect_callstack_entry(ctx, level);
-        if (duk_is_undefined(ctx, -1))
-        {
-            duk_pop(ctx);
-            break;
-        }
-
-        duk_get_prop_string(ctx, -1, "function");
-        functionName = duk_to_string(ctx, -1);
-
-        duk_get_prop_string(ctx, -2, "lineNumber");
-        line = duk_to_int(ctx, -2);
-
-        duk_get_prop_string(ctx, -3, "pc");
-        pc = duk_to_int(ctx, -1);
-
-        // duk_pop(ctx);
-        std::cerr << "Trace " << level << " functionName=" << functionName << " line=" << line << " pc=" << pc << std::endl;
-        // std::cerr << "Trace " << pc << " " <<  << " " fnName);
-        level--;
     }
 }
 

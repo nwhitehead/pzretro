@@ -49,4 +49,8 @@ void clear_instances();
 // Draw all instances of sprites to framebuffer
 void draw_instances();
 
+// Get numbers
+int sprites_size();
+int instances_size();
+
 } // namespace sprite
