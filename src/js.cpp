@@ -172,9 +172,6 @@ duk_ret_t native_generate_sound(duk_context *ctx)
         auto samps = sfxr::generate(seed);
         sfxr::lofi(samps);
         std::cout << "Generated " << samps.size() << " samples for seed " << seed << std::endl;
-        // std::stringstream ss;
-        // ss << "sound" << seed << ".wav";
-        // sfxr::saveWAV(samps, ss.str());
         soundbank[seed] = samps;
     }
     return 0;
