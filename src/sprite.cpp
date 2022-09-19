@@ -1,8 +1,10 @@
 #include "sprite.h"
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 #include "graphics.h"
@@ -80,6 +82,7 @@ void clear_instances()
 
 void Sprite::draw(int x, int y)
 {
+    std::lock_guard<std::mutex> guard(graphics::mutex);
     for (int r = 0; r < height; r++) {
         for (int c = 0; c < width; c++) {
             uint16_t pixel{data[r * width + c]};
@@ -88,18 +91,21 @@ void Sprite::draw(int x, int y)
             }
         }
     }
+    // // Uncomment these lines to test flicker
+    // using namespace std::chrono_literals;
+    // std::this_thread::sleep_for(1s * 0.001f);
 }
 
 void draw_instances()
 {
     std::lock_guard<std::mutex> guard(mutex);
+    graphics::clear();
     for (auto &instance : instances)
     {
         int index = instance.index;
         if (index >= 0 && static_cast<size_t>(index) < sprites.size())
         {
             Sprite &sprite{sprites.at(index)};
-//            std::cout << "Sprite idx=" << index << " at (" << instance.x << ", " << instance.y << ")" << "\n";
             sprite.draw(instance.x, instance.y);
         }
     }

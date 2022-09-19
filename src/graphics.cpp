@@ -4,7 +4,8 @@
 
 namespace graphics {
 
-uint16_t framebuffer[framebuffer_len];
+uint16_t framebuffer[framebuffer_len]{};
+uint16_t framebuffer_screen[framebuffer_len]{};
 std::mutex mutex;
 
 void clear()
@@ -21,14 +22,9 @@ void fill(int x, int y, int w, int h, uint16_t color)
     }
 }
 
-void acquire()
+void flip()
 {
-    mutex.lock();
-}
-
-void release()
-{
-    mutex.unlock();
+    std::copy(framebuffer, framebuffer + framebuffer_len, framebuffer_screen);
 }
 
 } // namespace graphics

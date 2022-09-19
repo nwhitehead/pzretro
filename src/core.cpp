@@ -338,13 +338,9 @@ void retro_run()
         audio_batch_cb(audio::buffer, audio::buffer_len / 2);
     }
 
-    // Render video frame
-    graphics::clear();
-    sprite::draw_instances();
-
     {
         std::lock_guard<std::mutex> guard(graphics::mutex);
-        video_cb(graphics::framebuffer, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
+        video_cb(graphics::framebuffer_screen, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
     }
 
     pztime::increment(1000 / graphics::fps);
