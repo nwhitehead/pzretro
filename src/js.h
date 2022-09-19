@@ -26,6 +26,9 @@ public:
     // Eval js code
     void eval(std::string code, std::string filename);
 
+    // Set variable to string value
+    void set(std::string name, std::string value);
+
     // Start thread, keep calling code in a loop until stop_thread() is called
     void start_thread(std::string code, std::string filename);
 

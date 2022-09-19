@@ -223,6 +223,13 @@ void Context::eval(std::string code, std::string filename)
     duk_pop(ctx); // remove result value
 }
 
+void Context::set(std::string name, std::string value)
+{
+    std::lock_guard<std::mutex> guard(mutex);
+    duk_push_string(ctx, value.c_str());
+    duk_put_global_string(ctx, name.c_str());
+}
+
 void Context::start_thread(std::string code, std::string filename)
 {
     thread_code = code;

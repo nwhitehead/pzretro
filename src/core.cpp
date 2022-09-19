@@ -60,8 +60,15 @@ void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
     // Empty
 }
 
-bool retro_load_game(const struct retro_game_info */*info*/)
+bool retro_load_game(const struct retro_game_info *info)
 {
+    if (info && info->data) {
+        std::cout << "retro_load_game has contents:```" << std::string(static_cast<char const*>(info->data), info->size) << "```" << std::endl;
+    }
+    js_context->eval(
+        std::string(bundled::data_main_js,
+        bundled::data_main_js + bundled::data_main_js_len), "main.js");
+    js_context->start_thread("main();", "main");
     return true;
 }
 
@@ -168,31 +175,18 @@ void draw_letter(int x, int y, int letter)
 
 void retro_init()
 {
-    /* set up some logging */
     struct retro_log_callback log;
-    unsigned level = 4;
 
     if (environ_cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &log)) {
         log_cb = log.log;
     } else {
         log_cb = NULL;
     }
-    // the performance level is guide to frontend to give an idea of how intensive this core is to run
-    environ_cb(RETRO_ENVIRONMENT_SET_PERFORMANCE_LEVEL, &level);
 
+    // Parse sysfont.png into RGB565 format
     int channels{0};
     stbi_uc *data = stbi_load_from_memory(bundled::data_sysfont_png, bundled::data_sysfont_png_len, &sysfont_width, &sysfont_height, &channels, 0);
     sysfont_data = new uint16_t[256 * 9 * sysfont_height]();
-
-    std::cout << "sysfont is " << sysfont_width << " x " << sysfont_height << std::endl;
-    std::cout << "sysfont_data =" << (void*)sysfont_data << std::endl;
-    for (int r = 0; r < 9; r++) {
-        for (int c = 0; c < 9; c++) {
-            std::cout << (int)*(sysfont_data + c * 3 + r * 3 * sysfont_width) << " ";
-        }
-        std::cout << "\n";
-    }
-    std::cout << std::endl;
     for (int r = 0; r < 9; r++) {
         for (int ch = 0; ch < sysfont_width / 9; ch++) {
             for (int c = 0; c < 9; c++) {
@@ -203,6 +197,7 @@ void retro_init()
             }
         }
     }
+
     // Setup duktape
     js_context = std::make_unique<js::Context>();
     js_context->eval(std::string(
@@ -259,10 +254,7 @@ void retro_init()
     js_context->eval(std::string(
         bundled::data_overload_js,
         bundled::data_overload_js + bundled::data_overload_js_len), "setup.js");
-    js_context->eval(
-        std::string(bundled::data_main_js,
-        bundled::data_main_js + bundled::data_main_js_len), "main.js");
-    js_context->start_thread("main();", "main");
+    // Wait until game load time to run main.js
 }
 
 void retro_deinit()
