@@ -1,15 +1,19 @@
 #pragma once
 
-#include <mutex>
+#include <cstdint>
+#include <vector>
 
-#include "graphics.h"
+#include "graphics.h" // for fps
 
 namespace audio {
 
 constexpr int framerate{44100};
-constexpr int buffer_len{framerate / graphics::fps * 2};
-extern int16_t buffer[];
-// Mutex for all audio access to buffer
-extern std::mutex mutex;
+constexpr int buffer_len{framerate / graphics::fps};
+
+// Remove samples from start of buffer
+std::vector<float> consume(int n);
+
+// Mix in samples at current head of buffer
+void play(std::vector<float> &samples);
 
 } // namespace audio

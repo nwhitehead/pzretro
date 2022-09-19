@@ -4,7 +4,7 @@ SoundEffect.generate = function(seed, params) {
 	var sound = {};
 	sound.seed = seed;
 	sound.play = function() {
-		print("SFXR play " + parseInt(this.seed));
+		native_play_sound(parseInt(this.seed));
 	}
 
 	native_generate_sound(parseInt(seed));
