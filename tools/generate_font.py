@@ -28,7 +28,7 @@ if __name__ == '__main__':
             outfile.write(f"'{escapedc}':'")
             image = Image.new('1', (args.width, args.height))
             draw = ImageDraw.Draw(image)
-            draw.text((0, args.baseline), c, font=font, fill=1, anchor='ls')
+            draw.text((args.width // 2, args.baseline), c, font=font, fill=1, anchor='ms')
             for y in range(args.height):
                 line = ''
                 for x in range(args.width):

@@ -25,6 +25,10 @@ action("generate_font") {
     script = "tools/generate_font.py"
     args = [
         "--font=" + rebase_path("tools/SourceCodePro/SourceCodePro-Regular.otf", root_build_dir),
+        "--size=20",
+        "--width=11",
+        "--height=25",
+        "--baseline=20",
         "-o", rebase_path(target_gen_dir + "/custom/font.js", root_build_dir),
     ]
     outputs = [
