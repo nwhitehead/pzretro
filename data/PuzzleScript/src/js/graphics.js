@@ -1,6 +1,6 @@
 function createSprite(name,spritegrid, colors, padding) {
 	if (colors === undefined) {
-		colors = [state.bgcolor, state.fgcolor];
+		colors = [state.bgcolor, state.fgcolor, '#444', '#888', '#ccc'];
 	}
 
 	var sprite = makeSpriteCanvas(name);

@@ -16,7 +16,10 @@ if __name__ == '__main__':
     parser.add_argument('-o', required=True)
     args = parser.parse_args()
     chars = "0123456789abcdefghijklmnopqrstuvwx×yzABCDEFGHIJKLMNOPQRSTUVWXYZ.·•…†‡ƒ‚„,;:?¿!¡@£$%‰^&*()+÷±-–—_= {}[]'‘’“”\"/\\|¦<‹«>›»~˜`#ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßẞàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽž€™¢¤¥§¨©®ªº¬¯°"
-    font = ImageFont.truetype(args.font, args.size)
+    scale = 3
+    colors = 5
+    colormap = "02341"
+    font = ImageFont.truetype(args.font, args.size * scale)
     with open(args.o, 'wt') as outfile:
         outfile.write('var font = {\n')
         for c in chars:
@@ -26,14 +29,16 @@ if __name__ == '__main__':
             if c == "\\":
                 escapedc = "\\\\"
             outfile.write(f"'{escapedc}':'")
-            image = Image.new('1', (args.width, args.height))
+            image = Image.new('L', (args.width * scale, args.height * scale))
             draw = ImageDraw.Draw(image)
-            draw.text((args.width // 2, args.baseline), c, font=font, fill=1, anchor='ms')
+            draw.text(((args.width * scale) // 2, args.baseline * scale), c, font=font, fill=255, anchor='ms')
+            image = image.resize((args.width, args.height), resample=Image.LANCZOS)
             for y in range(args.height):
                 line = ''
                 for x in range(args.width):
                     pixel = image.getpixel((x, y))
-                    line += str(pixel)
+                    pixel = (pixel * colors) // 256
+                    line += colormap[pixel]
                 outfile.write(f'\\n{line}')
             outfile.write("',\n")
         outfile.write('}\n')
