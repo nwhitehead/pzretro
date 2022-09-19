@@ -153,6 +153,14 @@ duk_ret_t native_flip(duk_context */*ctx*/)
     return 0;
 }
 
+duk_ret_t native_screen_fill(duk_context *ctx)
+{
+    std::string fill{duk_safe_to_string(ctx, 0)};
+    uint16_t color{webcolor(fill)};
+    graphics::fill(0, 0, graphics::width, graphics::height, color);
+    return 0;
+}
+
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
@@ -183,6 +191,8 @@ Context::Context()
     duk_put_global_string(ctx, "native_get_event");
     duk_push_c_function(ctx, native_flip, 0);
     duk_put_global_string(ctx, "native_flip");
+    duk_push_c_function(ctx, native_screen_fill, 1);
+    duk_put_global_string(ctx, "native_screen_fill");
 }
 
 Context::~Context()

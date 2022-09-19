@@ -17,8 +17,12 @@ void clear()
 void fill(int x, int y, int w, int h, uint16_t color)
 {
     std::lock_guard<std::mutex> guard(mutex);
-    for (int i = 0; i < h; i++) {
-        std::fill(framebuffer + x + y * stride + i * stride, framebuffer + x + y * stride + i * stride + w, color);
+    if (x == 0 && y == 0 && w == width && h == height) {
+        std::fill(framebuffer, framebuffer + framebuffer_len, color);
+    } else {
+        for (int i = 0; i < h; i++) {
+            std::fill(framebuffer + x + y * stride + i * stride, framebuffer + x + y * stride + i * stride + w, color);
+        }
     }
 }
 
