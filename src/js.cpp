@@ -4,11 +4,14 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <sstream>
+#include <vector>
 
 #include "event.h"
 #include "graphics.h"
 #include "pztime.h"
+#include "sfxr.h"
 #include "sprite.h"
 
 namespace js {
@@ -157,10 +160,22 @@ duk_ret_t native_screen_fill(duk_context *ctx)
     return 0;
 }
 
+std::map<int, std::vector<float>> soundbank{};
+
 duk_ret_t native_generate_sound(duk_context *ctx)
 {
     int seed{duk_get_int(ctx, 0)};
-    std::cout << "native_generate_sound " << seed << std::endl;
+    if (soundbank.find(seed) == soundbank.end()) {
+        std::cout << "native_generate_sound " << seed << std::endl;
+
+        auto samps = sfxr::generate(seed);
+        sfxr::lofi(samps);
+        std::cout << "Generated " << samps.size() << " samples for seed " << seed << std::endl;
+        // std::stringstream ss;
+        // ss << "sound" << seed << ".wav";
+        // sfxr::saveWAV(samps, ss.str());
+        soundbank[seed] = samps;
+    }
     return 0;
 }
 
@@ -194,7 +209,7 @@ Context::Context()
     duk_put_global_string(ctx, "native_flip");
     duk_push_c_function(ctx, native_screen_fill, 1);
     duk_put_global_string(ctx, "native_screen_fill");
-    duk_push_c_function(ctx, native_generate_sound, 27);
+    duk_push_c_function(ctx, native_generate_sound, 1);
     duk_put_global_string(ctx, "native_generate_sound");
 }
 

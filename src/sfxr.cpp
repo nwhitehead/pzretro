@@ -643,7 +643,7 @@ void applyBiquad(std::vector<float> &data, float a0, float a1, float a2, float b
     float x2 = 0.0f;
     float y1 = 0.0f;
     float y2 = 0.0f;
-    for (int i = 0; i < data.size(); i++)
+    for (int i = 0; static_cast<size_t>(i) < data.size(); i++)
     {
         float x = data[i];
         float y = (b0 / a0) * x + (b1 / a0) * x1 + (b2 / a0) * x2
@@ -676,10 +676,10 @@ void lowpass(std::vector<float> &data, float freq, float Q)
 void crunch(std::vector<float> &data, int freqReduceFactor)
 {
     // First average every N points together to reduce sampling rate
-    for (int i = 0; i < data.size(); i += freqReduceFactor)
+    for (int i = 0; static_cast<size_t>(i) < data.size(); i += freqReduceFactor)
     {
         int endPos = i + freqReduceFactor;
-        if (endPos > data.size())
+        if (static_cast<size_t>(endPos) > data.size())
         {
             endPos = data.size();
         }
@@ -698,7 +698,7 @@ void crunch(std::vector<float> &data, int freqReduceFactor)
 
 void quantize(std::vector<float> &data)
 {
-    for (int i = 0; i < data.size(); i++)
+    for (int i = 0; static_cast<size_t>(i) < data.size(); i++)
     {
         int v = static_cast<int>(std::max(-1.0f, std::min(data[i], 1.0f)) * 128.0f);
         data[i] = (v * 1.0f) / 128.0f;

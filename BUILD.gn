@@ -60,6 +60,7 @@ shared_library("puzzlescript_libretro") {
         "src/graphics.cpp",
         "src/js.cpp",
         "src/rng.cpp",
+        "src/sfxr.cpp",
         "src/sprite.cpp",
         "src/pztime.cpp",
         "src/stb/stb_image.cpp",
