@@ -33,8 +33,9 @@ action("generate_font") {
 action("babel") {
     script = "tools/babel.py"
     args = [
-        rebase_path("data/PuzzleScript/src/js", root_build_dir),
-        rebase_path(target_gen_dir + "/es5", root_build_dir),
+        "--config", rebase_path("//.babelrc", root_build_dir),
+        "--inpath", rebase_path("data/PuzzleScript/src/js", root_build_dir),
+        "--outpath", rebase_path(target_gen_dir + "/es5", root_build_dir),
     ]
     outputs = [
         "$target_gen_dir/es5/colors.js",
@@ -57,8 +58,9 @@ action("babel") {
 action("babel_custom") {
     script = "tools/babel.py"
     args = [
-        rebase_path("data/custom", root_build_dir),
-        rebase_path(target_gen_dir + "/custom", root_build_dir),
+        "--config", rebase_path("//.babelrc", root_build_dir),
+        "--inpath", rebase_path("data/custom", root_build_dir),
+        "--outpath", rebase_path(target_gen_dir + "/custom", root_build_dir),
     ]
     outputs = [
         "$target_gen_dir/custom/main.js",
