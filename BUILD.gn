@@ -23,11 +23,12 @@ if (target_cpu == "arm") {
 action("generate_internal_data") {
     script = "tools/bundle_files.py"
     inputs = [
+        "data/demo.pz",
+        "data/main.js",
         "data/overload.js",
         "data/postsetup.js",
         "data/setup.js",
         "data/sysfont.png",
-        "data/main.js",
         "data/PuzzleScript/src/es5/colors.js",
         "data/PuzzleScript/src/es5/compiler.js",
         "data/PuzzleScript/src/es5/debug.js",

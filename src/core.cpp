@@ -62,8 +62,14 @@ void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
 
 bool retro_load_game(const struct retro_game_info *info)
 {
+    // Set source to game if given, otherwise use default bundled demo game
     if (info && info->data) {
-        std::cout << "retro_load_game has contents:```" << std::string(static_cast<char const*>(info->data), info->size) << "```" << std::endl;
+        std::string contents{static_cast<char const*>(info->data), info->size};
+        js_context->set("sourceCode", contents);
+    } else {
+        std::string contents{bundled::data_demo_pz, bundled::data_demo_pz + bundled::data_demo_pz_len};
+        js_context->set("sourceCode", contents);
+
     }
     js_context->eval(
         std::string(bundled::data_main_js,
