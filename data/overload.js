@@ -1,7 +1,7 @@
 var old_redraw = redraw;
 redraw = function() {
     native_sprite_instances_clear();
-    native_screen_fill(document.body.style.backgroundColor);
+    native_screen_fill(state.bgcolor);
     old_redraw();
     native_sprite_draw_instances();
     native_flip();

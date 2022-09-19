@@ -69,11 +69,12 @@ function createContext(width, height) {
 	context.nativeId = native_sprite_add(width, height);
 	
 	context.clearRect = function(x, y, w, h){
-		native_fill_rect(this.nativeId, "#d8d468", x, y, w, h);
+        // #d8d468 corresponds to RGB565 value 0xDEAD
+        native_fill_rect(this.nativeId, "#d8d468", x, y, w, h);
 	};
 	
 	context.fillRect = function(x, y, w, h){
-		native_fill_rect(this.nativeId, this.fillStyle, x, y, w, h);
+        native_fill_rect(this.nativeId, this.fillStyle, x, y, w, h);
 	};
 	
 	context.drawImage = function(img, x, y){
