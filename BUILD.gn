@@ -24,8 +24,8 @@ if (target_cpu == "arm") {
 action("generate_font") {
     script = "tools/generate_font.py"
     args = [
-        "--font=" + rebase_path("tools/SourceCodePro/SourceCodePro-Regular.otf", root_build_dir),
-        "--size=20",
+        "--font=" + rebase_path("tools/fonts/saxmono/saxmono.ttf", root_build_dir),
+        "--size=22",
         "--width=11",
         "--height=25",
         "--baseline=20",

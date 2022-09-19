@@ -32,7 +32,8 @@ if __name__ == '__main__':
             for y in range(args.height):
                 line = ''
                 for x in range(args.width):
-                    line += str(image.getpixel((x, y)))
+                    pixel = image.getpixel((x, y))
+                    line += str(pixel)
                 outfile.write(f'\\n{line}')
             outfile.write("',\n")
         outfile.write('}\n')
