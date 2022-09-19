@@ -21,34 +21,80 @@ if (target_cpu == "arm") {
     ]
 }
 
+action("generate_font") {
+    script = "tools/generate_font.py"
+    args = [
+        "--font=" + rebase_path("tools/SourceCodePro/SourceCodePro-Regular.otf", root_build_dir),
+        "-o", rebase_path(target_gen_dir + "/custom_font.js", root_build_dir),
+    ]
+    outputs = [ "$target_gen_dir/es5/custom_font.js" ]
+}
+
+action("babel") {
+    script = "tools/babel.py"
+    args = [
+        rebase_path("data/PuzzleScript/src/js", root_build_dir),
+        rebase_path(target_gen_dir + "/es5", root_build_dir),
+    ]
+    outputs = [
+        "$target_gen_dir/es5/colors.js",
+        "$target_gen_dir/es5/compiler.js",
+        "$target_gen_dir/es5/debug.js",
+        "$target_gen_dir/es5/debug_off.js",
+        "$target_gen_dir/es5/engine.js",
+        "$target_gen_dir/es5/font.js",
+        "$target_gen_dir/es5/globalVariables.js",
+        "$target_gen_dir/es5/graphics.js",
+        "$target_gen_dir/es5/inputoutput.js",
+        "$target_gen_dir/es5/parser.js",
+        "$target_gen_dir/es5/riffwave.js",
+        "$target_gen_dir/es5/rng.js",
+        "$target_gen_dir/es5/sfxr.js",
+        "$target_gen_dir/es5/storagewrapper.js",
+    ]
+}
+
+action("babel_custom") {
+    script = "tools/babel.py"
+    args = [
+        rebase_path("data/custom", root_build_dir),
+        rebase_path(target_gen_dir + "/custom", root_build_dir),
+    ]
+    outputs = [
+        "$target_gen_dir/custom/main.js",
+        "$target_gen_dir/custom/overload.js",
+        "$target_gen_dir/custom/postsetup.js",
+        "$target_gen_dir/custom/setup.js",
+    ]
+}
+
 action("generate_internal_data") {
     script = "tools/bundle_files.py"
+    deps = [ ":babel", ":babel_custom" ]
     inputs = [
-        "data/demo.pz",
-        "data/main.js",
-        "data/overload.js",
-        "data/postsetup.js",
-        "data/setup.js",
-        "data/sysfont.png",
-        "data/PuzzleScript/src/es5/colors.js",
-        "data/PuzzleScript/src/es5/compiler.js",
-        "data/PuzzleScript/src/es5/debug.js",
-        "data/PuzzleScript/src/es5/debug_off.js",
-        "data/PuzzleScript/src/es5/engine.js",
-        "data/PuzzleScript/src/es5/font.js",
-        "data/PuzzleScript/src/es5/globalVariables.js",
-        "data/PuzzleScript/src/es5/graphics.js",
-        "data/PuzzleScript/src/es5/inputoutput.js",
-        "data/PuzzleScript/src/es5/parser.js",
-        "data/PuzzleScript/src/es5/riffwave.js",
-        "data/PuzzleScript/src/es5/rng.js",
-        "data/PuzzleScript/src/es5/sfxr.js",
-        "data/PuzzleScript/src/es5/storagewrapper.js",
-    ]
+        "//data/demo.pz",
+        "//data/sysfont.png",
+        "$target_gen_dir/custom/main.js",
+        "$target_gen_dir/custom/overload.js",
+        "$target_gen_dir/custom/postsetup.js",
+        "$target_gen_dir/custom/setup.js",
+        "$target_gen_dir/es5/colors.js",
+        "$target_gen_dir/es5/compiler.js",
+        "$target_gen_dir/es5/debug.js",
+        "$target_gen_dir/es5/debug_off.js",
+        "$target_gen_dir/es5/engine.js",
+        "$target_gen_dir/es5/font.js",
+        "$target_gen_dir/es5/globalVariables.js",
+        "$target_gen_dir/es5/graphics.js",
+        "$target_gen_dir/es5/inputoutput.js",
+        "$target_gen_dir/es5/parser.js",
+        "$target_gen_dir/es5/riffwave.js",
+        "$target_gen_dir/es5/rng.js",
+        "$target_gen_dir/es5/sfxr.js",
+        "$target_gen_dir/es5/storagewrapper.js"]
     args = [
-        "--inpath", rebase_path(".", root_build_dir),
         "--out", rebase_path(target_gen_dir + "/bundled.h", root_build_dir),
-    ] + inputs
+    ] + rebase_path(inputs, root_build_dir)
     outputs = [ "$target_gen_dir/bundled.h" ]
 }
 
