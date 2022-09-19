@@ -75,6 +75,9 @@ void draw(int index_destination, int index_source, int x, int y)
             }
         }
     }
+    // // Uncomment these lines to test flicker
+    // using namespace std::chrono_literals;
+    // std::this_thread::sleep_for(1s * 0.001f);
 }
 
 void render(int index)
@@ -89,10 +92,6 @@ void render(int index)
             graphics::framebuffer + r * graphics::stride);
     }
 }
-
-// // Uncomment these lines to test flicker
-// using namespace std::chrono_literals;
-// std::this_thread::sleep_for(1s * 0.001f);
 
 int sprites_size()
 {
