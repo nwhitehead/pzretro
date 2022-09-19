@@ -157,6 +157,13 @@ duk_ret_t native_screen_fill(duk_context *ctx)
     return 0;
 }
 
+duk_ret_t native_generate_sound(duk_context *ctx)
+{
+    int seed{duk_get_int(ctx, 0)};
+    std::cout << "native_generate_sound " << seed << std::endl;
+    return 0;
+}
+
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
@@ -187,6 +194,8 @@ Context::Context()
     duk_put_global_string(ctx, "native_flip");
     duk_push_c_function(ctx, native_screen_fill, 1);
     duk_put_global_string(ctx, "native_screen_fill");
+    duk_push_c_function(ctx, native_generate_sound, 27);
+    duk_put_global_string(ctx, "native_generate_sound");
 }
 
 Context::~Context()

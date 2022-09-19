@@ -8,7 +8,7 @@ SoundEffect.generate = function(seed, params) {
 	}
 
 	native_generate_sound(
-		parseInt(seed), 
+		parseInt(seed),
 		// Envelope
 		params.p_env_attack,   // Attack time
 		params.p_env_sustain,  // Sustain time
