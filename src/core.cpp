@@ -259,7 +259,9 @@ void retro_init()
     js_context->eval(std::string(
         bundled::data_overload_js,
         bundled::data_overload_js + bundled::data_overload_js_len), "setup.js");
-    js_context->eval(std::string(bundled::data_test_js, bundled::data_test_js + bundled::data_test_js_len), "test.js");
+    js_context->eval(
+        std::string(bundled::data_main_js,
+        bundled::data_main_js + bundled::data_main_js_len), "main.js");
     js_context->start_thread("main();", "main");
 }
 
