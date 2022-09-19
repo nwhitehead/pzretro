@@ -21,8 +21,6 @@ public:
 
     ~Sprite() {
     }
-
-    void draw(int x, int y);
 };
 
 // Clear all sprites
@@ -34,23 +32,13 @@ int add_sprite(int width, int height);
 // Fill in rect on sprite
 void fill_rect(int index, int x, int y, int w, int h, uint16_t color);
 
-struct Instance {
-    int index;
-    int x;
-    int y;
-};
+// Draw one sprite into another one
+void draw(int index_destination, int index_source, int x, int y);
 
-// Draw an instance of a sprite
-int add_instance(int index, int x, int y);
-
-// Clear all sprite instances
-void clear_instances();
-
-// Draw all instances of sprites to framebuffer
-void draw_instances();
+// Render sprite to framebuffer
+void render(int index);
 
 // Get numbers
 int sprites_size();
-int instances_size();
 
 } // namespace sprite

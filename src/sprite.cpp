@@ -13,19 +13,18 @@ namespace sprite {
 
 std::mutex mutex;
 std::vector<Sprite> sprites{};
-std::vector<Instance> instances{};
-
-void clear_sprites()
-{
-    std::lock_guard<std::mutex> guard(mutex);
-    sprites.clear();
-}
 
 int add_sprite(int width, int height)
 {
     std::lock_guard<std::mutex> guard(mutex);
     sprites.emplace_back(width, height);
     return sprites.size() - 1;
+}
+
+void clear_sprites()
+{
+    std::lock_guard<std::mutex> guard(mutex);
+    sprites.clear();
 }
 
 void fill_rect(int index, int x, int y, int w, int h, uint16_t color)
@@ -63,64 +62,42 @@ void fill_rect(int index, int x, int y, int w, int h, uint16_t color)
     }
 }
 
-int add_instance(int index, int x, int y)
+void draw(int index_destination, int index_source, int x, int y)
 {
     std::lock_guard<std::mutex> guard(mutex);
-    Instance i;
-    i.index = index;
-    i.x = x;
-    i.y = y;
-    instances.push_back(i);
-    return instances.size() - 1;
-}
-
-void clear_instances()
-{
-    std::lock_guard<std::mutex> guard(mutex);
-    instances.clear();
-}
-
-void Sprite::draw(int x, int y)
-{
-    std::lock_guard<std::mutex> guard(graphics::mutex);
-    for (int r = 0; r < height; r++) {
-        for (int c = 0; c < width; c++) {
-            uint16_t pixel{data[r * width + c]};
+    Sprite &dst{sprites.at(index_destination)};
+    Sprite &src{sprites.at(index_source)};
+    for (int r = 0; r < src.height; r++) {
+        for (int c = 0; c < src.width; c++) {
+            uint16_t pixel{src.data[r * src.width + c]};
             if (pixel != 0xDEAD) {
-                *(graphics::framebuffer + y * graphics::stride + r * graphics::stride + x + c) = pixel;
+                dst.data[y * dst.width + r * dst.width + x + c] = pixel;
             }
         }
     }
-    // // Uncomment these lines to test flicker
-    // using namespace std::chrono_literals;
-    // std::this_thread::sleep_for(1s * 0.001f);
 }
 
-void draw_instances()
+void render(int index)
 {
-    std::lock_guard<std::mutex> guard(mutex);
-    graphics::clear();
-    for (auto &instance : instances)
-    {
-        int index = instance.index;
-        if (index >= 0 && static_cast<size_t>(index) < sprites.size())
-        {
-            Sprite &sprite{sprites.at(index)};
-            sprite.draw(instance.x, instance.y);
-        }
+    std::lock_guard<std::mutex> guard1(mutex);
+    std::lock_guard<std::mutex> guard2(graphics::mutex);
+    Sprite &sprite{sprites.at(index)};
+    for (int r = 0; r < sprite.height; r++) {
+        std::copy(
+            sprite.data.data() + r * sprite.width,
+            sprite.data.data() + r * sprite.width + sprite.width,
+            graphics::framebuffer + r * graphics::stride);
     }
 }
+
+// // Uncomment these lines to test flicker
+// using namespace std::chrono_literals;
+// std::this_thread::sleep_for(1s * 0.001f);
 
 int sprites_size()
 {
     std::lock_guard<std::mutex> guard(mutex);
     return sprites.size();
-}
-
-int instances_size()
-{
-    std::lock_guard<std::mutex> guard(mutex);
-    return instances.size();
 }
 
 } // namespace sprite

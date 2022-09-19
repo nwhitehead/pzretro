@@ -265,7 +265,6 @@ void retro_init()
 
 void retro_deinit()
 {
-    sprite::clear_instances();
     sprite::clear_sprites();
     js_context.reset(nullptr);
 }

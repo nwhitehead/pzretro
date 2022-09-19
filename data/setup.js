@@ -78,7 +78,7 @@ function createContext(width, height) {
 	};
 	
 	context.drawImage = function(img, x, y){
-		native_sprite_add_instance(img.context.nativeId, x, y);
+		native_sprite_draw(this.nativeId, img.context.nativeId, x, y);
 	};
 	return context;
 }
@@ -90,7 +90,7 @@ function createCanvas(width, height){
 	canvas.context = createContext(width, height);
 	canvas.getContext = function(contextType){return this.context;};
 	 
-	// Get display width and height from C++ engine
+	// Get display width and height from C++ side
 	canvas.parentNode = {};
 	canvas.parentNode.clientWidth = native_get_width();
 	canvas.parentNode.clientHeight = native_get_height();
