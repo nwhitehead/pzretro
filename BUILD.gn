@@ -25,9 +25,11 @@ action("generate_font") {
     script = "tools/generate_font.py"
     args = [
         "--font=" + rebase_path("tools/SourceCodePro/SourceCodePro-Regular.otf", root_build_dir),
-        "-o", rebase_path(target_gen_dir + "/custom_font.js", root_build_dir),
+        "-o", rebase_path(target_gen_dir + "/custom/font.js", root_build_dir),
     ]
-    outputs = [ "$target_gen_dir/es5/custom_font.js" ]
+    outputs = [
+        "$target_gen_dir/custom/font.js"
+    ]
 }
 
 action("babel") {
@@ -72,10 +74,11 @@ action("babel_custom") {
 
 action("generate_internal_data") {
     script = "tools/bundle_files.py"
-    deps = [ ":babel", ":babel_custom" ]
+    deps = [ ":babel", ":babel_custom", ":generate_font" ]
     inputs = [
         "//data/demo.pz",
         "//data/sysfont.png",
+        "$target_gen_dir/custom/font.js",
         "$target_gen_dir/custom/main.js",
         "$target_gen_dir/custom/overload.js",
         "$target_gen_dir/custom/postsetup.js",
@@ -93,7 +96,8 @@ action("generate_internal_data") {
         "$target_gen_dir/es5/riffwave.js",
         "$target_gen_dir/es5/rng.js",
         "$target_gen_dir/es5/sfxr.js",
-        "$target_gen_dir/es5/storagewrapper.js"]
+        "$target_gen_dir/es5/storagewrapper.js",
+    ]
     args = [
         "--out", rebase_path(target_gen_dir + "/bundled.h", root_build_dir),
     ] + rebase_path(inputs, root_build_dir)

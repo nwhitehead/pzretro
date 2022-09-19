@@ -216,8 +216,8 @@ void retro_init()
         bundled::gen_es5_debug_off_js,
         bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
     js_context->eval(std::string(
-        bundled::gen_es5_font_js,
-        bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
+        bundled::gen_custom_font_js,
+        bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
     js_context->eval(std::string(
         bundled::gen_es5_riffwave_js,
         bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");
