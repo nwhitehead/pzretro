@@ -67,10 +67,13 @@ function createContext(width, height) {
 	
 	// create a new context in C++ and get it's id
 	context.nativeId = native_sprite_add(width, height);
-	
+
 	context.clearRect = function(x, y, w, h){
         // #d8d468 corresponds to RGB565 value 0xDEAD
-        native_fill_rect(this.nativeId, "#d8d468", x, y, w, h);
+        // Always clear entire surface of this context to work around a text rendering bug
+        // Problem is when switching from graphics to text mode, then rendering new letters in title screen
+        // Only erases new area, can leave larger old data around
+        native_fill_rect(this.nativeId, "#d8d468", x, y, width, height);
 	};
 	
 	context.fillRect = function(x, y, w, h){
@@ -89,7 +92,7 @@ function createCanvas(width, height){
 	canvas.height = height;
 	canvas.context = createContext(width, height);
 	canvas.getContext = function(contextType){return this.context;};
-	 
+
 	// Get display width and height from C++ side
 	canvas.parentNode = {};
 	canvas.parentNode.clientWidth = native_get_width();
