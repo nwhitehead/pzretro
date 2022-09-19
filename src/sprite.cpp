@@ -67,8 +67,26 @@ void draw(int index_destination, int index_source, int x, int y)
     std::lock_guard<std::mutex> guard(mutex);
     Sprite &dst{sprites.at(index_destination)};
     Sprite &src{sprites.at(index_source)};
-    for (int r = 0; r < src.height; r++) {
-        for (int c = 0; c < src.width; c++) {
+    // Compute clipped start and end ranges on source sprite
+    int start_r{0};
+    int start_c{0};
+    int end_r{src.height};
+    int end_c{src.width};
+    if (x < 0) {
+        start_c = -x;
+    }
+    if (y < 0) {
+        start_r = -y;
+    }
+    if (end_r + y > dst.height) {
+        end_r = dst.height - y;
+    }
+    if (end_c + x > dst.width) {
+        end_c = dst.width - x;
+    }
+    // All addresses should be in bounds now
+    for (int r = start_r; r < end_r; r++) {
+        for (int c = start_c; c < end_c; c++) {
             uint16_t pixel{src.data[r * src.width + c]};
             if (pixel != 0xDEAD) {
                 dst.data[y * dst.width + r * dst.width + x + c] = pixel;

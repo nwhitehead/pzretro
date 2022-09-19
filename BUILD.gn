@@ -7,7 +7,8 @@ cflags = [
     "-Werror",
 ]
 cflags_cc = [
-    "-std=c++17"
+    "-std=c++17",
+    "-D_GLIBCXX_DEBUG",
 ]
 ldflags = [
     "-Wl,--no-allow-shlib-undefined",

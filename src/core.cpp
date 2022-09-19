@@ -265,8 +265,8 @@ void retro_init()
 
 void retro_deinit()
 {
-    sprite::clear_sprites();
     js_context.reset(nullptr);
+    sprite::clear_sprites();
 }
 
 void retro_get_system_info(struct retro_system_info *info)

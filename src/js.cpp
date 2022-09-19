@@ -167,11 +167,8 @@ duk_ret_t native_generate_sound(duk_context *ctx)
 {
     int seed{duk_get_int(ctx, 0)};
     if (soundbank.find(seed) == soundbank.end()) {
-        std::cout << "native_generate_sound " << seed << std::endl;
-
         auto samps = sfxr::generate(seed);
         sfxr::lofi(samps);
-        std::cout << "Generated " << samps.size() << " samples for seed " << seed << std::endl;
         soundbank[seed] = samps;
     }
     return 0;
