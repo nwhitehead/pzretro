@@ -26,6 +26,19 @@ if (target_cpu == "arm") {
     ]
 }
 
+action("configure_duktape") {
+    script = "tools/configure-duktape.py"
+    args = [
+        "--duktape", rebase_path("src/duktape/duktape-2.7.0", root_build_dir),
+        "--outpath", rebase_path(target_gen_dir + "/duktape/", root_build_dir),
+    ]
+    outputs = [
+        "$target_gen_dir/duktape/duktape.h",
+        "$target_gen_dir/duktape/duktape.c",
+        "$target_gen_dir/duktape/duk_config.h",
+    ]
+}
+
 action("generate_font") {
     script = "tools/generate_font.py"
     args = [
@@ -114,6 +127,7 @@ action("generate_internal_data") {
 }
 
 shared_library("puzzlescript_libretro") {
+    deps = [ ":configure_duktape" ]
     sources = [
         "src/core.cpp",
         "src/audio.cpp",
@@ -126,7 +140,7 @@ shared_library("puzzlescript_libretro") {
         "src/sprite.cpp",
         "src/pztime.cpp",
         "src/stb/stb_image.cpp",
-        "src/duktape/duktape-2.7.0/src/duktape.c",
+        "$target_gen_dir/duktape/duktape.c",
     ]
     include_dirs = [
         "src/duktape/duktape-2.7.0/src",
