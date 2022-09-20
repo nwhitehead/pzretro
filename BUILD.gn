@@ -6,6 +6,9 @@ cflags = [
     "-Werror",
     "-O3",
 ]
+cflags_c = [
+    "-std=c99",
+]
 cflags_cc = [
     "-std=c++17",
 ]
@@ -31,6 +34,11 @@ action("configure_duktape") {
     args = [
         "--duktape", rebase_path("src/duktape/duktape-2.7.0", root_build_dir),
         "--outpath", rebase_path(target_gen_dir + "/duktape/", root_build_dir),
+        "--option=-DDUK_USE_FASTINT",
+        "--option=-DDUK_USE_JSON_STRINGIFY_FASTPATH",
+        "--option=-DDUK_USE_JSON_QUOTESTRING_FASTPATH",
+        "--option=-DDUK_USE_JSON_EATWHITE_FASTPATH",
+        "--option=-DDUK_USE_VALSTACK_UNSAFE",
     ]
     outputs = [
         "$target_gen_dir/duktape/duktape.h",
