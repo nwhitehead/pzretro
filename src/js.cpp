@@ -185,7 +185,11 @@ duk_ret_t native_play_sound(duk_context *ctx)
     return 0;
 }
 
-
+duk_ret_t native_time_elapsed(duk_context *ctx)
+{
+    duk_push_number(ctx, pztime::elapsed());
+    return 1;
+}
 
 Context::Context()
 : ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
@@ -221,6 +225,8 @@ Context::Context()
     duk_put_global_string(ctx, "native_generate_sound");
     duk_push_c_function(ctx, native_play_sound, 1);
     duk_put_global_string(ctx, "native_play_sound");
+    duk_push_c_function(ctx, native_time_elapsed, 0);
+    duk_put_global_string(ctx, "native_time_elapsed");
 }
 
 Context::~Context()

@@ -1,15 +1,20 @@
 
 cflags = [
-    "-g",
     "-fPIC",
     "-Wall",
     "-Wextra",
     "-Werror",
+    "-O3",
 ]
 cflags_cc = [
     "-std=c++17",
-    "-D_GLIBCXX_DEBUG",
 ]
+if (include_symbols) {
+    cflags += [ "-g" ]
+}
+if (debug_cxxstdlib) {
+    cflags_cc += [ "-D_GLIBCXX_DEBUG" ]
+}
 ldflags = [
     "-Wl,--no-allow-shlib-undefined",
     "-Wl,--version-script=" + rebase_path("src/export.map", root_build_dir),

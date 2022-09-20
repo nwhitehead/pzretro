@@ -5,7 +5,7 @@
 
 namespace graphics {
 
-constexpr int fps{30};
+constexpr int fps{100};
 constexpr int width{640};
 constexpr int height{480};
 constexpr int stride{width};
@@ -17,6 +17,9 @@ extern uint16_t framebuffer_screen[];
 
 // Mutex for all graphics access to framebuffer
 extern std::mutex mutex;
+
+// Mutex for all graphics access to screen framebuffer
+extern std::mutex screen_mutex;
 
 // Clear all framebuffer
 void clear();

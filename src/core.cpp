@@ -323,22 +323,19 @@ void retro_run()
     }
 
     // Render audio frame
-    {
-        std::vector<float> samples{audio::consume(audio::buffer_len)};
-        std::vector<int16_t> isamples(audio::buffer_len * 2); // double for stereo
-        for (size_t i = 0; i < audio::buffer_len; i++) {
-            float v{samples[i] * 32767.0f};
-            if (v < -32767.0f) v = -32767.0f;
-            if (v > 32767.0f) v = 32767.0f;
-            isamples[i * 2] = static_cast<int16_t>(v);
-            isamples[i * 2 + 1] = static_cast<int16_t>(v);
-        }
-        audio_batch_cb(isamples.data(), audio::buffer_len);
+    std::vector<float> samples{audio::consume(audio::buffer_len)};
+    std::vector<int16_t> isamples(audio::buffer_len * 2); // double for stereo
+    for (size_t i = 0; i < audio::buffer_len; i++) {
+        float v{samples[i] * 32767.0f * 0.8f};
+        v = std::max(std::min(v, 32767.0f), -32767.0f);
+        isamples[i * 2] = static_cast<int16_t>(v);
+        isamples[i * 2 + 1] = static_cast<int16_t>(v);
     }
+    audio_batch_cb(isamples.data(), audio::buffer_len);
 
     // Render video frame
     {
-        std::lock_guard<std::mutex> guard(graphics::mutex);
+        std::lock_guard<std::mutex> guard(graphics::screen_mutex);
         video_cb(graphics::framebuffer_screen, graphics::width, graphics::height, sizeof(uint16_t) * graphics::stride);
     }
 
