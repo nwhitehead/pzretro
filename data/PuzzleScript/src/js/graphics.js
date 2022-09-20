@@ -1,6 +1,23 @@
+
+function interpolate_color(left, right, alpha) {
+    let leftrgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(left);
+    let rightrgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(right);
+    var result = [0, 0, 0];
+    for (var i = 0; i < 3; i++) {
+        result[i] = Math.round(parseInt(leftrgb[i + 1], 16) + alpha * (parseInt(rightrgb[i + 1], 16) - parseInt(leftrgb[i + 1], 16)));
+    }
+    return "#" + ((1 << 24) + (result[0] << 16) + (result[1] << 8) + result[2]).toString(16).slice(1);
+}
+
 function createSprite(name,spritegrid, colors, padding) {
 	if (colors === undefined) {
-		colors = [state.bgcolor, state.fgcolor, '#444', '#888', '#ccc'];
+		colors = [
+            state.bgcolor,
+            state.fgcolor,
+            interpolate_color(state.bgcolor, state.fgcolor, 0.25),
+            interpolate_color(state.bgcolor, state.fgcolor, 0.5),
+            interpolate_color(state.bgcolor, state.fgcolor, 0.75),
+        ];
 	}
 
 	var sprite = makeSpriteCanvas(name);
