@@ -1,57 +1,83 @@
 # PuzzleScript Retroarch Core
 
-In progress
+This is a libretro core that plays PuzzleScript games.
 
-PuzzleScript project:
-https://github.com/increpare/PuzzleScript
+PuzzleScript games are usually online at the main PuzzleScript site:
+https://www.puzzlescript.net/
 
-For making retroarch core, looking at tutorial:
-https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/emulator-build-along-2/
+To play games in the core, you will need to download the source for the game and save it as a `.pz` file.
 
-Project using V8 to do standalone PuzzleScript games:
-https://github.com/Narkhos/Puzzlescript-Wrapper
+The behavior of the core is designed to be as close as possible to the official website. Input bindings for
+the core are done in terms of the RetroPad buttons. Depending on your actual input method this may be
+somewhat confusing, especially if you have keyboard bindings to RetroPad buttons that differ from the standard
+PuzzleScript keyboard bindings.
 
-Docs for using V8:
-https://v8.dev/docs/embed
+Input bindings are:
 
-Linaro toolchain:
-https://releases.linaro.org/components/toolchain/binaries/
+* Directional pad on RetroPad is movement (normally cursor keys on keyboard)
+* `A` RetroPad button is ACTION (normally `X` on the keyboard)
+* `Y` RetroPad button is UNDO (normally `Z` on the keyboard)
+* `START` RetroPad button is RESTART (normally `R` on the keyboard)
+* `L` RetroPad button is ESCAPE (normally `ESC` on the keyboard)
+* `SELECT+START` together is WIN level (this is cheating!!!)
 
+### Building
 
-## Building
+First install `gn` following instructions here:
+https://gn.googlesource.com/gn/
 
-To compile, first install gn. https://gn.googlesource.com/gn/
+Make sure NPM is installed:
+https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+Install dependencies:
+
+    npm install
 
 Build with:
 
     gn gen out/x64
     ninja -C out/x64
 
-The output will be `out/x64/puzzlescript_libretro.so` which can be copied to your RetroArch core folder. Mine is set to `~/.config/retroarch/cores/`.
+The output will be `out/x64/puzzlescript_libretro.so` which can be copied to your RetroArch core folder.
+Mine is set to `~/.config/retroarch/cores/`.
 
 To quickly test output, do:
 
     ninja -C out/x86 && retroarch -L out/x64/puzzlescript_libretro.so
 
-To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross toolchain. Set args:
+### ARM
+
+To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross compile toolchain. Set args with:
 
     gn gen out/arm
     gn args out/arm
 
-Add in:
+Add in configuration lines:
 
     target_cpu = "arm"
     linaro = "~/linaro"
 
-Download and untar the linaro toolchain and sysroot into `~/linaro`:
+Download and uncompress and untar the linaro gcc toolchain and sysroot into `~/linaro`. Files are available here:
 
     https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
-Build with:
+You want these two:
+
+    https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+    https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar.xz
+
+After the args are set as above, build with:
 
     ninja -C out/arm
 
-## Babel
+The output will again be `puzzlescript_libretro.so` in the `out/arm` directory. For the SEGA Genesis Mini, I use
+Project Lunar and load cores from a USB stick. I copy the file to `/project_lunar/retroarch/cores/` and then run
+RetroArch to find the cores and PZ files.
+
+## Notes
+
+
+### Babel
 
 I had to convert the PuzzleScript JS sources to older version of JavaScript to make it compatible with Duktape, there were
 some issues with backtick literals (template strings). I used Babel and the CLI for this. Installed and converted the
@@ -59,11 +85,6 @@ directory.
 
     npm install --save-dev @babel/core @babel/cli
     npm install @babel/preset-env
-    cd data/PuzzleScript/src
-    mkdir es5
-    npx babel js --out-dir es5
-
-The project level `.babelrc` configures some options to make it work (like turn off the "use strict").
 
 ## Compatibility
 
@@ -92,83 +113,19 @@ Set options using this command:
 
     gn args out/x64.release/
 
-The options I set are:
+## References
 
-    is_component_build = true
-    is_debug = false
-    target_cpu = "x64"
-    use_goma = false
-    v8_enable_backtrace = true
-    v8_enable_disassembler = true
-    v8_enable_object_print = true
-    v8_enable_verify_heap = true
-    dcheck_always_on = false
-    v8_use_external_startup_data = false
-    use_sysroot = false
+PuzzleScript project:
+https://github.com/increpare/PuzzleScript
 
-Build with:
+For making retroarch core, looking at tutorial:
+https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/emulator-build-along-2/
 
-    ninja -C out/x64.release v8
+Project using V8 to do standalone PuzzleScript games:
+https://github.com/Narkhos/Puzzlescript-Wrapper
 
-Similarly for ARM, use options:
+Docs for using V8:
+https://v8.dev/docs/embed
 
-    is_component_build = true
-    is_debug = false
-    target_cpu = "arm"
-    v8_target_cpu = "arm"
-    use_goma = false
-    v8_enable_backtrace = true
-    v8_enable_disassembler = true
-    v8_enable_object_print = true
-    v8_enable_verify_heap = true
-    dcheck_always_on = false
-    v8_use_external_startup_data = false
-
-Then build with:
-
-    ninja -C out/arm.release v8
-
-
-## Using V8 build
-
-This results in a bunch of `.so` files in the `out/x64.release` directory including things related to V8 and a custom `libc++`.
-
-To build an application using these files, set `V8ROOT` to point to the base of the V8 project then do something like:
-
-    clang++ \
-        -std=c++17 \
-        -DV8_COMPRESS_POINTERS \
-        -I$V8ROOT \
-        -I$V8ROOT/buildtools/third_party/libc++ \
-        -I$V8ROOT/include \
-        -nostdinc++ \
-        -isystem $V8ROOT/buildtools/third_party/libc++/trunk/include \
-        -c \
-        hello-world.cc \
-        -o hello-world.o
-
-    clang++ \
-        -o hello_world \
-        hello-world.o \
-        -L$V8ROOT/out/x64.release/ \
-        -lv8 -lv8_libbase -lv8_libplatform \
-        -stdlib=libc++ \
-        -Wl,-rpath,$V8ROOT/out/x64.release
-
-### NOTES
-
-The `is_component_build` means the build will generate `.so` files instead of statically linking. You can theoretically get
-a monolithic static build but I had trouble using the final monolithic build since it requires linking against the custom
-libc++ library. I found it easier to build the `.so` files and then link to them, that avoids the issues of listing lots
-of random `.o` files.
-
-## Building on ARM
-
-OLD
-
-On Ubuntu you need to install packages with the cross compiler:
-
-    sudo apt install gcc make gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-
-    set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
-    set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
+Linaro toolchain:
+https://releases.linaro.org/components/toolchain/binaries/

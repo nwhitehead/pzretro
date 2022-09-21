@@ -5,6 +5,11 @@ var simulator_time = -1;
 main = function() {
     var evt = native_get_event();
     while (evt.key !== 0) {
+        if (evt.key === 78 /* N */) {
+            nextLevel();
+            evt = native_get_event();
+            continue;
+        }
         if (evt.isPress) {
             onKeyDown({keyCode: evt.key});
         } else {

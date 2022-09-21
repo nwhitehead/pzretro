@@ -73,7 +73,9 @@ function createContext(width, height) {
         // Always clear entire surface of this context to work around a text rendering bug
         // Problem is when switching from graphics to text mode, then rendering new letters in title screen
         // Only erases new area, can leave larger old data around
-        native_fill_rect(this.nativeId, "#d8d468", x, y, width, height);
+        // Even clear beyond starting size, as size may have increased due to sprite resize
+        // Special value -1, -1 means current width, height
+        native_fill_rect(this.nativeId, "#d8d468", x, y, -1, -1);
 	};
 	
 	context.fillRect = function(x, y, w, h){

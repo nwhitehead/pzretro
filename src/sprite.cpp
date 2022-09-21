@@ -47,11 +47,25 @@ void fill_rect(int index, int x, int y, int w, int h, uint16_t color)
     if (y > sprite.height) {
         y = sprite.height;
     }
-    if (x + w > sprite.width) {
+    if (w == -1) {
         w = sprite.width - x;
     }
-    if (y + h > sprite.height) {
+    if (h == -1) {
         h = sprite.height - y;
+    }
+    if (x + w > sprite.width || y + h > sprite.height) {
+        // Drawing outside size limit dynamically adjusts sprite size
+        int new_width = std::max(sprite.width, x + w);
+        int new_height = std::max(sprite.height, y + h);
+        std::vector<uint16_t> new_data(new_width * new_height, 0xDEAD);
+        for (int i = 0; i < sprite.height; i++) {
+            for (int j = 0; j < sprite.width; j++) {
+                new_data[j + i * new_width] = sprite.data[j + i * sprite.width];
+            }
+        }
+        sprite.width = new_width;
+        sprite.height = new_height;
+        sprite.data = new_data;
     }
     int pitch{sprite.width};
     for (int j = 0; j < h; j++) {
