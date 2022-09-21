@@ -1,20 +1,24 @@
 # Optional:
 # target_cpu = "arm"
 
-if (target_cpu == "arm") {
-    set_default_toolchain("//build/toolchains:arm")
-} else {
-    set_default_toolchain("//build/toolchains:gcc")
-}
-
 declare_args() {
-    # Set to root of linaro toolchain directory that contains sysroot and gcc subdirs
-    linaro = ""
-
     # Include debug symbols in final core for use in gdb etc.
     include_symbols = true
 
     # Enable runtime checks of C++ standard library (vector indexing etc.)
     # Use this to find where memory gets corrupted
     debug_cxxstdlib = false
+}
+
+if (target_cpu == "arm") {
+
+    linaro_shortversion = "7.5-2019.12"
+    linaro_gcc_version = "7.5.0-2019.12"
+    linaro_sysroot_version = "2.25-2019.12"
+    # Assume that host is x86_64
+    linaro_host = "x86_64"
+
+    set_default_toolchain("//build/toolchains:arm")
+} else {
+    set_default_toolchain("//build/toolchains:gcc")
 }

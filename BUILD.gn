@@ -1,3 +1,35 @@
+if (target_cpu == "arm") {
+
+    action("download_linaro_gcc") {
+        script = "tools/download.py"
+        filename = "gcc-linaro-${linaro_gcc_version}-${linaro_host}_arm-linux-gnueabihf.tar"
+        gcc_url = "https://releases.linaro.org/components/toolchain/binaries/${linaro_shortversion}/arm-linux-gnueabihf/" + filename + ".xz"
+        args = [
+            "--url", gcc_url,
+            "--output", rebase_path(target_gen_dir + "/linaro/" + filename + ".xz", root_build_dir),
+            "--xzuncompress",
+            "--untar",
+        ]
+        outputs = [
+            "$target_gen_dir/linaro/gcc-linaro-${linaro_gcc_version}-${linaro_host}_arm-linux-gnueabihf/",
+        ]
+    }
+
+    action("download_linaro_sysroot") {
+        script = "tools/download.py"
+        filename = "sysroot-glibc-linaro-${linaro_sysroot_version}-arm-linux-gnueabihf.tar"
+        gcc_url = "https://releases.linaro.org/components/toolchain/binaries/${linaro_shortversion}/arm-linux-gnueabihf/" + filename + ".xz"
+        args = [
+            "--url", gcc_url,
+            "--output", rebase_path(target_gen_dir + "/linaro/" + filename + ".xz", root_build_dir),
+            "--xzuncompress",
+            "--untar",
+        ]
+        outputs = [
+            "$target_gen_dir/linaro/sysroot-glibc-linaro-${linaro_sysroot_version}-arm-linux-gnueabihf/",
+        ]
+    }
+}
 
 cflags = [
     "-fPIC",
