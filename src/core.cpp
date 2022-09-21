@@ -34,11 +34,6 @@ retro_environment_t environ_cb;
 retro_audio_sample_t audio_cb;
 retro_audio_sample_batch_t audio_batch_cb;
 
-// Font data
-uint16_t *sysfont_data;
-int sysfont_width;
-int sysfont_height;
-
 // JavaScript context
 std::unique_ptr<js::Context> js_context;
 
@@ -64,7 +59,7 @@ bool retro_load_game(const struct retro_game_info *info)
         std::string contents{static_cast<char const*>(info->data), info->size};
         js_context->set("sourceCode", contents);
     } else {
-        std::string contents{bundled::______data_demo_pz, bundled::______data_demo_pz + bundled::______data_demo_pz_len};
+        std::string contents{bundled::___data_demo_pz, bundled::___data_demo_pz + bundled::___data_demo_pz_len};
         js_context->set("sourceCode", contents);
 
     }
@@ -165,17 +160,6 @@ void retro_set_input_state(retro_input_state_t cb)
     input_state_cb = cb;
 }
 
-void draw_letter(int x, int y, int letter)
-{
-    uint16_t *fb = &graphics::framebuffer[x + graphics::stride * y];
-    uint16_t *rom = &sysfont_data[letter * 9];
-    for (int r = 0; r < 9; r++) {
-        for (int c = 0; c < 9; c++) {
-            *(fb + r * graphics::stride + c) = *(rom + r * 256 * 9 + c);
-        }
-    }
-}
-
 void retro_init()
 {
     struct retro_log_callback log;
@@ -184,21 +168,6 @@ void retro_init()
         log_cb = log.log;
     } else {
         log_cb = NULL;
-    }
-
-    // Parse sysfont.png into RGB565 format
-    int channels{0};
-    stbi_uc *data = stbi_load_from_memory(bundled::______data_sysfont_png, bundled::______data_sysfont_png_len, &sysfont_width, &sysfont_height, &channels, 0);
-    sysfont_data = new uint16_t[256 * 9 * sysfont_height]();
-    for (int r = 0; r < 9; r++) {
-        for (int ch = 0; ch < sysfont_width / 9; ch++) {
-            for (int c = 0; c < 9; c++) {
-                stbi_uc col = *(data + r * sysfont_width * 3 + ch * 9 * 3 + c * 3);
-                if (col) {
-                    sysfont_data[r * 256 * 9 + (ch + 33) * 9 + c] = 0xffff;
-                }
-            }
-        }
     }
 
     // Setup duktape

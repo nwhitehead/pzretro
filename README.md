@@ -21,7 +21,27 @@ Input bindings are:
 * `L` RetroPad button is ESCAPE (normally `ESC` on the keyboard)
 * `SELECT+START` together is WIN level (this is cheating!!!)
 
-### Building
+My family had trouble reading the pixel font when playing games, so I replaced the default font with an anti-aliased
+monospaced font.
+
+Many games have message text that refers to keys to press, so I added the RetroPad button names to the title
+screen but still show the correspondence to keyboard keys. So if a game talks about pressing R to restart, hopefully
+it makes sense what that means.
+
+## Future work
+
+Support saving and loading game state.
+
+Add more cheat codes to navigate levels quickly.
+
+Add support for background music.
+
+Add volume level control and other audio options.
+
+Incorporate accessibility features from:
+https://github.com/philschatz/puzzlescript
+
+## Building source
 
 First install `gn` following instructions here:
 https://gn.googlesource.com/gn/
@@ -35,19 +55,19 @@ Install dependencies:
 
 Build with:
 
-    gn gen out/x64
-    ninja -C out/x64
+    gn gen out
+    ninja -C out
 
-The output will be `out/x64/puzzlescript_libretro.so` which can be copied to your RetroArch core folder.
+The output will be `out/puzzlescript_libretro.so` which can be copied to your RetroArch core folder.
 Mine is set to `~/.config/retroarch/cores/`.
 
 To quickly test output, do:
 
-    ninja -C out/x86 && retroarch -L out/x64/puzzlescript_libretro.so
+    ninja -C out && retroarch -L out/puzzlescript_libretro.so
 
 ### ARM
 
-To compile for ARM based mini systems such as SEGA Genesis Mini, use the cross compile toolchain. Set args with:
+To compile for ARM based mini systems such as SEGA Genesis Mini, use the Linaro cross compile toolchain. Set args with:
 
     gn gen out/arm
     gn args out/arm
@@ -57,7 +77,7 @@ Add in configuration lines:
     target_cpu = "arm"
     linaro = "~/linaro"
 
-Download and uncompress and untar the linaro gcc toolchain and sysroot into `~/linaro`. Files are available here:
+Download, uncompress, and untar the Linaro gcc toolchain and sysroot into `~/linaro`. Files are available here:
 
     https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
@@ -74,19 +94,25 @@ The output will again be `puzzlescript_libretro.so` in the `out/arm` directory. 
 Project Lunar and load cores from a USB stick. I copy the file to `/project_lunar/retroarch/cores/` and then run
 RetroArch to find the cores and PZ files.
 
-## Notes
+## Design Notes
 
+The basic idea is to take the actual PuzzleScript source files and interpret them using Duktape in the core. Things like
+the `window`, `document`, and canvas functionality are stubbed out into native function calls to handle input and graphics.
+
+The only change I made to the PuzzleScript source files was to `graphics.js` to allow fonts of different sizes and to add
+antialiasing to the font colors.
+
+Much of the "stubbing" code was taken from Puzzlescript-Wrapper, huge shout out there:
+https://github.com/Narkhos/Puzzlescript-Wrapper
+
+For sound, I used my own translation of SFXR to C++. Sound generation is done entirely from seed number on the C++ side.
 
 ### Babel
 
 I had to convert the PuzzleScript JS sources to older version of JavaScript to make it compatible with Duktape, there were
-some issues with backtick literals (template strings). I used Babel and the CLI for this. Installed and converted the
-directory.
+some issues with backtick literals (template strings). I used Babel and the CLI for this.
 
-    npm install --save-dev @babel/core @babel/cli
-    npm install @babel/preset-env
-
-## Compatibility
+### ARM Compatibility
 
 Using the Ubuntu 22.04 default ARM cross compiler has a glibc that is too new for the SEGA Genesis Mini. I got errors like:
 
@@ -96,36 +122,34 @@ Using the Ubuntu 22.04 default ARM cross compiler has a glibc that is too new fo
 I switched to using Linaro 7.5, that works fine. I believe it has GLIBC 2.25.
 https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
-## Building V8
+For any particular ARM embedded board there may be different version requirements.
+
+### V8
 
 I did some experiments with building with V8. Main issue is that V8 does a hermetic build, if you try to use local
-tools and things you will usually encounter errors. So you have to use recent clang, and the sysroot from Debian Bullseye
-on ARM. In the end that means your app also needs to use those things, which is too new for the SEGA Genesis Mini system
-I have with Project Lunar.
+tools and things you will usually encounter errors. So you have to use the recent clang in the distribution,
+and the sysroot from Debian Bullseye on ARM. In the end that means your app also needs to use those things,
+which is too new for the SEGA Genesis Mini system I have with Project Lunar.
 
-Some notes:
+I was able to get V8 working on x86_64, but this was not as interesting as getting something working on more
+targets.
 
-Download V8 following instructions at: https://v8.dev/docs/build
-
-Cross compile with instructions at: https://v8.dev/docs/embed
-
-Set options using this command:
-
-    gn args out/x64.release/
+V8 documentation is at:
+https://v8.dev/docs/
 
 ## References
 
 PuzzleScript project:
 https://github.com/increpare/PuzzleScript
 
-For making retroarch core, looking at tutorial:
+For making retroarch core, I followed this tutorial:
 https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/emulator-build-along-2/
 
 Project using V8 to do standalone PuzzleScript games:
 https://github.com/Narkhos/Puzzlescript-Wrapper
 
 Docs for using V8:
-https://v8.dev/docs/embed
+https://v8.dev/docs/
 
 Linaro toolchain:
 https://releases.linaro.org/components/toolchain/binaries/

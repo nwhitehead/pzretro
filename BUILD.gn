@@ -107,7 +107,6 @@ action("generate_internal_data") {
     deps = [ ":babel", ":babel_custom", ":generate_font" ]
     inputs = [
         "//data/demo.pz",
-        "//data/sysfont.png",
         "$target_gen_dir/custom/font.js",
         "$target_gen_dir/custom/main.js",
         "$target_gen_dir/custom/overload.js",
