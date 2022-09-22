@@ -75,7 +75,7 @@ To compile for ARM based mini systems such as SEGA Genesis Mini, use the Linaro 
     gn gen out/arm
     gn args out/arm
 
-Add in configuration lines:
+Add in a configuration line:
 
     target_cpu = "arm"
 
