@@ -150,7 +150,7 @@ and the sysroot from Debian Bullseye on ARM. In the end that means your app also
 These are too new for the SEGA Genesis Mini system I have with Project Lunar.
 
 I was able to get V8 working on x86_64, but this was not as interesting as getting something working on more
-targets. If you're on x86 you probably already have a web browser and came go to the main PuzzleScript website
+targets. If you're on x86 you probably already have a web browser and can go to the main PuzzleScript website
 to play games.
 
 V8 documentation is at:
