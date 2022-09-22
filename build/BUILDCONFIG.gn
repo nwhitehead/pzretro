@@ -17,4 +17,8 @@ declare_args() {
     # Enable runtime checks of C++ standard library (vector indexing etc.)
     # Use this to find where memory gets corrupted
     debug_cxxstdlib = false
+
+    # Use pregenerated font.js file instead of using Pillow and the actual font
+    # (Workaround python bugs in old distributions)
+    use_precompiled_font = false
 }

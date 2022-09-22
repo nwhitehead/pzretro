@@ -19,6 +19,6 @@ if __name__ == '__main__':
             os.chdir(args.inpath)
         out = bytes()
         for source in args.sources:
-            result = subprocess.run(["xxd", "-i", source], capture_output=True)
-            out += result.stdout
+            result = subprocess.check_output(' '.join(["xxd", "-i", source]), shell=True)
+            out += result
         fout.write(out)

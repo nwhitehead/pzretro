@@ -20,7 +20,7 @@ if __name__ == '__main__':
     colors = 5
     colormap = "02341"
     font = ImageFont.truetype(args.font, args.size * scale)
-    with open(args.o, 'wt') as outfile:
+    with open(args.o, 'wt', encoding='utf8') as outfile:
         outfile.write('var font = {\n')
         for c in chars:
             escapedc = c

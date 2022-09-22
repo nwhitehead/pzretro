@@ -156,6 +156,12 @@ to play games.
 V8 documentation is at:
 https://v8.dev/docs/
 
+## Generating releases
+
+The `Dockerfile` is setup to build Linux x86_64 binary builds on Ubuntu 18.04. Run using Docker newer than 18.09 with:
+
+    DOCKER_BUILDKIT=1 docker build -o ../release .
+
 ## References
 
 PuzzleScript project:

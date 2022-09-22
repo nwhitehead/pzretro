@@ -47,19 +47,30 @@ action("configure_duktape") {
     ]
 }
 
-action("generate_font") {
-    script = "tools/generate_font.py"
-    args = [
-        "--font=" + rebase_path("tools/fonts/saxmono/saxmono.ttf", root_build_dir),
-        "--size=22",
-        "--width=11",
-        "--height=25",
-        "--baseline=20",
-        "-o", rebase_path(target_gen_dir + "/custom/font.js", root_build_dir),
-    ]
-    outputs = [
-        "$target_gen_dir/custom/font.js"
-    ]
+if (use_precompiled_font) {
+    copy("generate_font") {
+        sources =[
+            "//tools/font.js",
+        ]
+        outputs = [
+            "$target_gen_dir/custom/font.js",
+        ]
+    }
+} else {
+    action("generate_font") {
+        script = "tools/generate_font.py"
+        args = [
+            "--font=" + rebase_path("tools/fonts/saxmono/saxmono.ttf", root_build_dir),
+            "--size=22",
+            "--width=11",
+            "--height=25",
+            "--baseline=20",
+            "-o", rebase_path(target_gen_dir + "/custom/font.js", root_build_dir),
+        ]
+        outputs = [
+            "$target_gen_dir/custom/font.js"
+        ]
+    }
 }
 
 action("babel") {
