@@ -57,8 +57,25 @@ void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
 
 std::string game_contents{};
 
+void update_variables()
+{
+    struct retro_variable var = {
+        .key = "pzretro_custom_font",
+        .value = "",
+    };
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
+        char str[100];
+        snprintf(str, sizeof(str), "%s", var.value);
+
+        log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_custom_font=%s\n", var.value);
+        custom_font = std::string(var.value);
+    }
+}
+
 void reset_game()
 {
+    update_variables();
+
     // Setup duktape
     js_context = std::make_unique<js::Context>();
     js_context->eval(std::string(
@@ -221,21 +238,6 @@ void retro_set_input_state(retro_input_state_t cb)
     input_state_cb = cb;
 }
 
-void update_variables()
-{
-    struct retro_variable var = {
-        .key = "pzretro_custom_font",
-        .value = "",
-    };
-    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
-        char str[100];
-        snprintf(str, sizeof(str), "%s", var.value);
-
-        log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_custom_font=%s\n", var.value);
-        custom_font = std::string(var.value);
-    }
-}
-
 void debug_print(std::string msg)
 {
     if (log_cb) {
@@ -269,8 +271,6 @@ void retro_init()
         js::set_debug_print(debug_print);
         js::set_error_print(error_print);
     }
-    update_variables();
-
 }
 
 void retro_deinit()
