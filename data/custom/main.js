@@ -24,14 +24,14 @@ main = function() {
         let delta = simulator_time + deltatime - new_time;
         if (delta > 0) {
             native_sleep(delta / 1000.0);
+            update();
         } else {
-            // Underrun, no sleeping
-            // Ignore if it's smaller than deltatime
-            if (-delta > deltatime) {
+            // Print underrun if we are very late
+            if (-delta > deltatime*2) {
                 print('UNDERRUN of ' + -delta + 'ms');
             }
+            update();
         }
-        simulator_time = new_time;
+        simulator_time += deltatime;
     }
-    update();
 }
