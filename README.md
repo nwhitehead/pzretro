@@ -6,6 +6,12 @@ PuzzleScript games are usually online at the main PuzzleScript site:
 https://www.puzzlescript.net/
 
 To play games in the core, you will need to download the source for the game and save it as a `.pz` file.
+The normal way to do this is to click the "hack" link on the game to go to the PuzzleScript editor, then
+copy/paste the entire contents of the program into a file with extension `.pz`.
+
+You can also find many games in the Accessible PuzzleScript repository. For these, save the `script.txt` file
+into a file with extension `.pz`.
+https://github.com/philschatz/puzzlescript/tree/master/games
 
 The behavior of the core is designed to be as close as possible to the official website. Input bindings for
 the core are done in terms of the RetroPad buttons. Depending on your actual input method this may be
@@ -25,21 +31,16 @@ My family had trouble reading the pixel font when playing games, so I replaced t
 monospaced font.
 
 Many games have message text that refers to keys to press, so I added the RetroPad button names to the title
-screen but still show the correspondence to keyboard keys. So if a game talks about pressing R to restart, hopefully
+screen but still show the correspondence to keyboard keys. So if a game talks about pressing `R` to restart, hopefully
 it makes sense what that means.
 
 ## Future work
 
-Support saving and loading game state.
-
-Add more cheat codes to navigate levels quickly.
-
-Add support for background music.
-
-Add volume level control and other audio options.
-
-Incorporate accessibility features from:
-https://github.com/philschatz/puzzlescript
+* Support saving and loading game state.
+* Add more cheat codes to navigate levels quickly.
+* Add support for background music.
+* Add volume level control and other audio options.
+* Incorporate more accessibility features from: https://github.com/philschatz/puzzlescript
 
 ## Building source
 
@@ -79,12 +80,13 @@ Add in configuration lines:
 
 Download, uncompress, and untar the Linaro gcc toolchain and sysroot into `~/linaro`. Files are available here:
 
-    https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
+https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
 You want these two:
 
-    https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
-    https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar.xz
+https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+
+https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar.xz
 
 After the args are set as above, build with:
 
@@ -114,7 +116,7 @@ some issues with backtick literals (template strings). I used Babel and the CLI 
 
 ### ARM Compatibility
 
-Using the Ubuntu 22.04 default ARM cross compiler has a glibc that is too new for the SEGA Genesis Mini. I got errors like:
+Using the Ubuntu 22.04 default ARM GCC cross compiler has a glibc that is too new for the SEGA Genesis Mini. I got errors like:
 
     [ERROR] Failed to open libretro core: "/opt/project_lunar/opt/retroarch/config/retroarch/cores/puzzlescript_libretro.so"
     [ERROR] Error(s): /lib/libm.so.6: version `GLIBC_2.27' not found (required by /opt/project_lunar/opt/retroarch/config/retroarch/cores/puzzlescript_libretro.so)
@@ -128,11 +130,12 @@ For any particular ARM embedded board there may be different version requirement
 
 I did some experiments with building with V8. Main issue is that V8 does a hermetic build, if you try to use local
 tools and things you will usually encounter errors. So you have to use the recent clang in the distribution,
-and the sysroot from Debian Bullseye on ARM. In the end that means your app also needs to use those things,
-which is too new for the SEGA Genesis Mini system I have with Project Lunar.
+and the sysroot from Debian Bullseye on ARM. In the end that means your app also needs to use those things.
+These are too new for the SEGA Genesis Mini system I have with Project Lunar.
 
 I was able to get V8 working on x86_64, but this was not as interesting as getting something working on more
-targets.
+targets. If you're on x86 you probably already have a web browser and came go to the main PuzzleScript website
+to play games.
 
 V8 documentation is at:
 https://v8.dev/docs/
@@ -142,10 +145,13 @@ https://v8.dev/docs/
 PuzzleScript project:
 https://github.com/increpare/PuzzleScript
 
-For making retroarch core, I followed this tutorial:
+Accessible PuzzleScript
+https://github.com/philschatz/puzzlescript
+
+For making the retroarch core, I followed this tutorial:
 https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/emulator-build-along-2/
 
-Project using V8 to do standalone PuzzleScript games:
+A project using V8 to do standalone PuzzleScript games:
 https://github.com/Narkhos/Puzzlescript-Wrapper
 
 Docs for using V8:
