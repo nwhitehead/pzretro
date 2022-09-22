@@ -55,21 +55,84 @@ void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
     // Empty
 }
 
+std::string game_contents{};
+
+void reset_game()
+{
+    // Setup duktape
+    js_context = std::make_unique<js::Context>();
+    js_context->eval(std::string(
+        bundled::gen_custom_setup_js,
+        bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_storagewrapper_js,
+        bundled::gen_es5_storagewrapper_js + bundled::gen_es5_storagewrapper_js_len), "storagewrapper.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_globalVariables_js,
+        bundled::gen_es5_globalVariables_js + bundled::gen_es5_globalVariables_js_len), "globalVariables.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_debug_off_js,
+        bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
+    if (custom_font == "on") {
+        js_context->eval(std::string(
+            bundled::gen_custom_font_js,
+            bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
+    } else {
+        js_context->eval(std::string(
+            bundled::gen_es5_font_js,
+            bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
+    }
+    js_context->eval(std::string(
+        bundled::gen_es5_riffwave_js,
+        bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_sfxr_js,
+        bundled::gen_es5_sfxr_js + bundled::gen_es5_sfxr_js_len), "sfxr.js");
+    js_context->eval(std::string(
+        bundled::gen_custom_postsetup_js,
+        bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_rng_js,
+        bundled::gen_es5_rng_js + bundled::gen_es5_rng_js_len), "rng.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_colors_js,
+        bundled::gen_es5_colors_js + bundled::gen_es5_colors_js_len), "colors.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_graphics_js,
+        bundled::gen_es5_graphics_js + bundled::gen_es5_graphics_js_len), "graphics.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_engine_js,
+        bundled::gen_es5_engine_js + bundled::gen_es5_engine_js_len), "engine.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_parser_js,
+        bundled::gen_es5_parser_js + bundled::gen_es5_parser_js_len), "parser.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_compiler_js,
+        bundled::gen_es5_compiler_js + bundled::gen_es5_compiler_js_len), "compiler.js");
+    js_context->eval(std::string(
+        bundled::gen_es5_inputoutput_js,
+        bundled::gen_es5_inputoutput_js + bundled::gen_es5_inputoutput_js_len), "inputoutput.js");
+    js_context->eval(std::string(
+        bundled::gen_custom_overload_js,
+        bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "setup.js");
+    js_context->set("sourceCode", game_contents);
+    js_context->eval(
+        std::string(bundled::gen_custom_main_js,
+        bundled::gen_custom_main_js + bundled::gen_custom_main_js_len), "main.js");
+    js_context->start_thread("main();", "main");
+}
+
 bool retro_load_game(const struct retro_game_info *info)
 {
     // Set source to game if given, otherwise use default bundled demo game
     if (info && info->data) {
         std::string contents{static_cast<char const*>(info->data), info->size};
-        js_context->set("sourceCode", contents);
+        game_contents = contents;
     } else {
-        std::string contents{bundled::___data_demo_pz, bundled::___data_demo_pz + bundled::___data_demo_pz_len};
-        js_context->set("sourceCode", contents);
-
+        std::string contents{bundled::gen_demo_pz, bundled::gen_demo_pz + bundled::gen_demo_pz_len};
+        game_contents = contents;
     }
-    js_context->eval(
-        std::string(bundled::gen_custom_main_js,
-        bundled::gen_custom_main_js + bundled::gen_custom_main_js_len), "main.js");
-    js_context->start_thread("main();", "main");
+    reset_game();
     return true;
 }
 
@@ -208,63 +271,6 @@ void retro_init()
     }
     update_variables();
 
-    // Setup duktape
-    js_context = std::make_unique<js::Context>();
-    js_context->eval(std::string(
-        bundled::gen_custom_setup_js,
-        bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_storagewrapper_js,
-        bundled::gen_es5_storagewrapper_js + bundled::gen_es5_storagewrapper_js_len), "storagewrapper.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_globalVariables_js,
-        bundled::gen_es5_globalVariables_js + bundled::gen_es5_globalVariables_js_len), "globalVariables.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_debug_off_js,
-        bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
-    if (custom_font == "on") {
-        js_context->eval(std::string(
-            bundled::gen_custom_font_js,
-            bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
-    } else {
-        js_context->eval(std::string(
-            bundled::gen_es5_font_js,
-            bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
-    }
-    js_context->eval(std::string(
-        bundled::gen_es5_riffwave_js,
-        bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_sfxr_js,
-        bundled::gen_es5_sfxr_js + bundled::gen_es5_sfxr_js_len), "sfxr.js");
-    js_context->eval(std::string(
-        bundled::gen_custom_postsetup_js,
-        bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_rng_js,
-        bundled::gen_es5_rng_js + bundled::gen_es5_rng_js_len), "rng.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_colors_js,
-        bundled::gen_es5_colors_js + bundled::gen_es5_colors_js_len), "colors.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_graphics_js,
-        bundled::gen_es5_graphics_js + bundled::gen_es5_graphics_js_len), "graphics.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_engine_js,
-        bundled::gen_es5_engine_js + bundled::gen_es5_engine_js_len), "engine.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_parser_js,
-        bundled::gen_es5_parser_js + bundled::gen_es5_parser_js_len), "parser.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_compiler_js,
-        bundled::gen_es5_compiler_js + bundled::gen_es5_compiler_js_len), "compiler.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_inputoutput_js,
-        bundled::gen_es5_inputoutput_js + bundled::gen_es5_inputoutput_js_len), "inputoutput.js");
-    js_context->eval(std::string(
-        bundled::gen_custom_overload_js,
-        bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "setup.js");
-    // Wait until game load time to run main.js
 }
 
 void retro_deinit()
@@ -301,7 +307,9 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_reset()
 {
-    // Do stuff
+    js_context.reset(nullptr);
+    sprite::clear_sprites();
+    reset_game();
 }
 
 std::map<int, char> joypad_keys = {

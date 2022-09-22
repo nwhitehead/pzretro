@@ -102,11 +102,20 @@ action("babel_custom") {
     ]
 }
 
+copy("demopz") {
+    sources =[
+        "//data/demo.pz",
+    ]
+    outputs = [
+        "$target_gen_dir/demo.pz",
+    ]
+}
+
 action("generate_internal_data") {
     script = "tools/bundle_files.py"
-    deps = [ ":babel", ":babel_custom", ":generate_font" ]
+    deps = [ ":babel", ":babel_custom", ":generate_font", ":demopz" ]
     inputs = [
-        "//data/demo.pz",
+        "$target_gen_dir/demo.pz",
         "$target_gen_dir/custom/font.js",
         "$target_gen_dir/custom/main.js",
         "$target_gen_dir/custom/overload.js",

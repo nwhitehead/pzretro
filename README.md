@@ -61,7 +61,8 @@ Build with:
     ninja -C out
 
 The output will be `out/puzzlescript_libretro.so` which can be copied to your RetroArch core folder.
-Mine is set to `~/.config/retroarch/cores/`.
+Mine is set to `~/.config/retroarch/cores/`. You also want to copy `puzzlescript_libretro.info` into your
+Core Info directory. Mine is set to `~/.config/retroarch/cores/`.
 
 To quickly test output, do:
 
@@ -77,7 +78,6 @@ To compile for ARM based mini systems such as SEGA Genesis Mini, use the Linaro 
 Add in configuration lines:
 
     target_cpu = "arm"
-    linaro = "~/linaro"
 
 Download, uncompress, and untar the Linaro gcc toolchain and sysroot into `~/linaro`. Files are available here:
 
@@ -89,7 +89,7 @@ https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-
 
 https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar.xz
 
-After the args are set as above, build with:
+After the args are set as above and the Linaro toolchain is extracted to `~/linaro`, build with:
 
     ninja -C out/arm
 

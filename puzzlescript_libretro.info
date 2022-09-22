@@ -1,0 +1,3 @@
+display_name = "PuzzleScript (pzretro)"
+authors = "Nathan Whitehead"
+supported_extensions = "pz"
