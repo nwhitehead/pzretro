@@ -37,6 +37,9 @@ retro_audio_sample_batch_t audio_batch_cb;
 // JavaScript context
 std::unique_ptr<js::Context> js_context;
 
+// Core options
+std::string custom_font{};
+
 unsigned retro_api_version()
 {
     return RETRO_API_VERSION;
@@ -123,16 +126,11 @@ void retro_set_environment(retro_environment_t cb)
     bool no_rom = true;
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 
-    static const struct retro_controller_description controllers[] = {
-        { "PuzzleScript Controller", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0) },
+    struct retro_variable variables[] = {
+        { "pzretro_custom_font", "Use custom anti-aliased font; on|off" },
+        { NULL, NULL },
     };
-
-    static const struct retro_controller_info ports[] = {
-        { controllers, 1 },
-        { NULL, 0 },
-    };
-
-    cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
+    cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
@@ -160,6 +158,39 @@ void retro_set_input_state(retro_input_state_t cb)
     input_state_cb = cb;
 }
 
+void update_variables()
+{
+    struct retro_variable var = {
+        .key = "pzretro_custom_font",
+        .value = "",
+    };
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
+        char str[100];
+        snprintf(str, sizeof(str), "%s", var.value);
+
+        log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_custom_font=%s\n", var.value);
+        custom_font = std::string(var.value);
+    }
+}
+
+void debug_print(std::string msg)
+{
+    if (log_cb) {
+        log_cb(RETRO_LOG_WARN, msg.c_str());
+    } else {
+        std::cerr << msg << std::endl;
+    }
+}
+
+void error_print(std::string msg)
+{
+    if (log_cb) {
+        log_cb(RETRO_LOG_ERROR, msg.c_str());
+    } else {
+        std::cerr << msg << std::endl;
+    }
+}
+
 void retro_init()
 {
     struct retro_log_callback log;
@@ -169,6 +200,13 @@ void retro_init()
     } else {
         log_cb = NULL;
     }
+
+    if (log_cb) {
+        log_cb(RETRO_LOG_INFO, "retro_init");
+        js::set_debug_print(debug_print);
+        js::set_error_print(error_print);
+    }
+    update_variables();
 
     // Setup duktape
     js_context = std::make_unique<js::Context>();
@@ -184,9 +222,15 @@ void retro_init()
     js_context->eval(std::string(
         bundled::gen_es5_debug_off_js,
         bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
-    js_context->eval(std::string(
-        bundled::gen_custom_font_js,
-        bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
+    if (custom_font == "on") {
+        js_context->eval(std::string(
+            bundled::gen_custom_font_js,
+            bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
+    } else {
+        js_context->eval(std::string(
+            bundled::gen_es5_font_js,
+            bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
+    }
     js_context->eval(std::string(
         bundled::gen_es5_riffwave_js,
         bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");

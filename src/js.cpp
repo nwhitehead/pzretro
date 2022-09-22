@@ -15,12 +15,38 @@
 #include "sfxr.h"
 #include "sprite.h"
 
+#include <sstream>
+
 namespace js {
+
+void default_print(std::string msg)
+{
+    std::cout << msg << std::endl;
+}
+
+std::function<void(std::string)> debug_print{default_print};
+std::function<void(std::string)> error_print{default_print};
+
+void set_debug_print(std::function<void(std::string)> func)
+{
+    debug_print = func;
+}
+
+void set_error_print(std::function<void(std::string)> func)
+{
+    error_print = func;
+}
 
 void fatal_handler(void */*udata*/, const char *msg)
 {
-    std::cerr << "******* JS ERROR: " << msg << std::endl;
-    std::cerr << "FATAL, ABORTING" << std::endl;
+    std::stringstream ss;
+    ss << "******* JS ERROR: " << msg << std::endl;
+    ss << "FATAL, ABORTING" << std::endl;
+    // Output to cerr just in case logging not setup
+    std::cerr << ss.str();
+    // Call error callback
+    error_print(ss.str());
+    // Abort...
     abort();
 }
 
@@ -31,7 +57,9 @@ duk_ret_t native_print(duk_context *ctx)
 	duk_join(ctx, duk_get_top(ctx) - 1);
     std::string msg{duk_safe_to_string(ctx, -1)};
     // Do actual print operation
-	std::cout << msg << std::endl;
+    std::stringstream ss;
+	ss << msg << std::endl;
+    debug_print(ss.str());
 	return 0;
 }
 

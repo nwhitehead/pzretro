@@ -28,7 +28,8 @@ Input bindings are:
 * `SELECT+START` together is WIN level (this is cheating!!!)
 
 My family had trouble reading the pixel font when playing games, so I replaced the default font with an anti-aliased
-monospaced font.
+monospaced font. This can be controlled by the core option "Use custom anti-aliased font". After changing the option
+you need to restart the core entirely to have it take effect. Default is on.
 
 Many games have message text that refers to keys to press, so I added the RetroPad button names to the title
 screen but still show the correspondence to keyboard keys. So if a game talks about pressing `R` to restart, hopefully
@@ -125,6 +126,21 @@ I switched to using Linaro 7.5, that works fine. I believe it has GLIBC 2.25.
 https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/
 
 For any particular ARM embedded board there may be different version requirements.
+
+### Performance
+
+After setup, the `main.js` script sets up a main loop for the JavaScript side. A separate thread is spawned and calls this
+infinite game loop. The main libretro thread handles audo and video callbacks, and adds input events to a queue. The JavaScript
+thread handles game logic and rendering graphics to sprites and a separate backing framebuffer. In an ideal situation, the
+main thread will be performant enough to never glitch and always handle the full FPS without graphical or audio underruns.
+Each loop of the JavaScript main update thread hopefully happen within the game-defined `deltatime` interval. If the game
+has too large maps or too many complicated rules, the update may be late. In this case there should be a time underrun
+for game state update, but this should not affect the main thread doing audio and video callbacks.
+
+In my limited testing on `x86_64` and the SEGA Genesis Mini armv7, performance was acceptable for almost all games
+on `x86_64` and was highly game dependent for the SEGA Genesis Mini. Many realtime games were unplayable on the Mini,
+but many complicated puzzle games were entirely playable. Performance was generally limited by game state updates
+(not audio or video rendering).
 
 ### V8
 
