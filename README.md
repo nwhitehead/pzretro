@@ -64,6 +64,7 @@ content.
 
 * Support saving and loading game state.
 * Add more cheat codes to navigate levels quickly.
+* Support more platforms for binary releases.
 * Add support for background music.
 * Add volume level control and other audio options.
 * Incorporate more accessibility features from: https://github.com/philschatz/puzzlescript
