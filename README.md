@@ -1,5 +1,7 @@
 # PuzzleScript Retroarch Core
 
+![Gameplay screen of Pot Wash Panic](doc/potwashpanic_gameplay.png)
+
 This is a libretro core that plays PuzzleScript games.
 
 PuzzleScript games are usually online at the main PuzzleScript site:
@@ -31,10 +33,32 @@ My family had trouble reading the pixel font when playing games, so I replaced t
 monospaced font. This can be controlled by the core option "Use custom anti-aliased font". After changing the option
 you need to restart the current game to have it take effect. Default is on.
 
+![Title screen of Pot Wash Panic with antialiased font](doc/potwashpanic_font.png)
+
+![Title screen of Pot Wash Panic with original pixel font](doc/potwashpanic_original.png)
+
 Many games have message text that refers to keys to press, so I added the RetroPad button names to the title
 screen but still show the correspondence to keyboard keys. So if a game talks about pressing `R` to restart, hopefully
 it makes sense what that means. I setup my own installation of RetroArch so that my keyboard bindings match the normal
 PuzzleScript bindings (so `X` keyboard key maps to `A` RetroPad button etc.)
+
+## Installing binary releases
+
+Current binary releases are for Linux x86_64 and SEGA Genesis MINI console (Linux ARMv7).
+
+### Linux x86_64
+
+To install on Linux x86_64, copy the release file `x64/puzzlescript_libretro.so` to your RetroArch cores folder.
+This is a configurable location, my core folder is at `~/.config/retroarch/cores`. Also copy `x64/puzzlescript_libretro.info` into your
+Core Info directory. Mine is set to `~/.config/retroarch/cores/`.
+
+### SEGA Genesis Mini
+
+To run the core on the SEGA Genesis Mini console, you need to have RetroArch installed using something like Project Lunar or Hakchi.
+The installation of RetroArch needs to be able to read a USB stick. Once that is true, copy the release file `arm/puzzlescript_libretro.so`
+to your RetroArch cores folder on the USB stick. The tested configuration is Project Lunar, copying the file to `/project_lunar/retroarch/cores/`.
+You also want to copy your `.pz` files to the USB stick. In this configuration, I start the PuzzleScript core first then load the game
+content.
 
 ## Future work
 
@@ -44,7 +68,7 @@ PuzzleScript bindings (so `X` keyboard key maps to `A` RetroPad button etc.)
 * Add volume level control and other audio options.
 * Incorporate more accessibility features from: https://github.com/philschatz/puzzlescript
 
-## Building source
+## Building from source
 
 First install `gn` following instructions here:
 https://gn.googlesource.com/gn/
@@ -138,7 +162,7 @@ Each loop of the JavaScript main update thread hopefully happen within the game-
 has too large maps or too many complicated rules, the update may be late. In this case there should be a time underrun
 for game state update, but this should not affect the main thread doing audio and video callbacks.
 
-In my limited testing on `x86_64` and the SEGA Genesis Mini armv7, performance was acceptable for almost all games
+In my limited testing on `x86_64` and the SEGA Genesis Mini ARMv7, performance was acceptable for almost all games
 on `x86_64` and was highly game dependent for the SEGA Genesis Mini. Many realtime games were unplayable on the Mini,
 but many complicated puzzle games were entirely playable. Performance was generally limited by game state updates
 (not audio or video rendering).
@@ -159,9 +183,13 @@ https://v8.dev/docs/
 
 ## Generating releases
 
-The `Dockerfile` is setup to build Linux x86_64 binary builds on Ubuntu 18.04. Run using Docker newer than 18.09 with:
+The `Dockerfile` is setup to build Linux x86_64 and ARMv7 binary builds on Ubuntu 18.04. Run using Docker newer than 18.09 with:
 
     DOCKER_BUILDKIT=1 docker build -o ../release .
+
+There were a few hacks needed to get things working with the slightly older Python. In particular the font generation using Pillow
+seemed to be broken. So I generated the custom font using my Ubuntu 22.04 desktop and checked in the output for use in the
+BuildKit build.
 
 ## References
 
