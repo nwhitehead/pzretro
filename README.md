@@ -29,11 +29,12 @@ Input bindings are:
 
 My family had trouble reading the pixel font when playing games, so I replaced the default font with an anti-aliased
 monospaced font. This can be controlled by the core option "Use custom anti-aliased font". After changing the option
-you need to restart the core entirely to have it take effect. Default is on.
+you need to restart the current game to have it take effect. Default is on.
 
 Many games have message text that refers to keys to press, so I added the RetroPad button names to the title
 screen but still show the correspondence to keyboard keys. So if a game talks about pressing `R` to restart, hopefully
-it makes sense what that means.
+it makes sense what that means. I setup my own installation of RetroArch so that my keyboard bindings match the normal
+PuzzleScript bindings (so `X` keyboard key maps to `A` RetroPad button etc.)
 
 ## Future work
 
