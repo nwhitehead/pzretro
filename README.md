@@ -25,7 +25,7 @@ Input bindings are:
 * `Y` RetroPad button is UNDO (normally `Z` on the keyboard)
 * `START` RetroPad button is RESTART (normally `R` on the keyboard)
 * `L` RetroPad button is ESCAPE (normally `ESC` on the keyboard)
-* `SELECT+START` together is WIN level (this is cheating!!!)
+* `A+START` together is WIN level (this is cheating!!!)
 
 My family had trouble reading the pixel font when playing games, so I replaced the default font with an anti-aliased
 monospaced font. This can be controlled by the core option "Use custom anti-aliased font". After changing the option
