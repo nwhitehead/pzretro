@@ -15,7 +15,6 @@
 
 #include "libretro.h"
 #include "namespaced_bundled.h"
-#include "stb_image.h"
 #include "duktape.h"
 
 #include "audio.h"
@@ -90,7 +89,7 @@ void reset_game()
     js_context->eval(std::string(
         bundled::gen_es5_debug_off_js,
         bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
-    if (custom_font == "on") {
+    if (custom_font == std::string("on")) {
         js_context->eval(std::string(
             bundled::gen_custom_font_js,
             bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
@@ -198,6 +197,15 @@ bool retro_unserialize(const void */*data*/, size_t /*size*/)
     return false;
 }
 
+namespace { // anonymous
+
+struct retro_variable variables[] = {
+    { "pzretro_custom_font", "Use custom anti-aliased font; on|off" },
+    { NULL, NULL },
+};
+
+} // anonymous
+
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;
@@ -206,10 +214,6 @@ void retro_set_environment(retro_environment_t cb)
     bool no_rom = true;
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 
-    struct retro_variable variables[] = {
-        { "pzretro_custom_font", "Use custom anti-aliased font; on|off" },
-        { NULL, NULL },
-    };
     cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
 }
 

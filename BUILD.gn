@@ -166,7 +166,6 @@ shared_library("puzzlescript_libretro") {
         "src/sfxr.cpp",
         "src/sprite.cpp",
         "src/pztime.cpp",
-        "src/stb/stb_image.cpp",
         "$target_gen_dir/duktape/duktape.c",
     ]
     include_dirs = [

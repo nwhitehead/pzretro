@@ -1,3 +1,8 @@
 display_name = "PuzzleScript (pzretro)"
 authors = "Nathan Whitehead"
 supported_extensions = "pz"
+license = "MIT"
+permissions = ""
+supports_no_game = "true"
+
+description = "Plays PuzzleScript games"
