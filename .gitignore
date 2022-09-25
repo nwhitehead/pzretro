@@ -2,3 +2,5 @@ out/
 node_modules/
 __pycache__
 *.pyc
+*.so
+*.o
