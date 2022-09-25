@@ -6,7 +6,6 @@ corename = "puzzlescript"
 supported_extensions = "pz"
 license = "MIT"
 permissions = ""
-supports_no_game = "true"
 
 # Hardware Information
 systemname = "PuzzleScript"
