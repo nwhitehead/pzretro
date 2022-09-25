@@ -1,0 +1,16 @@
+SRC_DIR = $(CORE_DIR)/src
+DUKTAPE_SRC_DIR = $(SRC_DIR)/duktape/duktape-2.7.0/src
+LIBRETRO_DIR = $(SRC_DIR)/libretro
+
+INCFLAGS := \
+	-I$(SRC_DIR) \
+	-I$(DUKTAPE_SRC_DIR) \
+	-I$(LIBRETRO_DIR)
+
+COREDEFINES = \
+	-D__LIBRETRO__
+
+SOURCES_CXX := $(foreach dir,$(SRC_DIR),$(wildcard $(dir)/*.cpp))
+
+SOURCES_C += \
+	$(DUKTAPE_SRC_DIR)/duktape.c
