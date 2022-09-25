@@ -14,3 +14,4 @@ SOURCES_CXX := $(foreach dir,$(SRC_DIR),$(wildcard $(dir)/*.cpp))
 
 SOURCES_C += \
 	$(DUKTAPE_SRC_DIR)/duktape.c
+
