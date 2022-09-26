@@ -42,6 +42,12 @@ screen but still show the correspondence to keyboard keys. So if a game talks ab
 it makes sense what that means. I setup my own installation of RetroArch so that my keyboard bindings match the normal
 PuzzleScript bindings (so `X` keyboard key maps to `A` RetroPad button etc.)
 
+The core also experimentally supports [PuzzleScript Plus](https://github.com/Auroriax/PuzzleScriptPlus) games.
+This is an alternate fork of regular PuzzleScript that
+includes support for many extensions developed by others. Games saved in the `.pzp` extension will always use
+this engine. There is also an option to force use of this engine for any game. I mainly use this functionality
+to make versions of games with higher sprite sizes to have less ambiguous graphics.
+
 ## Installing binary releases
 
 Current binary releases are for Linux x86_64 and SEGA Genesis MINI console (Linux ARMv7).
@@ -71,13 +77,31 @@ content.
 
 ## Building from source
 
+For the simplest possible build, make sure you have C and C++ compilers installed then do:
+
+    make
+
+This uses pregenerated files and should build the `puzzlescript_libretro.so` core for your host environment. This build
+should theoretically work on all libretro BuildBot targets but this is a work in progress.
+
+The output will be `puzzlescript_libretro.so` which can be copied to your RetroArch core folder.
+Mine is set to `~/.config/retroarch/cores/`. You also want to copy `puzzlescript_libretro.info` into your
+Core Info directory. Mine is set to `~/.config/retroarch/cores/`.
+
+### Full build
+
+The full build uses several intermediate steps to translate and bundle JavaScript files into a header file to be included
+in the core. The antialiased font is also generated and included in the bundled files. You will need to do this
+type of build if you change any JavaScript files or change the custom font. The full build also supports compiling
+for ARM with Linaro toolchain and sysroot.
+
 First install `gn` following instructions here:
 https://gn.googlesource.com/gn/
 
 Make sure NPM is installed:
 https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 
-Install dependencies:
+Install NPM dependencies (basically Babel): 
 
     npm install
 
@@ -199,6 +223,9 @@ https://github.com/increpare/PuzzleScript
 
 Accessible PuzzleScript
 https://github.com/philschatz/puzzlescript
+
+PuzzleScript Plus:
+https://github.com/Auroriax/PuzzleScriptPlus
 
 For making the retroarch core, I followed this tutorial:
 https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/emulator-build-along-2/
