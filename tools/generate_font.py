@@ -41,4 +41,11 @@ if __name__ == '__main__':
                     line += colormap[pixel]
                 outfile.write(f'\\n{line}')
             outfile.write("',\n")
-        outfile.write('}\n')
+        outfile.write('''}
+var fontKeys = Object.keys(font);
+var fontIndex = {};
+
+for (var i = 0; i < fontKeys.length; i++) {
+  fontIndex[fontKeys[i]] = i;
+}
+''')

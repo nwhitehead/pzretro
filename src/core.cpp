@@ -38,6 +38,7 @@ std::unique_ptr<js::Context> js_context;
 
 // Core options
 std::string custom_font{};
+std::string use_puzzlescript_plus{};
 
 unsigned retro_api_version()
 {
@@ -69,6 +70,17 @@ void update_variables()
         log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_custom_font=%s\n", var.value);
         custom_font = std::string(var.value);
     }
+    struct retro_variable var2 = {
+        .key = "pzretro_use_puzzlescript_plus",
+        .value = "",
+    };
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var2) && var2.value) {
+        char str[100];
+        snprintf(str, sizeof(str), "%s", var2.value);
+
+        log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_use_puzzlescript_plus=%s\n", var2.value);
+        use_puzzlescript_plus = std::string(var2.value);
+    }
 }
 
 void reset_game()
@@ -77,60 +89,118 @@ void reset_game()
 
     // Setup duktape
     js_context = std::make_unique<js::Context>();
-    js_context->eval(std::string(
-        bundled::gen_custom_setup_js,
-        bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_storagewrapper_js,
-        bundled::gen_es5_storagewrapper_js + bundled::gen_es5_storagewrapper_js_len), "storagewrapper.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_globalVariables_js,
-        bundled::gen_es5_globalVariables_js + bundled::gen_es5_globalVariables_js_len), "globalVariables.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_debug_off_js,
-        bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
-    if (custom_font == std::string("on")) {
+
+    if (use_puzzlescript_plus == std::string("on")) {
         js_context->eval(std::string(
-            bundled::gen_custom_font_js,
-            bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
+            bundled::gen_custom_setup_js,
+            bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_storagewrapper_js,
+            bundled::gen_plus_storagewrapper_js + bundled::gen_plus_storagewrapper_js_len), "storagewrapper.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_globalVariables_js,
+            bundled::gen_plus_globalVariables_js + bundled::gen_plus_globalVariables_js_len), "globalVariables.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_debug_off_js,
+            bundled::gen_plus_debug_off_js + bundled::gen_plus_debug_off_js_len), "debug_off.js");
+        if (custom_font == std::string("on")) {
+            js_context->eval(std::string(
+                bundled::gen_custom_font_js,
+                bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
+        } else {
+            js_context->eval(std::string(
+                bundled::gen_plus_font_js,
+                bundled::gen_plus_font_js + bundled::gen_plus_font_js_len), "font.js");
+        }
+        js_context->eval(std::string(
+            bundled::gen_plus_riffwave_js,
+            bundled::gen_plus_riffwave_js + bundled::gen_plus_riffwave_js_len), "riffwave.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_sfxr_js,
+            bundled::gen_plus_sfxr_js + bundled::gen_plus_sfxr_js_len), "sfxr.js");
+        js_context->eval(std::string(
+            bundled::gen_custom_postsetup_js,
+            bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_rng_js,
+            bundled::gen_plus_rng_js + bundled::gen_plus_rng_js_len), "rng.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_colors_js,
+            bundled::gen_plus_colors_js + bundled::gen_plus_colors_js_len), "colors.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_graphics_js,
+            bundled::gen_plus_graphics_js + bundled::gen_plus_graphics_js_len), "graphics.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_engine_js,
+            bundled::gen_plus_engine_js + bundled::gen_plus_engine_js_len), "engine.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_parser_js,
+            bundled::gen_plus_parser_js + bundled::gen_plus_parser_js_len), "parser.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_compiler_js,
+            bundled::gen_plus_compiler_js + bundled::gen_plus_compiler_js_len), "compiler.js");
+        js_context->eval(std::string(
+            bundled::gen_plus_inputoutput_js,
+            bundled::gen_plus_inputoutput_js + bundled::gen_plus_inputoutput_js_len), "inputoutput.js");
+        js_context->eval(std::string(
+            bundled::gen_custom_overload_js,
+            bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "overload.js");
     } else {
         js_context->eval(std::string(
-            bundled::gen_es5_font_js,
-            bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
+            bundled::gen_custom_setup_js,
+            bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_storagewrapper_js,
+            bundled::gen_es5_storagewrapper_js + bundled::gen_es5_storagewrapper_js_len), "storagewrapper.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_globalVariables_js,
+            bundled::gen_es5_globalVariables_js + bundled::gen_es5_globalVariables_js_len), "globalVariables.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_debug_off_js,
+            bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
+        if (custom_font == std::string("on")) {
+            js_context->eval(std::string(
+                bundled::gen_custom_font_js,
+                bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
+        } else {
+            js_context->eval(std::string(
+                bundled::gen_es5_font_js,
+                bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
+        }
+        js_context->eval(std::string(
+            bundled::gen_es5_riffwave_js,
+            bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_sfxr_js,
+            bundled::gen_es5_sfxr_js + bundled::gen_es5_sfxr_js_len), "sfxr.js");
+        js_context->eval(std::string(
+            bundled::gen_custom_postsetup_js,
+            bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_rng_js,
+            bundled::gen_es5_rng_js + bundled::gen_es5_rng_js_len), "rng.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_colors_js,
+            bundled::gen_es5_colors_js + bundled::gen_es5_colors_js_len), "colors.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_graphics_js,
+            bundled::gen_es5_graphics_js + bundled::gen_es5_graphics_js_len), "graphics.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_engine_js,
+            bundled::gen_es5_engine_js + bundled::gen_es5_engine_js_len), "engine.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_parser_js,
+            bundled::gen_es5_parser_js + bundled::gen_es5_parser_js_len), "parser.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_compiler_js,
+            bundled::gen_es5_compiler_js + bundled::gen_es5_compiler_js_len), "compiler.js");
+        js_context->eval(std::string(
+            bundled::gen_es5_inputoutput_js,
+            bundled::gen_es5_inputoutput_js + bundled::gen_es5_inputoutput_js_len), "inputoutput.js");
+        js_context->eval(std::string(
+            bundled::gen_custom_overload_js,
+            bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "overload.js");
     }
-    js_context->eval(std::string(
-        bundled::gen_es5_riffwave_js,
-        bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_sfxr_js,
-        bundled::gen_es5_sfxr_js + bundled::gen_es5_sfxr_js_len), "sfxr.js");
-    js_context->eval(std::string(
-        bundled::gen_custom_postsetup_js,
-        bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_rng_js,
-        bundled::gen_es5_rng_js + bundled::gen_es5_rng_js_len), "rng.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_colors_js,
-        bundled::gen_es5_colors_js + bundled::gen_es5_colors_js_len), "colors.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_graphics_js,
-        bundled::gen_es5_graphics_js + bundled::gen_es5_graphics_js_len), "graphics.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_engine_js,
-        bundled::gen_es5_engine_js + bundled::gen_es5_engine_js_len), "engine.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_parser_js,
-        bundled::gen_es5_parser_js + bundled::gen_es5_parser_js_len), "parser.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_compiler_js,
-        bundled::gen_es5_compiler_js + bundled::gen_es5_compiler_js_len), "compiler.js");
-    js_context->eval(std::string(
-        bundled::gen_es5_inputoutput_js,
-        bundled::gen_es5_inputoutput_js + bundled::gen_es5_inputoutput_js_len), "inputoutput.js");
-    js_context->eval(std::string(
-        bundled::gen_custom_overload_js,
-        bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "setup.js");
     js_context->set("sourceCode", game_contents);
     js_context->eval(
         std::string(bundled::gen_custom_main_js,
@@ -201,6 +271,7 @@ namespace { // anonymous
 
 struct retro_variable variables[] = {
     { "pzretro_custom_font", "Use custom anti-aliased font; on|off" },
+    { "pzretro_use_puzzlescript_plus", "Use extended PuzzleScriptPlus engine; off|on" },
     { NULL, NULL },
 };
 
@@ -287,9 +358,9 @@ void retro_get_system_info(struct retro_system_info *info)
 {
     memset(info, 0, sizeof(*info));
     info->library_name = "PuzzleScript";
-    info->library_version = "0.2";
+    info->library_version = "0.2.1";
     info->need_fullpath = false;
-    info->valid_extensions = "pz";
+    info->valid_extensions = "pz|pzp";
 }
 
 void retro_get_system_av_info(struct retro_system_av_info *info)

@@ -98,6 +98,31 @@ action("babel") {
     ]
 }
 
+action("babel_plus") {
+    script = "tools/babel.py"
+    args = [
+        "--config", rebase_path("//.babelrc", root_build_dir),
+        "--inpath", rebase_path("data/PuzzleScriptPlus/src/js", root_build_dir),
+        "--outpath", rebase_path(target_gen_dir + "/plus", root_build_dir),
+    ]
+    outputs = [
+        "$target_gen_dir/plus/colors.js",
+        "$target_gen_dir/plus/compiler.js",
+        "$target_gen_dir/plus/debug.js",
+        "$target_gen_dir/plus/debug_off.js",
+        "$target_gen_dir/plus/engine.js",
+        "$target_gen_dir/plus/font.js",
+        "$target_gen_dir/plus/globalVariables.js",
+        "$target_gen_dir/plus/graphics.js",
+        "$target_gen_dir/plus/inputoutput.js",
+        "$target_gen_dir/plus/parser.js",
+        "$target_gen_dir/plus/riffwave.js",
+        "$target_gen_dir/plus/rng.js",
+        "$target_gen_dir/plus/sfxr.js",
+        "$target_gen_dir/plus/storagewrapper.js",
+    ]
+}
+
 action("babel_custom") {
     script = "tools/babel.py"
     args = [
@@ -124,7 +149,7 @@ copy("demopz") {
 
 action("generate_internal_data") {
     script = "tools/bundle_files.py"
-    deps = [ ":babel", ":babel_custom", ":generate_font", ":demopz" ]
+    deps = [ ":babel", ":babel_plus", ":babel_custom", ":generate_font", ":demopz" ]
     inputs = [
         "$target_gen_dir/demo.pz",
         "$target_gen_dir/custom/font.js",
@@ -146,6 +171,20 @@ action("generate_internal_data") {
         "$target_gen_dir/es5/rng.js",
         "$target_gen_dir/es5/sfxr.js",
         "$target_gen_dir/es5/storagewrapper.js",
+        "$target_gen_dir/plus/colors.js",
+        "$target_gen_dir/plus/compiler.js",
+        "$target_gen_dir/plus/debug.js",
+        "$target_gen_dir/plus/debug_off.js",
+        "$target_gen_dir/plus/engine.js",
+        "$target_gen_dir/plus/font.js",
+        "$target_gen_dir/plus/globalVariables.js",
+        "$target_gen_dir/plus/graphics.js",
+        "$target_gen_dir/plus/inputoutput.js",
+        "$target_gen_dir/plus/parser.js",
+        "$target_gen_dir/plus/riffwave.js",
+        "$target_gen_dir/plus/rng.js",
+        "$target_gen_dir/plus/sfxr.js",
+        "$target_gen_dir/plus/storagewrapper.js",
     ]
     args = [
         "--out", rebase_path(target_gen_dir + "/bundled.h", root_build_dir),

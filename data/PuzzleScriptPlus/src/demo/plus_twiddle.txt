@@ -1,0 +1,265 @@
+title Runtime Metadata Twiddling v2
+author Tom H.
+homepage https://auroriax.github.io/PuzzleScript//Documentation/plus_runtime_metadata_twiddling.html
+
+runtime_metadata_twiddling
+runtime_metadata_twiddling_debug
+realtime_interval 0.2
+
+level_select
+
+========
+OBJECTS
+========
+
+Background
+LIGHTGREEN GREEN
+11111
+01111
+11101
+11111
+10111
+
+
+Target
+DarkBlue
+.....
+.000.
+.0.0.
+.000.
+.....
+
+Wall
+BROWN DARKBROWN
+00010
+11111
+01000
+11111
+00010
+
+PlayerNormal
+Black Orange White Blue
+.000.
+.111.
+22222
+.333.
+...3.
+
+PlayerBlink
+Black Orange White Blue
+.000.
+.111.
+22222
+.333.
+.3...
+
+Crate
+Orange Yellow
+00000
+0...0
+0...0
+0...0
+00000
+
+SlowBtn s
+lightblue white
+00000
+00000
+01110
+00000
+00000
+
+FastBtn f
+red white
+00000
+00100
+01110
+00100
+00000
+
+ZoomBtn z
+Yellow Black
+00000
+01110
+01010
+01110
+00000
+
+FlickBtn t
+Brown white
+01010
+11111
+01010
+11111
+01010
+
+FastWalkBtn d
+lightbrown white
+00000
+01100
+01100
+01110
+00000
+
+DefaultBtn r
+Pink White
+00000
+01100
+01010
+01100
+00000
+
+WipeButton B
+Gray White
+00000
+01010
+00100
+01010
+00000
+
+UndoBlockButton U
+darkgray White
+00000
+01100
+00010
+01100
+00000
+
+LightModeBtn L
+White
+
+DarkModeBtn N
+Black
+
+ConveyorRight -
+Black White
+00000
+00100
+00010
+00100
+00000
+
+ConveyorDown /
+lightred White
+00000
+00000
+01010
+00100
+00000
+
+=======
+LEGEND
+=======
+
+. = Background
+# = Wall
+P = PlayerNormal
+* = Crate
+@ = Crate and Target
+O = Target
+
+Player = PlayerNormal or PlayerBlink
+
+=======
+SOUNDS
+=======
+
+Crate MOVE 36772507
+
+================
+COLLISIONLAYERS
+================
+
+Background
+ConveyorRight, ConveyorDown
+SlowBtn, FastBtn, ZoomBtn, DefaultBtn, FlickBtn, FastWalkBtn, WipeButton, UndoBlockButton, DarkModeBtn, LightModeBtn
+Target
+Player, Wall, Crate
+
+======
+RULES
+======
+(Basics)
+[ stationary PlayerNormal] -> [action PlayerBlink]
+[ stationary PlayerBlink] -> [action PlayerNormal]
+
+[ >  Player | Crate ] -> [  >  Player | > Crate  ]
+[ >  Crate | Crate ] -> [  >  Crate | > Crate  ]
+
+(Conveyors: Not all conveyors move as fast)
+[ Player ConveyorRight] -> [right Player ConveyorRight] again again_interval 0.5
+[ Player ConveyorDown] -> [down Player ConveyorDown] again again_interval 0.1
+
+(Buttons)
+[> Player | SlowBtn] -> realtime_interval 0.5
+[> Player | FastBtn] -> realtime_interval 0.1
+
+[> Player | ZoomBtn] -> smoothscreen 5x5
+[> Player | FlickBtn] -> smoothscreen flick 5x5 3x3
+
+[> Player | FastWalkBtn] -> key_repeat_interval 0.05
+
+[> Player | LightModeBtn] -> background_color #DDDDDD
+[> Player | LightModeBtn] -> text_color #222222
+[> Player | LightModeBtn] -> message Light mode enabled!
+
+[> Player | DarkModeBtn] -> background_color #222222
+[> Player | DarkModeBtn] -> text_color #DDDDDD
+[> Player | DarkModeBtn] -> message Dark mode enabled!
+
+[> Player | UndoBlockButton] -> noundo true
+[> Player | UndoBlockButton] -> norestart true
+[> Player | UndoBlockButton] -> message Muhaha, I've stolen your ability to undo and restart!
+
+(Buttons with special meanings)
+(DEFAULT will set the value that this setting was at the beginning of the level)
+[> Player | DefaultBtn] -> realtime_interval default
+[> Player | DefaultBtn] -> key_repeat_interval default
+[> Player | DefaultBtn] -> smoothscreen default
+
+(WIPE will act as if the value was never set & removes it from the metadata)
+[> Player | WipeButton] -> realtime_interval wipe
+[> Player | WipeButton] -> key_repeat_interval wipe
+[> Player | WipeButton] -> smoothscreen wipe
+
+==============
+WINCONDITIONS
+==============
+
+All Target on Crate
+Some Crate
+
+=======
+LEVELS
+=======
+
+section Testing Grounds
+...............
+.n.l.....----/.
+............./.
+.........s.f./.
+............./.
+.d.....p.......
+...............
+...............
+...............
+.u...z.t...b.r.
+...............
+
+section Level 1
+####..
+#.O#..
+#..###
+#@P..#
+#..*.#
+#..###
+####..
+
+section Level 2
+######
+#....#
+#.#P.#
+#.*@.#
+#.O@.#
+#....#
+######
