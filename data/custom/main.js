@@ -29,6 +29,7 @@ main = function() {
             // Print underrun if we are very late
             if (-delta > deltatime*2) {
                 print('UNDERRUN of ' + -delta + 'ms');
+                simulator_time += -delta - deltatime;
             }
             update();
         }

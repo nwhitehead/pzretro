@@ -40,6 +40,10 @@ std::unique_ptr<js::Context> js_context;
 std::string custom_font{};
 std::string use_puzzlescript_plus{};
 
+// Game source contents
+std::string game_contents{};
+std::string game_filename{};
+
 unsigned retro_api_version()
 {
     return RETRO_API_VERSION;
@@ -54,8 +58,6 @@ void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
 {
     // Empty
 }
-
-std::string game_contents{};
 
 void update_variables()
 {
@@ -83,6 +85,21 @@ void update_variables()
     }
 }
 
+bool ends_with(std::string const &value, std::string const &ending)
+{
+    if (ending.size() > value.size()) {
+        return false;
+    }
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+bool should_use_puzzlescript_plus()
+{
+    bool filename_endswith_pzp{ends_with(game_filename, std::string{".pzp"})};
+    std::cerr << "PZP endswidth = " << filename_endswith_pzp << std::endl;
+    return use_puzzlescript_plus == std::string("on") || filename_endswith_pzp;
+}
+
 void reset_game()
 {
     update_variables();
@@ -90,7 +107,8 @@ void reset_game()
     // Setup duktape
     js_context = std::make_unique<js::Context>();
 
-    if (use_puzzlescript_plus == std::string("on")) {
+    if (should_use_puzzlescript_plus()) {
+        js_context->eval(std::string("use_puzzlescript_plus = true;"), "eval");
         js_context->eval(std::string(
             bundled::gen_custom_setup_js,
             bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
@@ -146,6 +164,7 @@ void reset_game()
             bundled::gen_custom_overload_js,
             bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "overload.js");
     } else {
+        js_context->eval(std::string("use_puzzlescript_plus = false;"), "eval");
         js_context->eval(std::string(
             bundled::gen_custom_setup_js,
             bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
@@ -214,6 +233,7 @@ bool retro_load_game(const struct retro_game_info *info)
     if (info && info->data) {
         std::string contents{static_cast<char const*>(info->data), info->size};
         game_contents = contents;
+        game_filename = std::string{info->path};
     } else {
         std::string contents{bundled::gen_demo_pz, bundled::gen_demo_pz + bundled::gen_demo_pz_len};
         game_contents = contents;
@@ -270,7 +290,7 @@ bool retro_unserialize(const void */*data*/, size_t /*size*/)
 namespace { // anonymous
 
 struct retro_variable variables[] = {
-    { "pzretro_custom_font", "Use custom anti-aliased font; on|off" },
+    { "pzretro_custom_font", "Use custom anti-aliased font; off|on" },
     { "pzretro_use_puzzlescript_plus", "Use extended PuzzleScriptPlus engine; off|on" },
     { NULL, NULL },
 };

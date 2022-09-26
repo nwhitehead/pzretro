@@ -1,6 +1,7 @@
 #include "js.h"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -131,6 +132,29 @@ duk_ret_t native_sprite_draw(duk_context *ctx)
     return 0;
 }
 
+duk_ret_t native_sprite_draw_partial(duk_context *ctx)
+{
+    int dst{duk_get_int(ctx, 0)};
+    int src{duk_get_int(ctx, 1)};
+    int sx{duk_get_int(ctx, 2)};
+    int sy{duk_get_int(ctx, 3)};
+    int sw{duk_get_int(ctx, 4)};
+    int sh{duk_get_int(ctx, 5)};
+    int dx{duk_get_int(ctx, 6)};
+    int dy{duk_get_int(ctx, 7)};
+    int dw{duk_get_int(ctx, 8)};
+    int dh{duk_get_int(ctx, 9)};
+    if (sw != dw || sh != dh) {
+        std::stringstream ss;
+        ss << "native_sprite_draw_partial failed, sw=" << sw << " dw=" << dw << " sh=" << sh << " dh=" << dh << std::endl;
+        debug_print(ss.str());
+        return 0;
+    }
+    sprite::draw_partial(dst, src, sx, sy, sw, sh, dx, dy);
+    sx = sx; sy = sy;
+    return 0;
+}
+
 duk_ret_t native_sprite_render(duk_context *ctx)
 {
     int id{duk_get_int(ctx, 0)};
@@ -233,6 +257,8 @@ Context::Context()
 	duk_put_global_string(ctx, "native_fill_rect");
 	duk_push_c_function(ctx, native_sprite_draw, 4);
 	duk_put_global_string(ctx, "native_sprite_draw");
+	duk_push_c_function(ctx, native_sprite_draw_partial, 10);
+	duk_put_global_string(ctx, "native_sprite_draw_partial");
 	duk_push_c_function(ctx, native_sprite_render, 1);
 	duk_put_global_string(ctx, "native_sprite_render");
     duk_push_c_function(ctx, native_sleep, 1);

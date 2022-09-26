@@ -35,6 +35,9 @@ void fill_rect(int index, int x, int y, int w, int h, uint16_t color);
 // Draw one sprite into another one
 void draw(int index_destination, int index_source, int x, int y);
 
+// Draw one sprite into another one, possibly only part of source one
+void draw_partial(int index_destination, int index_source, int sx, int sy, int width, int height, int dx, int dy);
+
 // Render sprite to framebuffer
 void render(int index);
 

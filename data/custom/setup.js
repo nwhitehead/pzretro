@@ -70,20 +70,29 @@ function createContext(width, height) {
 
 	context.clearRect = function(x, y, w, h){
         // #d8d468 corresponds to RGB565 value 0xDEAD
-        // Always clear entire surface of this context to work around a text rendering bug
-        // Problem is when switching from graphics to text mode, then rendering new letters in title screen
-        // Only erases new area, can leave larger old data around
-        // Even clear beyond starting size, as size may have increased due to sprite resize
-        // Special value -1, -1 means current width, height
-        native_fill_rect(this.nativeId, "#d8d468", x, y, -1, -1);
+        if (!use_puzzlescript_plus) {
+            // Always clear entire surface of this context to work around a text rendering bug
+            // Problem is when switching from graphics to text mode, then rendering new letters in title screen
+            // Only erases new area, can leave larger old data around
+            // Even clear beyond starting size, as size may have increased due to sprite resize
+            // Special value -1, -1 means current width, height
+            native_fill_rect(this.nativeId, "#d8d468", x, y, -1, -1);
+        } else {
+            // PuzzleScriptPlus needs accurate clearing
+            native_fill_rect(this.nativeId, "#d8d468", x, y, w, h);
+        }
 	};
 	
 	context.fillRect = function(x, y, w, h){
         native_fill_rect(this.nativeId, this.fillStyle, x, y, w, h);
 	};
 	
-	context.drawImage = function(img, x, y){
-		native_sprite_draw(this.nativeId, img.context.nativeId, x, y);
+	context.drawImage = function(img, x, y, swidth, sheight, dx, dy, dwidth, dheight){
+        if (swidth !== undefined && swidth !== 0) {
+		    native_sprite_draw_partial(this.nativeId, img.context.nativeId, x, y, swidth, sheight, dx, dy, dwidth, dheight);
+        } else {
+		    native_sprite_draw(this.nativeId, img.context.nativeId, x, y);
+        }
 	};
 	return context;
 }

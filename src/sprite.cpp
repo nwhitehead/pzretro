@@ -78,32 +78,49 @@ void fill_rect(int index, int x, int y, int w, int h, uint16_t color)
 
 void draw(int index_destination, int index_source, int x, int y)
 {
+    int width;
+    int height;
+    {
+        std::lock_guard<std::mutex> guard(mutex);
+        Sprite &src{sprites.at(index_source)};
+        width = src.width;
+        height = src.height;
+    }
+    draw_partial(index_destination, index_source, 0, 0, width, height, x, y);
+}
+
+void draw_partial(int index_destination, int index_source, int sx, int sy, int width, int height, int dx, int dy)
+{
     std::lock_guard<std::mutex> guard(mutex);
     Sprite &dst{sprites.at(index_destination)};
     Sprite &src{sprites.at(index_source)};
     // Compute clipped start and end ranges on source sprite
-    int start_r{0};
-    int start_c{0};
-    int end_r{src.height};
-    int end_c{src.width};
-    if (x < 0) {
-        start_c = -x;
+    int start_r{sy};
+    int start_c{sx};
+    int end_r{sy + height};
+    int end_c{sx + width};
+    if (dx < 0) {
+        dx = 0;
+        start_c += -dx;
     }
-    if (y < 0) {
-        start_r = -y;
+    if (dy < 0) {
+        dy = 0;
+        start_r += -dy;
     }
-    if (end_r + y > dst.height) {
-        end_r = dst.height - y;
+    if (height + dy > dst.height) {
+        height = dst.height - dy;
+        end_r = sy + height;
     }
-    if (end_c + x > dst.width) {
-        end_c = dst.width - x;
+    if (width + dx > dst.width) {
+        width = dst.width - dx;
+        end_c = sx + width;
     }
     // All addresses should be in bounds now
-    for (int r = start_r; r < end_r; r++) {
-        for (int c = start_c; c < end_c; c++) {
+    for (int r = start_r, dr = dy; r < end_r; r++, dr++) {
+        for (int c = start_c, dc = dx; c < end_c; c++, dc++) {
             uint16_t pixel{src.data[r * src.width + c]};
             if (pixel != 0xDEAD) {
-                dst.data[y * dst.width + r * dst.width + x + c] = pixel;
+                dst.data[dr * dst.width + dc] = pixel;
             }
         }
     }
