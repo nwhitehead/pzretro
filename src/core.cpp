@@ -96,7 +96,6 @@ bool ends_with(std::string const &value, std::string const &ending)
 bool should_use_puzzlescript_plus()
 {
     bool filename_endswith_pzp{ends_with(game_filename, std::string{".pzp"})};
-    std::cerr << "PZP endswidth = " << filename_endswith_pzp << std::endl;
     return use_puzzlescript_plus == std::string("on") || filename_endswith_pzp;
 }
 
