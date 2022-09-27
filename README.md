@@ -149,7 +149,7 @@ RetroArch to find the cores and PZ files.
 
 ## Design Notes
 
-The basic idea is to take the actual PuzzleScript source files and interpret them using Duktape in the core. Things like
+The basic idea is to take the actual PuzzleScript source files and interpret them using QuickJS in the core. Things like
 the `window`, `document`, and canvas functionality are stubbed out into native function calls to handle input and graphics.
 
 The only change I made to the PuzzleScript source files was to `graphics.js` to allow fonts of different sizes and to add
@@ -162,7 +162,7 @@ For sound, I used my own translation of SFXR to C++. Sound generation is done en
 
 ### Babel
 
-I had to convert the PuzzleScript JS sources to older version of JavaScript to make it compatible with Duktape, there were
+I had to convert the PuzzleScript JS sources to older version of JavaScript to make it more compatible with Duktape (used previously), there were
 some issues with backtick literals (template strings). I used Babel and the CLI for this.
 
 ### ARM Compatibility
@@ -191,6 +191,8 @@ In my limited testing on `x86_64` and the SEGA Genesis Mini ARMv7, performance w
 on `x86_64` and was highly game dependent for the SEGA Genesis Mini. Many realtime games were unplayable on the Mini,
 but many complicated puzzle games were entirely playable. Performance was generally limited by game state updates
 (not audio or video rendering).
+
+QuickJS was significantly faster than Duktape in limited testing.
 
 ### V8
 
@@ -232,6 +234,9 @@ https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/e
 
 A project using V8 to do standalone PuzzleScript games:
 https://github.com/Narkhos/Puzzlescript-Wrapper
+
+QuickJS
+https://bellard.org/quickjs/
 
 Docs for using V8:
 https://v8.dev/docs/
