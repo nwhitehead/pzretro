@@ -1,11 +1,13 @@
 SRC_DIR = $(CORE_DIR)/src
 DUKTAPE_SRC_DIR = $(SRC_DIR)/duktape/duktape-2.7.0/src
 LIBRETRO_DIR = $(SRC_DIR)/libretro
+QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs-2021-03-27
 
 INCFLAGS := \
 	-I$(SRC_DIR) \
 	-I$(DUKTAPE_SRC_DIR) \
-	-I$(LIBRETRO_DIR)
+	-I$(LIBRETRO_DIR) \
+    -I$(QUICKJS_SRC_DIR)
 
 COREDEFINES = \
 	-D__LIBRETRO__
@@ -15,6 +17,15 @@ SOURCES_CXX := $(foreach dir,$(SRC_DIR),$(wildcard $(dir)/*.cpp))
 SOURCES_C += \
 	$(DUKTAPE_SRC_DIR)/duktape.c
 
-CXXFLAGS += -pthread
-CFLAGS += -pthread
+SOURCES_C += \
+    $(QUICKJS_SRC_DIR)/quickjs.c \
+    $(QUICKJS_SRC_DIR)/libregexp.c \
+    $(QUICKJS_SRC_DIR)/libunicode.c \
+    $(QUICKJS_SRC_DIR)/cutils.c \
+    $(QUICKJS_SRC_DIR)/quickjs-libc.c
+
+CFLAGS += -D_GNU_SOURCE -DCONFIG_VERSION=\"2021-03-27\"
+
+CXXFLAGS += -pthread -g
+CFLAGS += -pthread -g
 LDFLAGS += -pthread

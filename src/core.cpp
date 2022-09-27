@@ -15,7 +15,6 @@
 
 #include "libretro.h"
 #include "namespaced_bundled.h"
-#include "duktape.h"
 
 #include "audio.h"
 #include "event.h"
@@ -32,9 +31,6 @@ retro_input_state_t input_state_cb;
 retro_environment_t environ_cb;
 retro_audio_sample_t audio_cb;
 retro_audio_sample_batch_t audio_batch_cb;
-
-// JavaScript context
-std::unique_ptr<js::Context> js_context;
 
 // Core options
 std::string custom_font{};
@@ -99,11 +95,23 @@ bool should_use_puzzlescript_plus()
     return use_puzzlescript_plus == std::string("on") || filename_endswith_pzp;
 }
 
-void reset_game()
+class GameLoop
 {
-    update_variables();
+    // JavaScript context
+    std::unique_ptr<js::Context> js_context;
 
-    // Setup duktape
+    // JavaScript thread
+    std::thread js_thread;
+    std::atomic<bool> js_thread_active;
+
+    void thread_func();
+public:
+    GameLoop();
+    ~GameLoop();
+};
+
+void GameLoop::thread_func()
+{
     js_context = std::make_unique<js::Context>();
 
     if (should_use_puzzlescript_plus()) {
@@ -223,7 +231,34 @@ void reset_game()
     js_context->eval(
         std::string(bundled::gen_custom_main_js,
         bundled::gen_custom_main_js + bundled::gen_custom_main_js_len), "main.js");
-    js_context->start_thread("main();", "main");
+    std::cerr << "Did setup, starting main loop" << std::endl;
+
+    while(js_thread_active) {
+        js_context->eval(std::string("main();"), "main");
+    }
+    // Destroy js context on exit
+    js_context.reset(nullptr);
+}
+
+GameLoop::GameLoop()
+{
+    // Setup thread
+    js_thread_active = true;
+    js_thread = std::thread(&GameLoop::thread_func, this);
+}
+
+GameLoop::~GameLoop()
+{
+    js_thread_active = false;
+    js_thread.join();
+}
+
+std::unique_ptr<GameLoop> gameLoop;
+
+void reset_game()
+{
+    update_variables();
+    gameLoop = std::make_unique<GameLoop>();
 }
 
 bool retro_load_game(const struct retro_game_info *info)
@@ -369,7 +404,7 @@ void retro_init()
 
 void retro_deinit()
 {
-    js_context.reset(nullptr);
+    gameLoop.reset(nullptr);
     sprite::clear_sprites();
 }
 
@@ -401,7 +436,6 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_reset()
 {
-    js_context.reset(nullptr);
     sprite::clear_sprites();
     reset_game();
 }

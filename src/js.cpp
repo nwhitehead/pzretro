@@ -16,6 +16,8 @@
 #include "sfxr.h"
 #include "sprite.h"
 
+#include "quickjs.h"
+
 #include <sstream>
 
 namespace js {
@@ -51,17 +53,45 @@ void fatal_handler(void */*udata*/, const char *msg)
     abort();
 }
 
-duk_ret_t native_print(duk_context *ctx)
+int js_getInt32(JSContext *ctx, JSValueConst &arg)
 {
-	duk_push_string(ctx, " ");
-	duk_insert(ctx, 0);
-	duk_join(ctx, duk_get_top(ctx) - 1);
-    std::string msg{duk_safe_to_string(ctx, -1)};
+    int value{-1};
+    if (JS_ToInt32(ctx, &value, arg)) {
+        throw std::runtime_error("js_getInt32 exception");
+    }
+    return value;
+}
+
+double js_getNumber(JSContext *ctx, JSValueConst &arg)
+{
+    double value{0};
+    if (JS_ToFloat64(ctx, &value, arg)) {
+        throw std::runtime_error("js_getNumber exception");
+    }
+    return value;
+}
+
+std::string js_getString(JSContext *ctx, JSValueConst &arg)
+{
+    size_t len{};
+    const char *str = JS_ToCStringLen(ctx, &len, arg);
+    if (!str) {
+        throw std::runtime_error("js_getString exception");
+    }
+    std::string msg{str};
+    JS_FreeCString(ctx, str);
+    return msg;
+}
+
+JSValue js_print(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+{
+    assert(argc == 1);
+    std::string msg{js_getString(ctx, argv[0])};
     // Do actual print operation
     std::stringstream ss;
-	ss << msg << std::endl;
+	ss << "[" << msg.size() << "] " << msg << std::endl;
     debug_print(ss.str());
-	return 0;
+	return JS_UNDEFINED;
 }
 
 uint16_t webcolor(std::string hexcolor)
@@ -95,254 +125,219 @@ uint16_t webcolor(std::string hexcolor)
     return ((ri >> (8 - 5)) << (6 + 5)) | ((gi >> (8 - 6)) << 5) | (bi >> (8 - 5));
 }
 
-duk_ret_t native_sprite_add(duk_context *ctx)
+JSValue js_sprite_add(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int width{duk_get_int(ctx, 0)};
-    int height{duk_get_int(ctx, 1)};
-    duk_push_int(ctx, sprite::add_sprite(width, height));
-    return 1;
+    assert(argc == 2);
+    int width{js_getInt32(ctx, argv[0])};
+    int height{js_getInt32(ctx, argv[1])};
+    return JS_NewInt32(ctx, sprite::add_sprite(width, height));
 }
 
-duk_ret_t native_sprite_clear(duk_context */*ctx*/)
+JSValue js_sprite_clear(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
+    assert(argc == 0);
     sprite::clear_sprites();
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_fill_rect(duk_context *ctx)
+JSValue js_fill_rect(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int id{duk_get_int(ctx, 0)};
-    std::string fill{duk_safe_to_string(ctx, 1)};
-    int x{duk_get_int(ctx, 2)};
-    int y{duk_get_int(ctx, 3)};
-    int w{duk_get_int(ctx, 4)};
-    int h{duk_get_int(ctx, 5)};
+    assert(argc == 6);
+    int id{js_getInt32(ctx, argv[0])};
+    std::string fill{js_getString(ctx, argv[1])};
+    int x{js_getInt32(ctx, argv[2])};
+    int y{js_getInt32(ctx, argv[3])};
+    int w{js_getInt32(ctx, argv[4])};
+    int h{js_getInt32(ctx, argv[5])};
     uint16_t color{webcolor(fill)};
     sprite::fill_rect(id, x, y, w, h, color);
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_sprite_draw(duk_context *ctx)
+JSValue js_sprite_draw(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int dst{duk_get_int(ctx, 0)};
-    int src{duk_get_int(ctx, 1)};
-    int x{duk_get_int(ctx, 2)};
-    int y{duk_get_int(ctx, 3)};
+    assert(argc == 4);
+    int dst{js_getInt32(ctx, argv[0])};
+    int src{js_getInt32(ctx, argv[1])};
+    int x{js_getInt32(ctx, argv[2])};
+    int y{js_getInt32(ctx, argv[3])};
     sprite::draw(dst, src, x, y);
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_sprite_draw_partial(duk_context *ctx)
+JSValue js_sprite_draw_partial(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int dst{duk_get_int(ctx, 0)};
-    int src{duk_get_int(ctx, 1)};
-    int sx{duk_get_int(ctx, 2)};
-    int sy{duk_get_int(ctx, 3)};
-    int sw{duk_get_int(ctx, 4)};
-    int sh{duk_get_int(ctx, 5)};
-    int dx{duk_get_int(ctx, 6)};
-    int dy{duk_get_int(ctx, 7)};
-    int dw{duk_get_int(ctx, 8)};
-    int dh{duk_get_int(ctx, 9)};
+    assert(argc == 10);
+    int dst{js_getInt32(ctx, argv[0])};
+    int src{js_getInt32(ctx, argv[1])};
+    int sx{js_getInt32(ctx, argv[2])};
+    int sy{js_getInt32(ctx, argv[3])};
+    int sw{js_getInt32(ctx, argv[4])};
+    int sh{js_getInt32(ctx, argv[5])};
+    int dx{js_getInt32(ctx, argv[6])};
+    int dy{js_getInt32(ctx, argv[7])};
+    int dw{js_getInt32(ctx, argv[8])};
+    int dh{js_getInt32(ctx, argv[9])};
     if (sw != dw || sh != dh) {
         std::stringstream ss;
         ss << "native_sprite_draw_partial failed, sw=" << sw << " dw=" << dw << " sh=" << sh << " dh=" << dh << std::endl;
         debug_print(ss.str());
-        return 0;
+        return JS_UNDEFINED;
     }
     sprite::draw_partial(dst, src, sx, sy, sw, sh, dx, dy);
     sx = sx; sy = sy;
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_sprite_render(duk_context *ctx)
+JSValue js_sprite_render(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int id{duk_get_int(ctx, 0)};
+    int id{js_getInt32(ctx, argv[0])};
     sprite::render(id);
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_sleep(duk_context *ctx)
+JSValue js_sleep(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     using namespace std::chrono_literals;
-    double delay_s{duk_get_number(ctx, 0)};
+    double delay_s{js_getNumber(ctx, argv[0])};
     std::this_thread::sleep_for(1s * delay_s);
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_elapsed(duk_context *ctx)
+JSValue js_elapsed(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    duk_push_int(ctx, pztime::elapsed());
-    return 1;
+    return JS_NewInt32(ctx, pztime::elapsed());
 }
 
-duk_ret_t native_get_width(duk_context *ctx)
+JSValue js_get_width(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    duk_push_int(ctx, graphics::width);
-    return 1;
+    return JS_NewInt32(ctx, graphics::width);
 }
 
-duk_ret_t native_get_height(duk_context *ctx)
+JSValue js_get_height(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    duk_push_int(ctx, graphics::height);
-    return 1;
+    return JS_NewInt32(ctx, graphics::height);
 }
 
-duk_ret_t native_get_event(duk_context *ctx)
+JSValue js_get_event(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     event::Event evt{event::pop()};
-    duk_idx_t obj_idx{duk_push_object(ctx)};
-    duk_push_int(ctx, evt.key);
-    duk_put_prop_string(ctx, obj_idx, "key");
-    duk_push_boolean(ctx, evt.isPress);
-    duk_put_prop_string(ctx, obj_idx, "isPress");
-    return 1;
+    JSValue result{JS_NewObject(ctx)};
+    JS_SetPropertyStr(ctx, result, "key", JS_NewInt32(ctx, evt.key));
+    JS_SetPropertyStr(ctx, result, "isPress", JS_NewBool(ctx, evt.isPress));
+    return result;
 }
 
-duk_ret_t native_flip(duk_context */*ctx*/)
+JSValue js_flip(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     graphics::flip();
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_screen_fill(duk_context *ctx)
+JSValue js_screen_fill(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    std::string fill{duk_safe_to_string(ctx, 0)};
+    std::string fill{js_getString(ctx, argv[0])};
     uint16_t color{webcolor(fill)};
     graphics::fill(0, 0, graphics::width, graphics::height, color);
-    return 0;
+    return JS_UNDEFINED;
 }
 
 std::map<int, std::vector<float>> soundbank{};
 
-duk_ret_t native_generate_sound(duk_context *ctx)
+JSValue js_generate_sound(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int seed{duk_get_int(ctx, 0)};
+    int seed{js_getInt32(ctx, argv[0])};
     if (soundbank.find(seed) == soundbank.end()) {
         auto samps = sfxr::generate(seed);
         sfxr::lofi(samps);
         soundbank[seed] = samps;
     }
-    return 0;
+    return JS_UNDEFINED;
 }
 
-duk_ret_t native_play_sound(duk_context *ctx)
+JSValue js_play_sound(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    int seed{duk_get_int(ctx, 0)};
+    int seed{js_getInt32(ctx, argv[0])};
     if (soundbank.find(seed) == soundbank.end()) {
         std::cerr << "Could not find sound " << seed << std::endl;
-        return 0;
+        return JS_UNDEFINED;
     }
     audio::play(soundbank[seed]);
-    return 0;
-}
-
-duk_ret_t native_time_elapsed(duk_context *ctx)
-{
-    duk_push_number(ctx, pztime::elapsed());
-    return 1;
+    return JS_UNDEFINED;
 }
 
 Context::Context()
-: ctx(duk_create_heap(nullptr, nullptr, nullptr, this, fatal_handler))
 {
-    // Register native functions
-	duk_push_c_function(ctx, native_print, DUK_VARARGS);
-	duk_put_global_string(ctx, "print");
-	duk_push_c_function(ctx, native_sprite_add, 2);
-	duk_put_global_string(ctx, "native_sprite_add");
-	duk_push_c_function(ctx, native_sprite_clear, 0);
-	duk_put_global_string(ctx, "native_sprite_clear");
-	duk_push_c_function(ctx, native_fill_rect, 6);
-	duk_put_global_string(ctx, "native_fill_rect");
-	duk_push_c_function(ctx, native_sprite_draw, 4);
-	duk_put_global_string(ctx, "native_sprite_draw");
-	duk_push_c_function(ctx, native_sprite_draw_partial, 10);
-	duk_put_global_string(ctx, "native_sprite_draw_partial");
-	duk_push_c_function(ctx, native_sprite_render, 1);
-	duk_put_global_string(ctx, "native_sprite_render");
-    duk_push_c_function(ctx, native_sleep, 1);
-    duk_put_global_string(ctx, "native_sleep");
-    duk_push_c_function(ctx, native_elapsed, 0);
-    duk_put_global_string(ctx, "native_elapsed");
-    duk_push_c_function(ctx, native_get_width, 0);
-    duk_put_global_string(ctx, "native_get_width");
-    duk_push_c_function(ctx, native_get_height, 0);
-    duk_put_global_string(ctx, "native_get_height");
-    duk_push_c_function(ctx, native_get_event, 0);
-    duk_put_global_string(ctx, "native_get_event");
-    duk_push_c_function(ctx, native_flip, 0);
-    duk_put_global_string(ctx, "native_flip");
-    duk_push_c_function(ctx, native_screen_fill, 1);
-    duk_put_global_string(ctx, "native_screen_fill");
-    duk_push_c_function(ctx, native_generate_sound, 1);
-    duk_put_global_string(ctx, "native_generate_sound");
-    duk_push_c_function(ctx, native_play_sound, 1);
-    duk_put_global_string(ctx, "native_play_sound");
-    duk_push_c_function(ctx, native_time_elapsed, 0);
-    duk_put_global_string(ctx, "native_time_elapsed");
+
+    qjs_rt = JS_NewRuntime();
+    if (!qjs_rt) {
+        std::cerr << "Could not create QuickJS Runtime" << std::endl;
+        abort();
+    }
+    qjs_ctx = JS_NewContext(qjs_rt);
+    if (!qjs_ctx) {
+        std::cerr << "Could not allocate QuickJS context" << std::endl;
+        abort();
+    }
+    JSValue global_obj = JS_GetGlobalObject(qjs_ctx);
+    JS_SetPropertyStr(qjs_ctx, global_obj, "print", JS_NewCFunction(qjs_ctx, js_print, "js_print", 1));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_sprite_add", JS_NewCFunction(qjs_ctx, js_sprite_add, "js_sprite_add", 2));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_sprite_clear", JS_NewCFunction(qjs_ctx, js_sprite_clear, "js_sprite_clear", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_fill_rect", JS_NewCFunction(qjs_ctx, js_fill_rect, "js_fill_rect", 6));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_sprite_draw", JS_NewCFunction(qjs_ctx, js_sprite_draw, "js_sprite_draw", 4));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_sprite_draw_partial", JS_NewCFunction(qjs_ctx, js_sprite_draw_partial, "js_sprite_draw_partial", 10));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_sprite_render", JS_NewCFunction(qjs_ctx, js_sprite_render, "js_sprite_render", 1));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_sleep", JS_NewCFunction(qjs_ctx, js_sleep, "js_sleep", 1));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_elapsed", JS_NewCFunction(qjs_ctx, js_elapsed, "js_elapsed", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_get_width", JS_NewCFunction(qjs_ctx, js_get_width, "js_get_width", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_get_height", JS_NewCFunction(qjs_ctx, js_get_height, "js_get_height", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_get_event", JS_NewCFunction(qjs_ctx, js_get_event, "js_get_event", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_flip", JS_NewCFunction(qjs_ctx, js_flip, "js_flip", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_screen_fill", JS_NewCFunction(qjs_ctx, js_screen_fill, "js_screen_fill", 1));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_time_elapsed", JS_NewCFunction(qjs_ctx, js_elapsed, "js_elapsed", 0));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_generate_sound", JS_NewCFunction(qjs_ctx, js_generate_sound, "js_generate_sound", 1));
+    JS_SetPropertyStr(qjs_ctx, global_obj, "native_play_sound", JS_NewCFunction(qjs_ctx, js_play_sound, "js_play_sound", 1));
 }
 
 Context::~Context()
 {
-    if (js_thread_active) {
-        stop_thread();
-    }
-    duk_destroy_heap(ctx);
+    JS_FreeContext(qjs_ctx);
+    JS_FreeRuntime(qjs_rt);
 }
 
 void Context::eval(std::string code, std::string filename)
 {
     std::lock_guard<std::mutex> guard(mutex);
-    duk_push_string(ctx, code.c_str());
-    duk_push_string(ctx, filename.c_str());
-    duk_compile(ctx, 0);
-    if (DUK_EXEC_ERROR == duk_pcall(ctx, 0)) {
-        std::cerr << "There was an error" << std::endl;
-        if (duk_is_error(ctx, -1)) {
-            // See if there's a stack trace. That includes the actual error message so we can use
-            // that as exception message. Otherwise just get what is on stack top.
-            std::string error;
-            if (duk_has_prop_string(ctx, -1, "stack")) {
-            duk_get_prop_string(ctx, -1, "stack"); // Puts stack trace on the stack.
-                error = duk_require_string(ctx, -1);
-            } else {
-                error = duk_safe_to_string(ctx, -1);
+    JSValue val = JS_Eval(qjs_ctx, code.c_str(), code.size(), filename.c_str(), 0);
+    if (JS_IsException(val)) {
+        std::cerr << "There was a JavaScript error" << std::endl;
+        const char *str = JS_ToCString(qjs_ctx, val);
+        if (str) {
+            std::cerr << str << std::endl;
+            JS_FreeCString(qjs_ctx, str);
+        } else {
+            std::cerr << "[exception]" << std::endl;
+        }
+        if (true/*JS_IsError(qjs_ctx, val)*/) {
+            JSValue v = JS_GetPropertyStr(qjs_ctx, val, "name");
+            if (!JS_IsUndefined(v)) {
+                const char *str = JS_ToCString(qjs_ctx, v);
+                if (str) {
+                    std::cerr << str << std::endl;
+                    JS_FreeCString(qjs_ctx, str);
+                }
             }
-            duk_pop(ctx); // Remove error from stack.
-
-            throw std::runtime_error(error);
+            JS_FreeValue(qjs_ctx, v);
         }
     }
-    duk_pop(ctx); // remove result value
+    JS_FreeValue(qjs_ctx, val);
 }
 
 void Context::set(std::string name, std::string value)
 {
     std::lock_guard<std::mutex> guard(mutex);
-    duk_push_string(ctx, value.c_str());
-    duk_put_global_string(ctx, name.c_str());
-}
-
-void Context::start_thread(std::string code, std::string filename)
-{
-    thread_code = code;
-    thread_filename = filename;
-    js_thread_active = true;
-    js_thread = std::thread(&Context::thread_loop, this);
-}
-
-void Context::stop_thread()
-{
-    js_thread_active = false;
-    js_thread.join();
-}
-
-void Context::thread_loop()
-{
-    while(js_thread_active) {
-        eval(thread_code, thread_filename);
-    }
+    JSValue global_obj = JS_GetGlobalObject(qjs_ctx);
+    JS_SetPropertyStr(qjs_ctx, global_obj, name.c_str(), JS_NewStringLen(qjs_ctx, value.c_str(), value.size()));
 }
 
 } // namespace js

@@ -1,13 +1,15 @@
 
 cflags = [
     "-fPIC",
-    "-Wall",
-    "-Wextra",
-    "-Werror",
+#    "-Wall",
+#    "-Wextra",
+#    "-Werror",
     "-O3",
 ]
 cflags_c = [
     "-std=c99",
+    "-D_GNU_SOURCE",
+    "-DCONFIG_VERSION=\"2021-03-27\"",
 ]
 cflags_cc = [
     "-std=c++17",
@@ -26,24 +28,6 @@ ldflags = [
 if (target_cpu == "arm") {
     ldflags += [
         "-static-libstdc++",
-    ]
-}
-
-action("configure_duktape") {
-    script = "tools/configure-duktape.py"
-    args = [
-        "--duktape", rebase_path("src/duktape/duktape-2.7.0", root_build_dir),
-        "--outpath", rebase_path(target_gen_dir + "/duktape/", root_build_dir),
-        "--option=-DDUK_USE_FASTINT",
-        "--option=-DDUK_USE_JSON_STRINGIFY_FASTPATH",
-        "--option=-DDUK_USE_JSON_QUOTESTRING_FASTPATH",
-        "--option=-DDUK_USE_JSON_EATWHITE_FASTPATH",
-        "--option=-DDUK_USE_VALSTACK_UNSAFE",
-    ]
-    outputs = [
-        "$target_gen_dir/duktape/duktape.h",
-        "$target_gen_dir/duktape/duktape.c",
-        "$target_gen_dir/duktape/duk_config.h",
     ]
 }
 
@@ -193,7 +177,6 @@ action("generate_internal_data") {
 }
 
 shared_library("puzzlescript_libretro") {
-    deps = [ ":configure_duktape" ]
     sources = [
         "src/core.cpp",
         "src/audio.cpp",
@@ -205,10 +188,14 @@ shared_library("puzzlescript_libretro") {
         "src/sfxr.cpp",
         "src/sprite.cpp",
         "src/pztime.cpp",
-        "$target_gen_dir/duktape/duktape.c",
+        "src/quickjs-2021-03-27/quickjs.c",
+        "src/quickjs-2021-03-27/libregexp.c",
+        "src/quickjs-2021-03-27/libunicode.c",
+        "src/quickjs-2021-03-27/cutils.c",
+        "src/quickjs-2021-03-27/quickjs-libc.c",
     ]
     include_dirs = [
-        "src/duktape/duktape-2.7.0/src",
+        "src/quickjs-2021-03-27",
         "src/libretro",
         "src/stb",
         target_gen_dir

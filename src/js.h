@@ -7,7 +7,7 @@
 #include <string>
 #include <thread>
 
-#include "duktape.h"
+#include "quickjs.h"
 
 namespace js {
 
@@ -21,12 +21,10 @@ extern void set_error_print(std::function<void(std::string)> func);
 class Context {
     // Mutex for all external access to js context
     std::mutex mutex;
-    duk_context *ctx;
-    std::thread js_thread; 
-    std::atomic<bool> js_thread_active;
-    std::string thread_code{};
-    std::string thread_filename{};
-    void thread_loop();
+
+    JSRuntime *qjs_rt;
+    JSContext *qjs_ctx;
+
 public:
     Context();
     ~Context();
@@ -36,12 +34,6 @@ public:
 
     // Set variable to string value
     void set(std::string name, std::string value);
-
-    // Start thread, keep calling code in a loop until stop_thread() is called
-    void start_thread(std::string code, std::string filename);
-
-    // Stop thread from calling it's code
-    void stop_thread();
 };
 
 } // namespace js
