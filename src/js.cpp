@@ -297,6 +297,7 @@ Context::Context()
     JS_SetPropertyStr(qjs_ctx, global_obj, "native_time_elapsed", JS_NewCFunction(qjs_ctx, js_elapsed, "js_elapsed", 0));
     JS_SetPropertyStr(qjs_ctx, global_obj, "native_generate_sound", JS_NewCFunction(qjs_ctx, js_generate_sound, "js_generate_sound", 1));
     JS_SetPropertyStr(qjs_ctx, global_obj, "native_play_sound", JS_NewCFunction(qjs_ctx, js_play_sound, "js_play_sound", 1));
+    JS_FreeValue(qjs_ctx, global_obj);
 }
 
 Context::~Context()
@@ -338,6 +339,7 @@ void Context::set(std::string name, std::string value)
     std::lock_guard<std::mutex> guard(mutex);
     JSValue global_obj = JS_GetGlobalObject(qjs_ctx);
     JS_SetPropertyStr(qjs_ctx, global_obj, name.c_str(), JS_NewStringLen(qjs_ctx, value.c_str(), value.size()));
+    JS_FreeValue(qjs_ctx, global_obj);
 }
 
 } // namespace js

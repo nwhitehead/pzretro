@@ -231,7 +231,6 @@ void GameLoop::thread_func()
     js_context->eval(
         std::string(bundled::gen_custom_main_js,
         bundled::gen_custom_main_js + bundled::gen_custom_main_js_len), "main.js");
-    std::cerr << "Did setup, starting main loop" << std::endl;
 
     while(js_thread_active) {
         js_context->eval(std::string("main();"), "main");
