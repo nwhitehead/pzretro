@@ -7,7 +7,12 @@
 #include <string>
 #include <thread>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wcast-function-type"
 #include "quickjs.h"
+#pragma GCC diagnostic pop
 
 namespace js {
 

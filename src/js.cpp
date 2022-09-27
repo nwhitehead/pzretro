@@ -16,8 +16,6 @@
 #include "sfxr.h"
 #include "sprite.h"
 
-#include "quickjs.h"
-
 #include <sstream>
 
 namespace js {
@@ -83,7 +81,7 @@ std::string js_getString(JSContext *ctx, JSValueConst &arg)
     return msg;
 }
 
-JSValue js_print(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_print(JSContext *ctx, JSValueConst /*this_val*/, int argc, JSValueConst *argv)
 {
     assert(argc == 1);
     std::string msg{js_getString(ctx, argv[0])};
@@ -125,24 +123,21 @@ uint16_t webcolor(std::string hexcolor)
     return ((ri >> (8 - 5)) << (6 + 5)) | ((gi >> (8 - 6)) << 5) | (bi >> (8 - 5));
 }
 
-JSValue js_sprite_add(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_sprite_add(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
-    assert(argc == 2);
     int width{js_getInt32(ctx, argv[0])};
     int height{js_getInt32(ctx, argv[1])};
     return JS_NewInt32(ctx, sprite::add_sprite(width, height));
 }
 
-JSValue js_sprite_clear(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_sprite_clear(JSContext */*ctx*/, JSValueConst /*this_val*/, int /*argc*/, JSValueConst */*argv*/)
 {
-    assert(argc == 0);
     sprite::clear_sprites();
     return JS_UNDEFINED;
 }
 
-JSValue js_fill_rect(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_fill_rect(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
-    assert(argc == 6);
     int id{js_getInt32(ctx, argv[0])};
     std::string fill{js_getString(ctx, argv[1])};
     int x{js_getInt32(ctx, argv[2])};
@@ -154,9 +149,8 @@ JSValue js_fill_rect(JSContext *ctx, JSValueConst this_val, int argc, JSValueCon
     return JS_UNDEFINED;
 }
 
-JSValue js_sprite_draw(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_sprite_draw(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
-    assert(argc == 4);
     int dst{js_getInt32(ctx, argv[0])};
     int src{js_getInt32(ctx, argv[1])};
     int x{js_getInt32(ctx, argv[2])};
@@ -165,9 +159,8 @@ JSValue js_sprite_draw(JSContext *ctx, JSValueConst this_val, int argc, JSValueC
     return JS_UNDEFINED;
 }
 
-JSValue js_sprite_draw_partial(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_sprite_draw_partial(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
-    assert(argc == 10);
     int dst{js_getInt32(ctx, argv[0])};
     int src{js_getInt32(ctx, argv[1])};
     int sx{js_getInt32(ctx, argv[2])};
@@ -189,14 +182,14 @@ JSValue js_sprite_draw_partial(JSContext *ctx, JSValueConst this_val, int argc, 
     return JS_UNDEFINED;
 }
 
-JSValue js_sprite_render(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_sprite_render(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
     int id{js_getInt32(ctx, argv[0])};
     sprite::render(id);
     return JS_UNDEFINED;
 }
 
-JSValue js_sleep(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_sleep(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
     using namespace std::chrono_literals;
     double delay_s{js_getNumber(ctx, argv[0])};
@@ -204,22 +197,22 @@ JSValue js_sleep(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *
     return JS_UNDEFINED;
 }
 
-JSValue js_elapsed(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_elapsed(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst */*argv*/)
 {
     return JS_NewInt32(ctx, pztime::elapsed());
 }
 
-JSValue js_get_width(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_get_width(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst */*argv*/)
 {
     return JS_NewInt32(ctx, graphics::width);
 }
 
-JSValue js_get_height(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_get_height(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst */*argv*/)
 {
     return JS_NewInt32(ctx, graphics::height);
 }
 
-JSValue js_get_event(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_get_event(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst */*argv*/)
 {
     event::Event evt{event::pop()};
     JSValue result{JS_NewObject(ctx)};
@@ -228,13 +221,13 @@ JSValue js_get_event(JSContext *ctx, JSValueConst this_val, int argc, JSValueCon
     return result;
 }
 
-JSValue js_flip(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_flip(JSContext */*ctx*/, JSValueConst /*this_val*/, int /*argc*/, JSValueConst */*argv*/)
 {
     graphics::flip();
     return JS_UNDEFINED;
 }
 
-JSValue js_screen_fill(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_screen_fill(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
     std::string fill{js_getString(ctx, argv[0])};
     uint16_t color{webcolor(fill)};
@@ -244,7 +237,7 @@ JSValue js_screen_fill(JSContext *ctx, JSValueConst this_val, int argc, JSValueC
 
 std::map<int, std::vector<float>> soundbank{};
 
-JSValue js_generate_sound(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_generate_sound(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
     int seed{js_getInt32(ctx, argv[0])};
     if (soundbank.find(seed) == soundbank.end()) {
@@ -255,7 +248,7 @@ JSValue js_generate_sound(JSContext *ctx, JSValueConst this_val, int argc, JSVal
     return JS_UNDEFINED;
 }
 
-JSValue js_play_sound(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+JSValue js_play_sound(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
     int seed{js_getInt32(ctx, argv[0])};
     if (soundbank.find(seed) == soundbank.end()) {

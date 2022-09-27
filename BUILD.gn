@@ -1,9 +1,9 @@
 
 cflags = [
     "-fPIC",
-#    "-Wall",
-#    "-Wextra",
-#    "-Werror",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
     "-O3",
 ]
 cflags_c = [
@@ -176,7 +176,22 @@ action("generate_internal_data") {
     outputs = [ "$target_gen_dir/bundled.h" ]
 }
 
+source_set("quickjs") {
+    sources = [
+        "src/quickjs-2021-03-27/quickjs.c",
+        "src/quickjs-2021-03-27/libregexp.c",
+        "src/quickjs-2021-03-27/libunicode.c",
+        "src/quickjs-2021-03-27/cutils.c",
+        "src/quickjs-2021-03-27/quickjs-libc.c",
+    ]
+    include_dirs = [
+        "src/quickjs-2021-03-27",
+    ]
+    cflags += [ "-Wno-error" ]
+}
+
 shared_library("puzzlescript_libretro") {
+    deps = [ ":quickjs" ]
     sources = [
         "src/core.cpp",
         "src/audio.cpp",
@@ -188,11 +203,6 @@ shared_library("puzzlescript_libretro") {
         "src/sfxr.cpp",
         "src/sprite.cpp",
         "src/pztime.cpp",
-        "src/quickjs-2021-03-27/quickjs.c",
-        "src/quickjs-2021-03-27/libregexp.c",
-        "src/quickjs-2021-03-27/libunicode.c",
-        "src/quickjs-2021-03-27/cutils.c",
-        "src/quickjs-2021-03-27/quickjs-libc.c",
     ]
     include_dirs = [
         "src/quickjs-2021-03-27",
