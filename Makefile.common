@@ -17,3 +17,4 @@ SOURCES_C += \
 
 CXXFLAGS += -pthread
 CFLAGS += -pthread
+LDFLAGS += -pthread
