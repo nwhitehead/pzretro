@@ -31,7 +31,7 @@ Input bindings are:
 
 My family had trouble reading the pixel font when playing games, so I replaced the default font with an anti-aliased
 monospaced font. This can be controlled by the core option "Use custom anti-aliased font". After changing the option
-you need to restart the current game to have it take effect. Default is on.
+you need to restart the current game to have it take effect. Default is off.
 
 ![Title screen of Pot Wash Panic with antialiased font](doc/potwashpanic_font.png)
 
