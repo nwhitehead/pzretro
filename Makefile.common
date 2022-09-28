@@ -25,4 +25,4 @@ CFLAGS += -D_GNU_SOURCE -DCONFIG_VERSION=\"2021-03-27\"
 
 CXXFLAGS += -pthread
 CFLAGS += -pthread
-LDFLAGS += -pthread
+LDFLAGS += -pthread -ldl
