@@ -57,118 +57,44 @@ if (use_precompiled_font) {
     }
 }
 
-action("babel") {
-    script = "tools/babel.py"
-    args = [
-        "--config", rebase_path("//.babelrc", root_build_dir),
-        "--inpath", rebase_path("data/PuzzleScript/src/js", root_build_dir),
-        "--outpath", rebase_path(target_gen_dir + "/es5", root_build_dir),
-    ]
-    outputs = [
-        "$target_gen_dir/es5/colors.js",
-        "$target_gen_dir/es5/compiler.js",
-        "$target_gen_dir/es5/debug.js",
-        "$target_gen_dir/es5/debug_off.js",
-        "$target_gen_dir/es5/engine.js",
-        "$target_gen_dir/es5/font.js",
-        "$target_gen_dir/es5/globalVariables.js",
-        "$target_gen_dir/es5/graphics.js",
-        "$target_gen_dir/es5/inputoutput.js",
-        "$target_gen_dir/es5/parser.js",
-        "$target_gen_dir/es5/riffwave.js",
-        "$target_gen_dir/es5/rng.js",
-        "$target_gen_dir/es5/sfxr.js",
-        "$target_gen_dir/es5/storagewrapper.js",
-    ]
-}
-
-action("babel_plus") {
-    script = "tools/babel.py"
-    args = [
-        "--config", rebase_path("//.babelrc", root_build_dir),
-        "--inpath", rebase_path("data/PuzzleScriptPlus/src/js", root_build_dir),
-        "--outpath", rebase_path(target_gen_dir + "/plus", root_build_dir),
-    ]
-    outputs = [
-        "$target_gen_dir/plus/colors.js",
-        "$target_gen_dir/plus/compiler.js",
-        "$target_gen_dir/plus/debug.js",
-        "$target_gen_dir/plus/debug_off.js",
-        "$target_gen_dir/plus/engine.js",
-        "$target_gen_dir/plus/font.js",
-        "$target_gen_dir/plus/globalVariables.js",
-        "$target_gen_dir/plus/graphics.js",
-        "$target_gen_dir/plus/inputoutput.js",
-        "$target_gen_dir/plus/parser.js",
-        "$target_gen_dir/plus/riffwave.js",
-        "$target_gen_dir/plus/rng.js",
-        "$target_gen_dir/plus/sfxr.js",
-        "$target_gen_dir/plus/storagewrapper.js",
-    ]
-}
-
-action("babel_custom") {
-    script = "tools/babel.py"
-    args = [
-        "--config", rebase_path("//.babelrc", root_build_dir),
-        "--inpath", rebase_path("data/custom", root_build_dir),
-        "--outpath", rebase_path(target_gen_dir + "/custom", root_build_dir),
-    ]
-    outputs = [
-        "$target_gen_dir/custom/main.js",
-        "$target_gen_dir/custom/overload.js",
-        "$target_gen_dir/custom/postsetup.js",
-        "$target_gen_dir/custom/setup.js",
-    ]
-}
-
-copy("demopz") {
-    sources =[
-        "//data/demo.pz",
-    ]
-    outputs = [
-        "$target_gen_dir/demo.pz",
-    ]
-}
-
 action("generate_internal_data") {
     script = "tools/bundle_files.py"
-    deps = [ ":babel", ":babel_plus", ":babel_custom", ":generate_font", ":demopz" ]
+    deps = [ ":generate_font" ]
     inputs = [
-        "$target_gen_dir/demo.pz",
+        "//data/demo.pz",
         "$target_gen_dir/custom/font.js",
-        "$target_gen_dir/custom/main.js",
-        "$target_gen_dir/custom/overload.js",
-        "$target_gen_dir/custom/postsetup.js",
-        "$target_gen_dir/custom/setup.js",
-        "$target_gen_dir/es5/colors.js",
-        "$target_gen_dir/es5/compiler.js",
-        "$target_gen_dir/es5/debug.js",
-        "$target_gen_dir/es5/debug_off.js",
-        "$target_gen_dir/es5/engine.js",
-        "$target_gen_dir/es5/font.js",
-        "$target_gen_dir/es5/globalVariables.js",
-        "$target_gen_dir/es5/graphics.js",
-        "$target_gen_dir/es5/inputoutput.js",
-        "$target_gen_dir/es5/parser.js",
-        "$target_gen_dir/es5/riffwave.js",
-        "$target_gen_dir/es5/rng.js",
-        "$target_gen_dir/es5/sfxr.js",
-        "$target_gen_dir/es5/storagewrapper.js",
-        "$target_gen_dir/plus/colors.js",
-        "$target_gen_dir/plus/compiler.js",
-        "$target_gen_dir/plus/debug.js",
-        "$target_gen_dir/plus/debug_off.js",
-        "$target_gen_dir/plus/engine.js",
-        "$target_gen_dir/plus/font.js",
-        "$target_gen_dir/plus/globalVariables.js",
-        "$target_gen_dir/plus/graphics.js",
-        "$target_gen_dir/plus/inputoutput.js",
-        "$target_gen_dir/plus/parser.js",
-        "$target_gen_dir/plus/riffwave.js",
-        "$target_gen_dir/plus/rng.js",
-        "$target_gen_dir/plus/sfxr.js",
-        "$target_gen_dir/plus/storagewrapper.js",
+        "//data/custom/main.js",
+        "//data/custom/overload.js",
+        "//data/custom/postsetup.js",
+        "//data/custom/setup.js",
+        "//data/PuzzleScript/src/js/colors.js",
+        "//data/PuzzleScript/src/js/compiler.js",
+        "//data/PuzzleScript/src/js/debug.js",
+        "//data/PuzzleScript/src/js/debug_off.js",
+        "//data/PuzzleScript/src/js/engine.js",
+        "//data/PuzzleScript/src/js/font.js",
+        "//data/PuzzleScript/src/js/globalVariables.js",
+        "//data/PuzzleScript/src/js/graphics.js",
+        "//data/PuzzleScript/src/js/inputoutput.js",
+        "//data/PuzzleScript/src/js/parser.js",
+        "//data/PuzzleScript/src/js/riffwave.js",
+        "//data/PuzzleScript/src/js/rng.js",
+        "//data/PuzzleScript/src/js/sfxr.js",
+        "//data/PuzzleScript/src/js/storagewrapper.js",
+        "//data/PuzzleScriptPlus/src/js/colors.js",
+        "//data/PuzzleScriptPlus/src/js/compiler.js",
+        "//data/PuzzleScriptPlus/src/js/debug.js",
+        "//data/PuzzleScriptPlus/src/js/debug_off.js",
+        "//data/PuzzleScriptPlus/src/js/engine.js",
+        "//data/PuzzleScriptPlus/src/js/font.js",
+        "//data/PuzzleScriptPlus/src/js/globalVariables.js",
+        "//data/PuzzleScriptPlus/src/js/graphics.js",
+        "//data/PuzzleScriptPlus/src/js/inputoutput.js",
+        "//data/PuzzleScriptPlus/src/js/parser.js",
+        "//data/PuzzleScriptPlus/src/js/riffwave.js",
+        "//data/PuzzleScriptPlus/src/js/rng.js",
+        "//data/PuzzleScriptPlus/src/js/sfxr.js",
+        "//data/PuzzleScriptPlus/src/js/storagewrapper.js",
     ]
     args = [
         "--out", rebase_path(target_gen_dir + "/bundled.h", root_build_dir),
@@ -187,11 +113,14 @@ source_set("quickjs") {
     include_dirs = [
         "src/quickjs-2021-03-27",
     ]
-    cflags += [ "-Wno-error" ]
+    cflags += [ 
+        "-Wno-error", 
+        "-w"
+    ]
 }
 
 shared_library("puzzlescript_libretro") {
-    deps = [ ":quickjs" ]
+    deps = [ ":quickjs", ":generate_internal_data" ]
     sources = [
         "src/core.cpp",
         "src/audio.cpp",
@@ -205,9 +134,9 @@ shared_library("puzzlescript_libretro") {
         "src/pztime.cpp",
     ]
     include_dirs = [
+        target_gen_dir,
         "src/quickjs-2021-03-27",
         "src/libretro",
         "src/stb",
-        target_gen_dir
     ]
 }

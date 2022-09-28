@@ -10,7 +10,9 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#if __GNUC__ >= 8
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 #include "quickjs.h"
 #pragma GCC diagnostic pop
 

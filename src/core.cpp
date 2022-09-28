@@ -117,120 +117,120 @@ void GameLoop::thread_func()
     if (should_use_puzzlescript_plus()) {
         js_context->eval(std::string("use_puzzlescript_plus = true;"), "eval");
         js_context->eval(std::string(
-            bundled::gen_custom_setup_js,
-            bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
+            bundled::___data_custom_setup_js,
+            bundled::___data_custom_setup_js + bundled::___data_custom_setup_js_len), "setup.js");
         js_context->eval(std::string(
-            bundled::gen_plus_storagewrapper_js,
-            bundled::gen_plus_storagewrapper_js + bundled::gen_plus_storagewrapper_js_len), "storagewrapper.js");
+            bundled::___data_PuzzleScriptPlus_src_js_storagewrapper_js,
+            bundled::___data_PuzzleScriptPlus_src_js_storagewrapper_js + bundled::___data_PuzzleScriptPlus_src_js_storagewrapper_js_len), "storagewrapper.js");
         js_context->eval(std::string(
-            bundled::gen_plus_globalVariables_js,
-            bundled::gen_plus_globalVariables_js + bundled::gen_plus_globalVariables_js_len), "globalVariables.js");
+            bundled::___data_PuzzleScriptPlus_src_js_globalVariables_js,
+            bundled::___data_PuzzleScriptPlus_src_js_globalVariables_js + bundled::___data_PuzzleScriptPlus_src_js_globalVariables_js_len), "globalVariables.js");
         js_context->eval(std::string(
-            bundled::gen_plus_debug_off_js,
-            bundled::gen_plus_debug_off_js + bundled::gen_plus_debug_off_js_len), "debug_off.js");
+            bundled::___data_PuzzleScriptPlus_src_js_debug_off_js,
+            bundled::___data_PuzzleScriptPlus_src_js_debug_off_js + bundled::___data_PuzzleScriptPlus_src_js_debug_off_js_len), "debug_off.js");
         if (custom_font == std::string("on")) {
             js_context->eval(std::string(
                 bundled::gen_custom_font_js,
                 bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
         } else {
             js_context->eval(std::string(
-                bundled::gen_plus_font_js,
-                bundled::gen_plus_font_js + bundled::gen_plus_font_js_len), "font.js");
+                bundled::___data_PuzzleScriptPlus_src_js_font_js,
+                bundled::___data_PuzzleScriptPlus_src_js_font_js + bundled::___data_PuzzleScriptPlus_src_js_font_js_len), "font.js");
         }
         js_context->eval(std::string(
-            bundled::gen_plus_riffwave_js,
-            bundled::gen_plus_riffwave_js + bundled::gen_plus_riffwave_js_len), "riffwave.js");
+            bundled::___data_PuzzleScriptPlus_src_js_riffwave_js,
+            bundled::___data_PuzzleScriptPlus_src_js_riffwave_js + bundled::___data_PuzzleScriptPlus_src_js_riffwave_js_len), "riffwave.js");
         js_context->eval(std::string(
-            bundled::gen_plus_sfxr_js,
-            bundled::gen_plus_sfxr_js + bundled::gen_plus_sfxr_js_len), "sfxr.js");
+            bundled::___data_PuzzleScriptPlus_src_js_sfxr_js,
+            bundled::___data_PuzzleScriptPlus_src_js_sfxr_js + bundled::___data_PuzzleScriptPlus_src_js_sfxr_js_len), "sfxr.js");
         js_context->eval(std::string(
-            bundled::gen_custom_postsetup_js,
-            bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
+            bundled::___data_custom_postsetup_js,
+            bundled::___data_custom_postsetup_js + bundled::___data_custom_postsetup_js_len), "postsetup.js");
         js_context->eval(std::string(
-            bundled::gen_plus_rng_js,
-            bundled::gen_plus_rng_js + bundled::gen_plus_rng_js_len), "rng.js");
+            bundled::___data_PuzzleScriptPlus_src_js_rng_js,
+            bundled::___data_PuzzleScriptPlus_src_js_rng_js + bundled::___data_PuzzleScriptPlus_src_js_rng_js_len), "rng.js");
         js_context->eval(std::string(
-            bundled::gen_plus_colors_js,
-            bundled::gen_plus_colors_js + bundled::gen_plus_colors_js_len), "colors.js");
+            bundled::___data_PuzzleScriptPlus_src_js_colors_js,
+            bundled::___data_PuzzleScriptPlus_src_js_colors_js + bundled::___data_PuzzleScriptPlus_src_js_colors_js_len), "colors.js");
         js_context->eval(std::string(
-            bundled::gen_plus_graphics_js,
-            bundled::gen_plus_graphics_js + bundled::gen_plus_graphics_js_len), "graphics.js");
+            bundled::___data_PuzzleScriptPlus_src_js_graphics_js,
+            bundled::___data_PuzzleScriptPlus_src_js_graphics_js + bundled::___data_PuzzleScriptPlus_src_js_graphics_js_len), "graphics.js");
         js_context->eval(std::string(
-            bundled::gen_plus_engine_js,
-            bundled::gen_plus_engine_js + bundled::gen_plus_engine_js_len), "engine.js");
+            bundled::___data_PuzzleScriptPlus_src_js_engine_js,
+            bundled::___data_PuzzleScriptPlus_src_js_engine_js + bundled::___data_PuzzleScriptPlus_src_js_engine_js_len), "engine.js");
         js_context->eval(std::string(
-            bundled::gen_plus_parser_js,
-            bundled::gen_plus_parser_js + bundled::gen_plus_parser_js_len), "parser.js");
+            bundled::___data_PuzzleScriptPlus_src_js_parser_js,
+            bundled::___data_PuzzleScriptPlus_src_js_parser_js + bundled::___data_PuzzleScriptPlus_src_js_parser_js_len), "parser.js");
         js_context->eval(std::string(
-            bundled::gen_plus_compiler_js,
-            bundled::gen_plus_compiler_js + bundled::gen_plus_compiler_js_len), "compiler.js");
+            bundled::___data_PuzzleScriptPlus_src_js_compiler_js,
+            bundled::___data_PuzzleScriptPlus_src_js_compiler_js + bundled::___data_PuzzleScriptPlus_src_js_compiler_js_len), "compiler.js");
         js_context->eval(std::string(
-            bundled::gen_plus_inputoutput_js,
-            bundled::gen_plus_inputoutput_js + bundled::gen_plus_inputoutput_js_len), "inputoutput.js");
+            bundled::___data_PuzzleScriptPlus_src_js_inputoutput_js,
+            bundled::___data_PuzzleScriptPlus_src_js_inputoutput_js + bundled::___data_PuzzleScriptPlus_src_js_inputoutput_js_len), "inputoutput.js");
         js_context->eval(std::string(
-            bundled::gen_custom_overload_js,
-            bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "overload.js");
+            bundled::___data_custom_overload_js,
+            bundled::___data_custom_overload_js + bundled::___data_custom_overload_js_len), "overload.js");
     } else {
         js_context->eval(std::string("use_puzzlescript_plus = false;"), "eval");
         js_context->eval(std::string(
-            bundled::gen_custom_setup_js,
-            bundled::gen_custom_setup_js + bundled::gen_custom_setup_js_len), "setup.js");
+            bundled::___data_custom_setup_js,
+            bundled::___data_custom_setup_js + bundled::___data_custom_setup_js_len), "setup.js");
         js_context->eval(std::string(
-            bundled::gen_es5_storagewrapper_js,
-            bundled::gen_es5_storagewrapper_js + bundled::gen_es5_storagewrapper_js_len), "storagewrapper.js");
+            bundled::___data_PuzzleScript_src_js_storagewrapper_js,
+            bundled::___data_PuzzleScript_src_js_storagewrapper_js + bundled::___data_PuzzleScript_src_js_storagewrapper_js_len), "storagewrapper.js");
         js_context->eval(std::string(
-            bundled::gen_es5_globalVariables_js,
-            bundled::gen_es5_globalVariables_js + bundled::gen_es5_globalVariables_js_len), "globalVariables.js");
+            bundled::___data_PuzzleScript_src_js_globalVariables_js,
+            bundled::___data_PuzzleScript_src_js_globalVariables_js + bundled::___data_PuzzleScript_src_js_globalVariables_js_len), "globalVariables.js");
         js_context->eval(std::string(
-            bundled::gen_es5_debug_off_js,
-            bundled::gen_es5_debug_off_js + bundled::gen_es5_debug_off_js_len), "debug_off.js");
+            bundled::___data_PuzzleScript_src_js_debug_off_js,
+            bundled::___data_PuzzleScript_src_js_debug_off_js + bundled::___data_PuzzleScript_src_js_debug_off_js_len), "debug_off.js");
         if (custom_font == std::string("on")) {
             js_context->eval(std::string(
                 bundled::gen_custom_font_js,
                 bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
         } else {
             js_context->eval(std::string(
-                bundled::gen_es5_font_js,
-                bundled::gen_es5_font_js + bundled::gen_es5_font_js_len), "font.js");
+                bundled::___data_PuzzleScript_src_js_font_js,
+                bundled::___data_PuzzleScript_src_js_font_js + bundled::___data_PuzzleScript_src_js_font_js_len), "font.js");
         }
         js_context->eval(std::string(
-            bundled::gen_es5_riffwave_js,
-            bundled::gen_es5_riffwave_js + bundled::gen_es5_riffwave_js_len), "riffwave.js");
+            bundled::___data_PuzzleScript_src_js_riffwave_js,
+            bundled::___data_PuzzleScript_src_js_riffwave_js + bundled::___data_PuzzleScript_src_js_riffwave_js_len), "riffwave.js");
         js_context->eval(std::string(
-            bundled::gen_es5_sfxr_js,
-            bundled::gen_es5_sfxr_js + bundled::gen_es5_sfxr_js_len), "sfxr.js");
+            bundled::___data_PuzzleScript_src_js_sfxr_js,
+            bundled::___data_PuzzleScript_src_js_sfxr_js + bundled::___data_PuzzleScript_src_js_sfxr_js_len), "sfxr.js");
         js_context->eval(std::string(
-            bundled::gen_custom_postsetup_js,
-            bundled::gen_custom_postsetup_js + bundled::gen_custom_postsetup_js_len), "postsetup.js");
+            bundled::___data_custom_postsetup_js,
+            bundled::___data_custom_postsetup_js + bundled::___data_custom_postsetup_js_len), "postsetup.js");
         js_context->eval(std::string(
-            bundled::gen_es5_rng_js,
-            bundled::gen_es5_rng_js + bundled::gen_es5_rng_js_len), "rng.js");
+            bundled::___data_PuzzleScript_src_js_rng_js,
+            bundled::___data_PuzzleScript_src_js_rng_js + bundled::___data_PuzzleScript_src_js_rng_js_len), "rng.js");
         js_context->eval(std::string(
-            bundled::gen_es5_colors_js,
-            bundled::gen_es5_colors_js + bundled::gen_es5_colors_js_len), "colors.js");
+            bundled::___data_PuzzleScript_src_js_colors_js,
+            bundled::___data_PuzzleScript_src_js_colors_js + bundled::___data_PuzzleScript_src_js_colors_js_len), "colors.js");
         js_context->eval(std::string(
-            bundled::gen_es5_graphics_js,
-            bundled::gen_es5_graphics_js + bundled::gen_es5_graphics_js_len), "graphics.js");
+            bundled::___data_PuzzleScript_src_js_graphics_js,
+            bundled::___data_PuzzleScript_src_js_graphics_js + bundled::___data_PuzzleScript_src_js_graphics_js_len), "graphics.js");
         js_context->eval(std::string(
-            bundled::gen_es5_engine_js,
-            bundled::gen_es5_engine_js + bundled::gen_es5_engine_js_len), "engine.js");
+            bundled::___data_PuzzleScript_src_js_engine_js,
+            bundled::___data_PuzzleScript_src_js_engine_js + bundled::___data_PuzzleScript_src_js_engine_js_len), "engine.js");
         js_context->eval(std::string(
-            bundled::gen_es5_parser_js,
-            bundled::gen_es5_parser_js + bundled::gen_es5_parser_js_len), "parser.js");
+            bundled::___data_PuzzleScript_src_js_parser_js,
+            bundled::___data_PuzzleScript_src_js_parser_js + bundled::___data_PuzzleScript_src_js_parser_js_len), "parser.js");
         js_context->eval(std::string(
-            bundled::gen_es5_compiler_js,
-            bundled::gen_es5_compiler_js + bundled::gen_es5_compiler_js_len), "compiler.js");
+            bundled::___data_PuzzleScript_src_js_compiler_js,
+            bundled::___data_PuzzleScript_src_js_compiler_js + bundled::___data_PuzzleScript_src_js_compiler_js_len), "compiler.js");
         js_context->eval(std::string(
-            bundled::gen_es5_inputoutput_js,
-            bundled::gen_es5_inputoutput_js + bundled::gen_es5_inputoutput_js_len), "inputoutput.js");
+            bundled::___data_PuzzleScript_src_js_inputoutput_js,
+            bundled::___data_PuzzleScript_src_js_inputoutput_js + bundled::___data_PuzzleScript_src_js_inputoutput_js_len), "inputoutput.js");
         js_context->eval(std::string(
-            bundled::gen_custom_overload_js,
-            bundled::gen_custom_overload_js + bundled::gen_custom_overload_js_len), "overload.js");
+            bundled::___data_custom_overload_js,
+            bundled::___data_custom_overload_js + bundled::___data_custom_overload_js_len), "overload.js");
     }
     js_context->set("sourceCode", game_contents);
     js_context->eval(
-        std::string(bundled::gen_custom_main_js,
-        bundled::gen_custom_main_js + bundled::gen_custom_main_js_len), "main.js");
+        std::string(bundled::___data_custom_main_js,
+        bundled::___data_custom_main_js + bundled::___data_custom_main_js_len), "main.js");
 
     while(js_thread_active) {
         js_context->eval(std::string("main();"), "main");
@@ -268,7 +268,7 @@ bool retro_load_game(const struct retro_game_info *info)
         game_contents = contents;
         game_filename = std::string{info->path};
     } else {
-        std::string contents{bundled::gen_demo_pz, bundled::gen_demo_pz + bundled::gen_demo_pz_len};
+        std::string contents{bundled::___data_demo_pz, bundled::___data_demo_pz + bundled::___data_demo_pz_len};
         game_contents = contents;
     }
     reset_game();

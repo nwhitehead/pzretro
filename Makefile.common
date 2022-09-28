@@ -12,6 +12,8 @@ COREDEFINES = \
 
 SOURCES_CXX := $(foreach dir,$(SRC_DIR),$(wildcard $(dir)/*.cpp))
 
+CXXFLAGS += -DUSE_PRECOMPILED_BUNDLE
+
 SOURCES_C += \
     $(QUICKJS_SRC_DIR)/quickjs.c \
     $(QUICKJS_SRC_DIR)/libregexp.c \

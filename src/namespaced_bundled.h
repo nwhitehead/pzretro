@@ -1,5 +1,9 @@
 #pragma once
 
 namespace bundled {
-#include "bundled.h"
+#if defined(USE_PRECOMPILED_BUNDLE)
+#  include "precompiled_bundled.h"
+#else
+#  include "bundled.h"
+#endif
 }

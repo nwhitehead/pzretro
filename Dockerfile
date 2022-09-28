@@ -27,27 +27,25 @@ RUN tar xvf sysroot-glibc-linaro-2.25-2019.12-arm-linux-gnueabihf.tar
 
 COPY . .
 
-RUN npm install
-
 # ARM build
-RUN ./gn gen out/arm
-RUN echo 'use_precompiled_font = true' >> out/arm/args.gn
-RUN echo 'target_cpu = "arm"' >> out/arm/args.gn
-RUN echo 'linaro = "/app"' >> out/arm/args.gn
-RUN ./gn gen out/arm
-RUN ninja -C out/arm -t clean
-RUN ninja -C out/arm
+RUN ./gn gen out_arm
+RUN echo 'use_precompiled_font = true' >> out_arm/args.gn
+RUN echo 'target_cpu = "arm"' >> out_arm/args.gn
+RUN echo 'linaro = "/app"' >> out_arm/args.gn
+RUN ./gn gen out_arm
+RUN ninja -C out_arm -t clean
+RUN ninja -C out_arm
 
 # x86_64 build
 RUN apt-get install -y g++
-RUN ./gn gen out/x64
-RUN echo 'use_precompiled_font = true' >> out/x64/args.gn
-RUN ./gn gen out/x64
-RUN ninja -C out/x64 -t clean
-RUN ninja -C out/x64
+RUN ./gn gen out_x64
+RUN echo 'use_precompiled_font = true' >> out_x64/args.gn
+RUN ./gn gen out_x64
+RUN ninja -C out_x64 -t clean
+RUN ninja -C out_x64
 
 FROM scratch AS export-stage
-COPY --from=build-stage /app/out/arm/puzzlescript_libretro.so /arm/puzzlescript_libretro.so
+COPY --from=build-stage /app/out_arm/puzzlescript_libretro.so /arm/puzzlescript_libretro.so
 COPY --from=build-stage /app/puzzlescript_libretro.info /arm/puzzlescript_libretro.info
-COPY --from=build-stage /app/out/x64/puzzlescript_libretro.so /x64/puzzlescript_libretro.so
+COPY --from=build-stage /app/out_x64/puzzlescript_libretro.so /x64/puzzlescript_libretro.so
 COPY --from=build-stage /app/puzzlescript_libretro.info /x64/puzzlescript_libretro.info

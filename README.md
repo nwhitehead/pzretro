@@ -98,13 +98,6 @@ for ARM with Linaro toolchain and sysroot.
 First install `gn` following instructions here:
 https://gn.googlesource.com/gn/
 
-Make sure NPM is installed:
-https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
-
-Install NPM dependencies (basically Babel): 
-
-    npm install
-
 Build with:
 
     gn gen out
@@ -159,11 +152,6 @@ Much of the "stubbing" code was taken from Puzzlescript-Wrapper, huge shout out 
 https://github.com/Narkhos/Puzzlescript-Wrapper
 
 For sound, I used my own translation of SFXR to C++. Sound generation is done entirely from seed number on the C++ side.
-
-### Babel
-
-I had to convert the PuzzleScript JS sources to older version of JavaScript to make it more compatible with Duktape (used previously), there were
-some issues with backtick literals (template strings). I used Babel and the CLI for this.
 
 ### ARM Compatibility
 
