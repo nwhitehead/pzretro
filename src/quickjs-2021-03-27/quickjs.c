@@ -30,7 +30,9 @@
 #include <assert.h>
 #include <sys/time.h>
 #include <time.h>
+#if defined(HAVE_FENV)
 #include <fenv.h>
+#endif
 #include <math.h>
 #if defined(__APPLE__)
 #include <malloc/malloc.h>
@@ -46,6 +48,12 @@
 #include "libregexp.h"
 #ifdef CONFIG_BIGNUM
 #include "libbf.h"
+#endif
+
+#if !defined(HAVE_FENV)
+#define FE_TONEAREST     0
+#define FE_DOWNWARD      0
+#define FE_UPWARD        0
 #endif
 
 #define OPTIMIZE         1
@@ -11303,11 +11311,15 @@ static char *i64toa(char *buf_end, int64_t n, unsigned int base)
 static void js_ecvt1(double d, int n_digits, int *decpt, int *sign, char *buf,
                      int rounding_mode, char *buf1, int buf1_size)
 {
+#if defined(HAVE_FENV)
     if (rounding_mode != FE_TONEAREST)
         fesetround(rounding_mode);
+#endif
     snprintf(buf1, buf1_size, "%+.*e", n_digits - 1, d);
+#if defined(HAVE_FENV)
     if (rounding_mode != FE_TONEAREST)
         fesetround(FE_TONEAREST);
+#endif
     *sign = (buf1[0] == '-');
     /* mantissa */
     buf[0] = buf1[1];
@@ -11387,11 +11399,15 @@ static int js_fcvt1(char *buf, int buf_size, double d, int n_digits,
                     int rounding_mode)
 {
     int n;
+#if defined(HAVE_FENV)
     if (rounding_mode != FE_TONEAREST)
         fesetround(rounding_mode);
+#endif
     n = snprintf(buf, buf_size, "%.*f", n_digits, d);
+#if defined(HAVE_FENV)
     if (rounding_mode != FE_TONEAREST)
         fesetround(FE_TONEAREST);
+#endif
     assert(n < buf_size);
     return n;
 }
