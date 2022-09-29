@@ -727,8 +727,8 @@ OBJECTS := $(SOURCES_CXX:.cpp=.o) $(SOURCES_C:.c=.o)
 ifeq ($(HAS_GCC), 1)
 
 C_VER = -std=gnu99
-# Requires at least C++ 17
-CXXFLAGS += -std=c++17
+# Requires at least C++ 11
+CXXFLAGS += -std=c++11
 CXXFLAGS += -fno-rtti
 endif
 

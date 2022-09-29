@@ -112,7 +112,7 @@ public:
 
 void GameLoop::thread_func()
 {
-    js_context = std::make_unique<js::Context>();
+    js_context = std::unique_ptr<js::Context>(new js::Context());
 
     if (should_use_puzzlescript_plus()) {
         js_context->eval(std::string("use_puzzlescript_plus = true;"), "eval");
@@ -257,7 +257,7 @@ std::unique_ptr<GameLoop> gameLoop;
 void reset_game()
 {
     update_variables();
-    gameLoop = std::make_unique<GameLoop>();
+    gameLoop = std::unique_ptr<GameLoop>(new GameLoop());
 }
 
 bool retro_load_game(const struct retro_game_info *info)
@@ -459,7 +459,9 @@ void retro_run()
 
     // Get input for frame
     input_poll_cb();
-    for (auto const & [key, val] : joypad_keys) {
+    for (auto const & binding : joypad_keys) {
+        auto const & key{binding.first};
+        auto const & val{binding.second};
         if (!joypad_old_state[key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
             if (key == RETRO_DEVICE_ID_JOYPAD_START) {
                 // Check for A+START cheatcode

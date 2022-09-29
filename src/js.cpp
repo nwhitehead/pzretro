@@ -191,9 +191,8 @@ JSValue js_sprite_render(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/
 
 JSValue js_sleep(JSContext *ctx, JSValueConst /*this_val*/, int /*argc*/, JSValueConst *argv)
 {
-    using namespace std::chrono_literals;
     double delay_s{js_getNumber(ctx, argv[0])};
-    std::this_thread::sleep_for(1s * delay_s);
+    std::this_thread::sleep_for(std::chrono::duration<double>(delay_s));
     return JS_UNDEFINED;
 }
 
