@@ -303,16 +303,17 @@ void Context::eval(std::string code, std::string filename)
     std::lock_guard<std::mutex> guard(mutex);
     JSValue val = JS_Eval(qjs_ctx, code.c_str(), code.size(), filename.c_str(), 0);
     if (JS_IsException(val)) {
-        std::cerr << "There was a JavaScript error" << std::endl;
-        const char *str = JS_ToCString(qjs_ctx, val);
+        std::cerr << "***** JavaScript error *****" << std::endl;
+        JSValue exval = JS_GetException(qjs_ctx);
+        const char *str = JS_ToCString(qjs_ctx, exval);
         if (str) {
             std::cerr << str << std::endl;
             JS_FreeCString(qjs_ctx, str);
         } else {
-            std::cerr << "[exception]" << std::endl;
+            std::cerr << "[[exception]]" << std::endl;
         }
-        if (true/*JS_IsError(qjs_ctx, val)*/) {
-            JSValue v = JS_GetPropertyStr(qjs_ctx, val, "name");
+        if (JS_IsError(qjs_ctx, exval)) {
+            JSValue v = JS_GetPropertyStr(qjs_ctx, exval, "name");
             if (!JS_IsUndefined(v)) {
                 const char *str = JS_ToCString(qjs_ctx, v);
                 if (str) {
@@ -322,6 +323,7 @@ void Context::eval(std::string code, std::string filename)
             }
             JS_FreeValue(qjs_ctx, v);
         }
+        JS_FreeValue(qjs_ctx, exval);
     }
     JS_FreeValue(qjs_ctx, val);
 }
@@ -332,6 +334,24 @@ void Context::set(std::string name, std::string value)
     JSValue global_obj = JS_GetGlobalObject(qjs_ctx);
     JS_SetPropertyStr(qjs_ctx, global_obj, name.c_str(), JS_NewStringLen(qjs_ctx, value.c_str(), value.size()));
     JS_FreeValue(qjs_ctx, global_obj);
+}
+
+std::string Context::get(std::string name)
+{
+    std::lock_guard<std::mutex> guard(mutex);
+    std::string result;
+    JSValue global_obj = JS_GetGlobalObject(qjs_ctx);
+    JSValue v = JS_GetPropertyStr(qjs_ctx, global_obj, name.c_str());
+    if (!JS_IsUndefined(v)) {
+        const char *str = JS_ToCString(qjs_ctx, v);
+        if (str) {
+            result = std::string{str};
+            JS_FreeCString(qjs_ctx, str);
+        }
+    }
+    JS_FreeValue(qjs_ctx, v);
+    JS_FreeValue(qjs_ctx, global_obj);
+    return result;
 }
 
 } // namespace js

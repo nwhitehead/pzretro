@@ -14,10 +14,10 @@
 #include <vector>
 
 #include "libretro.h"
-#include "namespaced_bundled.h"
 
 #include "audio.h"
 #include "event.h"
+#include "gameloop.h"
 #include "graphics.h"
 #include "js.h"
 #include "pztime.h"
@@ -40,12 +40,39 @@ std::string use_puzzlescript_plus{};
 std::string game_contents{};
 std::string game_filename{};
 
+// Serialization size
+/* libretro serialized states cannot increase in size, so this is really a max size for
+the stringified serialized state coming from JavaScript.
+*/
+constexpr size_t SERIALIZE_MAX_SIZE{1024*1024};
+
+// Main game loop thread control obejct
+std::unique_ptr<GameLoop> gameLoop;
+
+void debug_print(std::string msg)
+{
+    if (log_cb) {
+        log_cb(RETRO_LOG_WARN, msg.c_str());
+    } else {
+        std::cerr << msg << std::endl;
+    }
+}
+
+void error_print(std::string msg)
+{
+    if (log_cb) {
+        log_cb(RETRO_LOG_ERROR, msg.c_str());
+    } else {
+        std::cerr << msg << std::endl;
+    }
+}
+
 unsigned retro_api_version()
 {
     return RETRO_API_VERSION;
 }
 
-void retro_cheat_reset() 
+void retro_cheat_reset()
 {
     // Empty
 }
@@ -62,10 +89,6 @@ void update_variables()
         .value = "",
     };
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
-        char str[100];
-        snprintf(str, sizeof(str), "%s", var.value);
-
-        log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_custom_font=%s\n", var.value);
         custom_font = std::string(var.value);
     }
     struct retro_variable var2 = {
@@ -73,10 +96,6 @@ void update_variables()
         .value = "",
     };
     if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var2) && var2.value) {
-        char str[100];
-        snprintf(str, sizeof(str), "%s", var2.value);
-
-        log_cb(RETRO_LOG_INFO, "[pzretro]: Got pzretro_use_puzzlescript_plus=%s\n", var2.value);
         use_puzzlescript_plus = std::string(var2.value);
     }
 }
@@ -95,169 +114,15 @@ bool should_use_puzzlescript_plus()
     return use_puzzlescript_plus == std::string("on") || filename_endswith_pzp;
 }
 
-class GameLoop
+bool should_use_custom_font()
 {
-    // JavaScript context
-    std::unique_ptr<js::Context> js_context;
-
-    // JavaScript thread
-    std::thread js_thread;
-    std::atomic<bool> js_thread_active;
-
-    void thread_func();
-public:
-    GameLoop();
-    ~GameLoop();
-};
-
-void GameLoop::thread_func()
-{
-    js_context = std::unique_ptr<js::Context>(new js::Context());
-
-    if (should_use_puzzlescript_plus()) {
-        js_context->eval(std::string("use_puzzlescript_plus = true;"), "eval");
-        js_context->eval(std::string(
-            bundled::___data_custom_setup_js,
-            bundled::___data_custom_setup_js + bundled::___data_custom_setup_js_len), "setup.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_storagewrapper_js,
-            bundled::___data_PuzzleScriptPlus_src_js_storagewrapper_js + bundled::___data_PuzzleScriptPlus_src_js_storagewrapper_js_len), "storagewrapper.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_globalVariables_js,
-            bundled::___data_PuzzleScriptPlus_src_js_globalVariables_js + bundled::___data_PuzzleScriptPlus_src_js_globalVariables_js_len), "globalVariables.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_debug_off_js,
-            bundled::___data_PuzzleScriptPlus_src_js_debug_off_js + bundled::___data_PuzzleScriptPlus_src_js_debug_off_js_len), "debug_off.js");
-        if (custom_font == std::string("on")) {
-            js_context->eval(std::string(
-                bundled::gen_custom_font_js,
-                bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
-        } else {
-            js_context->eval(std::string(
-                bundled::___data_PuzzleScriptPlus_src_js_font_js,
-                bundled::___data_PuzzleScriptPlus_src_js_font_js + bundled::___data_PuzzleScriptPlus_src_js_font_js_len), "font.js");
-        }
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_riffwave_js,
-            bundled::___data_PuzzleScriptPlus_src_js_riffwave_js + bundled::___data_PuzzleScriptPlus_src_js_riffwave_js_len), "riffwave.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_sfxr_js,
-            bundled::___data_PuzzleScriptPlus_src_js_sfxr_js + bundled::___data_PuzzleScriptPlus_src_js_sfxr_js_len), "sfxr.js");
-        js_context->eval(std::string(
-            bundled::___data_custom_postsetup_js,
-            bundled::___data_custom_postsetup_js + bundled::___data_custom_postsetup_js_len), "postsetup.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_rng_js,
-            bundled::___data_PuzzleScriptPlus_src_js_rng_js + bundled::___data_PuzzleScriptPlus_src_js_rng_js_len), "rng.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_colors_js,
-            bundled::___data_PuzzleScriptPlus_src_js_colors_js + bundled::___data_PuzzleScriptPlus_src_js_colors_js_len), "colors.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_graphics_js,
-            bundled::___data_PuzzleScriptPlus_src_js_graphics_js + bundled::___data_PuzzleScriptPlus_src_js_graphics_js_len), "graphics.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_engine_js,
-            bundled::___data_PuzzleScriptPlus_src_js_engine_js + bundled::___data_PuzzleScriptPlus_src_js_engine_js_len), "engine.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_parser_js,
-            bundled::___data_PuzzleScriptPlus_src_js_parser_js + bundled::___data_PuzzleScriptPlus_src_js_parser_js_len), "parser.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_compiler_js,
-            bundled::___data_PuzzleScriptPlus_src_js_compiler_js + bundled::___data_PuzzleScriptPlus_src_js_compiler_js_len), "compiler.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScriptPlus_src_js_inputoutput_js,
-            bundled::___data_PuzzleScriptPlus_src_js_inputoutput_js + bundled::___data_PuzzleScriptPlus_src_js_inputoutput_js_len), "inputoutput.js");
-        js_context->eval(std::string(
-            bundled::___data_custom_overload_js,
-            bundled::___data_custom_overload_js + bundled::___data_custom_overload_js_len), "overload.js");
-    } else {
-        js_context->eval(std::string("use_puzzlescript_plus = false;"), "eval");
-        js_context->eval(std::string(
-            bundled::___data_custom_setup_js,
-            bundled::___data_custom_setup_js + bundled::___data_custom_setup_js_len), "setup.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_storagewrapper_js,
-            bundled::___data_PuzzleScript_src_js_storagewrapper_js + bundled::___data_PuzzleScript_src_js_storagewrapper_js_len), "storagewrapper.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_globalVariables_js,
-            bundled::___data_PuzzleScript_src_js_globalVariables_js + bundled::___data_PuzzleScript_src_js_globalVariables_js_len), "globalVariables.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_debug_off_js,
-            bundled::___data_PuzzleScript_src_js_debug_off_js + bundled::___data_PuzzleScript_src_js_debug_off_js_len), "debug_off.js");
-        if (custom_font == std::string("on")) {
-            js_context->eval(std::string(
-                bundled::gen_custom_font_js,
-                bundled::gen_custom_font_js + bundled::gen_custom_font_js_len), "font.js");
-        } else {
-            js_context->eval(std::string(
-                bundled::___data_PuzzleScript_src_js_font_js,
-                bundled::___data_PuzzleScript_src_js_font_js + bundled::___data_PuzzleScript_src_js_font_js_len), "font.js");
-        }
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_riffwave_js,
-            bundled::___data_PuzzleScript_src_js_riffwave_js + bundled::___data_PuzzleScript_src_js_riffwave_js_len), "riffwave.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_sfxr_js,
-            bundled::___data_PuzzleScript_src_js_sfxr_js + bundled::___data_PuzzleScript_src_js_sfxr_js_len), "sfxr.js");
-        js_context->eval(std::string(
-            bundled::___data_custom_postsetup_js,
-            bundled::___data_custom_postsetup_js + bundled::___data_custom_postsetup_js_len), "postsetup.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_rng_js,
-            bundled::___data_PuzzleScript_src_js_rng_js + bundled::___data_PuzzleScript_src_js_rng_js_len), "rng.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_colors_js,
-            bundled::___data_PuzzleScript_src_js_colors_js + bundled::___data_PuzzleScript_src_js_colors_js_len), "colors.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_graphics_js,
-            bundled::___data_PuzzleScript_src_js_graphics_js + bundled::___data_PuzzleScript_src_js_graphics_js_len), "graphics.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_engine_js,
-            bundled::___data_PuzzleScript_src_js_engine_js + bundled::___data_PuzzleScript_src_js_engine_js_len), "engine.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_parser_js,
-            bundled::___data_PuzzleScript_src_js_parser_js + bundled::___data_PuzzleScript_src_js_parser_js_len), "parser.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_compiler_js,
-            bundled::___data_PuzzleScript_src_js_compiler_js + bundled::___data_PuzzleScript_src_js_compiler_js_len), "compiler.js");
-        js_context->eval(std::string(
-            bundled::___data_PuzzleScript_src_js_inputoutput_js,
-            bundled::___data_PuzzleScript_src_js_inputoutput_js + bundled::___data_PuzzleScript_src_js_inputoutput_js_len), "inputoutput.js");
-        js_context->eval(std::string(
-            bundled::___data_custom_overload_js,
-            bundled::___data_custom_overload_js + bundled::___data_custom_overload_js_len), "overload.js");
-    }
-    js_context->set("sourceCode", game_contents);
-    js_context->eval(
-        std::string(bundled::___data_custom_main_js,
-        bundled::___data_custom_main_js + bundled::___data_custom_main_js_len), "main.js");
-
-    while(js_thread_active) {
-        js_context->eval(std::string("main();"), "main");
-    }
-    // Destroy js context on exit
-    js_context.reset(nullptr);
+    return custom_font == std::string("on");
 }
-
-GameLoop::GameLoop()
-{
-    // Setup thread
-    js_thread_active = true;
-    js_thread = std::thread(&GameLoop::thread_func, this);
-}
-
-GameLoop::~GameLoop()
-{
-    js_thread_active = false;
-    js_thread.join();
-}
-
-std::unique_ptr<GameLoop> gameLoop;
 
 void reset_game()
 {
     update_variables();
-    gameLoop = std::unique_ptr<GameLoop>(new GameLoop());
+    gameLoop = std::unique_ptr<GameLoop>(new GameLoop(game_contents, should_use_puzzlescript_plus(), should_use_custom_font()));
 }
 
 bool retro_load_game(const struct retro_game_info *info)
@@ -267,9 +132,6 @@ bool retro_load_game(const struct retro_game_info *info)
         std::string contents{static_cast<char const*>(info->data), info->size};
         game_contents = contents;
         game_filename = std::string{info->path};
-    } else {
-        std::string contents{bundled::___data_demo_pz, bundled::___data_demo_pz + bundled::___data_demo_pz_len};
-        game_contents = contents;
     }
     reset_game();
     return true;
@@ -307,17 +169,46 @@ size_t retro_get_memory_size(unsigned /*id*/)
 
 size_t retro_serialize_size()
 {
-    return 0;
+    return SERIALIZE_MAX_SIZE;
 }
 
-bool retro_serialize(void */*data*/, size_t /*size*/)
+bool retro_serialize(void *data, size_t size)
 {
+    update_variables();
+    {
+        std::string txt{gameLoop->serialize()};
+        if (txt.size() < size) {
+            std::memset(data, 0, size);
+            std::memcpy(data, txt.c_str(), txt.size());
+            return true;
+        }
+    }
+    debug_print("Truncating undo history to attempt to fit game serialized state into size constraint\n");
+    // Would not fit, try without backups (undo history)
+    gameLoop->set_truncate();
+    std::string txt{gameLoop->serialize()};
+    if (txt.size() < size) {
+        std::memset(data, 0, size);
+        std::memcpy(data, txt.c_str(), txt.size());
+        return true;
+    }
+    // Could not get it under size even with truncation
+    std::stringstream ss;
+    ss << "Serialization would take " << txt.size() << " bytes, max allowed is " << size << std::endl;
+    error_print(ss.str());
     return false;
 }
 
-bool retro_unserialize(const void */*data*/, size_t /*size*/)
+bool retro_unserialize(const void *data, size_t size)
 {
-    return false;
+    update_variables();
+    if (size <= SERIALIZE_MAX_SIZE) {
+        std::string txt{static_cast<const char*>(data)};
+        gameLoop->deserialize(txt);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 namespace { // anonymous
@@ -364,24 +255,6 @@ void retro_set_input_poll(retro_input_poll_t cb)
 void retro_set_input_state(retro_input_state_t cb)
 {
     input_state_cb = cb;
-}
-
-void debug_print(std::string msg)
-{
-    if (log_cb) {
-        log_cb(RETRO_LOG_WARN, msg.c_str());
-    } else {
-        std::cerr << msg << std::endl;
-    }
-}
-
-void error_print(std::string msg)
-{
-    if (log_cb) {
-        log_cb(RETRO_LOG_ERROR, msg.c_str());
-    } else {
-        std::cerr << msg << std::endl;
-    }
 }
 
 void retro_init()

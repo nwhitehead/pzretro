@@ -630,7 +630,8 @@ std::vector<float> generate(int seed)
             p = bird(rng);
             break;
         default:
-            assert(0 && "Unknown sound type");
+            std::cerr << "DEBUG: Unknown sound type, SFXR problem with seed=" << seed << ", last two digits must be 00--09" << std::endl;
+            return std::vector<float>{};
     }
     Generator g{p};
     auto samps = g.generate();

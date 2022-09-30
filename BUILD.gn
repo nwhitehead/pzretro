@@ -61,7 +61,6 @@ action("generate_internal_data") {
     script = "tools/bundle_files.py"
     deps = [ ":generate_font" ]
     inputs = [
-        "//data/demo.pz",
         "$target_gen_dir/custom/font.js",
         "//data/custom/main.js",
         "//data/custom/overload.js",

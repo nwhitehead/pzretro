@@ -41,6 +41,9 @@ public:
 
     // Set variable to string value
     void set(std::string name, std::string value);
+
+    // Get variable (string value)
+    std::string get(std::string name);
 };
 
 } // namespace js
