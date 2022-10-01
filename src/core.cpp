@@ -336,9 +336,17 @@ void retro_run()
         auto const & key{binding.first};
         auto const & val{binding.second};
         if (!joypad_old_state[key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
-            if (key == RETRO_DEVICE_ID_JOYPAD_START) {
-                // Check for A+START cheatcode
-                if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A)) {
+            if (key == RETRO_DEVICE_ID_JOYPAD_LEFT) {
+                // Check for SELECT cheatcodes
+                if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT)) {
+                    // Fake key P for previous level
+                    joypad_old_state[key] = true;
+                    event::push(event::Event(true, 'P'));
+                    continue;
+                }
+            }
+            if (key == RETRO_DEVICE_ID_JOYPAD_RIGHT) {
+                if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT)) {
                     // Fake key N for next level
                     joypad_old_state[key] = true;
                     event::push(event::Event(true, 'N'));

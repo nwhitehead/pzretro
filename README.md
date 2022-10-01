@@ -27,7 +27,8 @@ Input bindings are:
 * `Y` RetroPad button is UNDO (normally `Z` on the keyboard)
 * `START` RetroPad button is RESTART (normally `R` on the keyboard)
 * `L` RetroPad button is ESCAPE (normally `ESC` on the keyboard)
-* `A+START` together is WIN level (this is cheating!!!)
+* `SELECT+LEFT` together is go to previous level (extended control)
+* `SELECT+RIGHT` together is go to next level (extended control)
 
 My family had trouble reading the pixel font when playing games, so I replaced the default font with an anti-aliased
 monospaced font. This can be controlled by the core option "Use custom anti-aliased font". After changing the option
@@ -37,10 +38,8 @@ you need to restart the current game to have it take effect. Default is off.
 
 ![Title screen of Pot Wash Panic with original pixel font](doc/potwashpanic_original.png)
 
-Many games have message text that refers to keys to press, so I added the RetroPad button names to the title
-screen but still show the correspondence to keyboard keys. So if a game talks about pressing `R` to restart, hopefully
-it makes sense what that means. I setup my own installation of RetroArch so that my keyboard bindings match the normal
-PuzzleScript bindings (so `X` keyboard key maps to `A` RetroPad button etc.)
+Many games have message text that refers to keys to press. I setup my own installation of RetroArch so that my
+keyboard bindings match the normal PuzzleScript bindings (so `X` keyboard key maps to `A` RetroPad button etc.)
 
 The core also experimentally supports [PuzzleScript Plus](https://github.com/Auroriax/PuzzleScriptPlus) games.
 This is an alternate fork of regular PuzzleScript that

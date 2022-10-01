@@ -3,11 +3,31 @@ compile(["restart"], sourceCode);
 
 var simulator_time = -1;
 
+function gotoLevel(n) {
+    if (n < 0) {
+        return;
+    }
+    if (n >= state.levels.length ) {
+        return;
+    }
+    curlevel = n;
+    loadLevelFromState(state, curlevel);
+    storage_set(document.URL, curlevel);
+    storage_remove(document.URL + "_checkpoint");
+    canvasResize();
+    redraw();
+}
+
 main = function() {
     var evt = native_get_event();
     while (evt.key !== 0) {
         if (evt.key === 78 /* N */) {
-            nextLevel();
+            gotoLevel(curlevel + 1);
+            evt = native_get_event();
+            continue;
+        }
+        if (evt.key === 80 /* P */) {
+            gotoLevel(curlevel - 1);
             evt = native_get_event();
             continue;
         }
