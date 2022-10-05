@@ -47,6 +47,12 @@ includes support for many extensions developed by others. Games saved in the `.p
 this engine. There is also an option to force use of this engine for any game. I mainly use this functionality
 to make versions of games with higher sprite sizes to have less ambiguous graphics.
 
+This core supports saving and loading state. Progress finishing levels is not automatically saved by default, you
+need to explicitly save the state in RetroArch. The core will try to save the entire game state including the
+current undo history. For some larger games the undo history may become too large to serialize with the game
+state and will be discarded to make the state smaller. Games that have checkpoints within levels should work
+correctly with saving and loading state.
+
 ## Installing binary releases
 
 Current binary releases are for Linux x86_64 and SEGA Genesis MINI console (Linux ARMv7).
@@ -67,8 +73,6 @@ content.
 
 ## Future work
 
-* Support saving and loading game state.
-* Add more cheat codes to navigate levels quickly.
 * Support more platforms for binary releases.
 * Add support for background music.
 * Add volume level control and other audio options.
