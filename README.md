@@ -8,8 +8,15 @@ PuzzleScript games are usually online at the main PuzzleScript site:
 https://www.puzzlescript.net/
 
 To play games in the core, you will need to download the source for the game and save it as a `.pz` file.
-The normal way to do this is to click the "hack" link on the game to go to the PuzzleScript editor, then
+The normal way to do this is to click the "hack" or "sourcecode" link on the game to go to the PuzzleScript editor, then
 copy/paste the entire contents of the program into a file with extension `.pz`.
+
+There is also a Python utility script in `tools/get_game.py` that can download PuzzleScript game source given a url. Typical
+use would be:
+
+    python3 tools/get_game.py --url=https://www.puzzlescript.net/play.html?p=2ba817426abc9fcbe9b9980fc4c02519 --output-title=.pz
+
+This would download and save the file `One_Microban_level.pz`.
 
 You can also find many games in the Accessible PuzzleScript repository. For these, save the `script.txt` file
 into a file with extension `.pz`.
@@ -74,6 +81,7 @@ content.
 ## Future work
 
 * Support more platforms for binary releases.
+* Support [Pattern:Script](https://github.com/ClementSparrow/Pattern-Script/)
 * Add support for background music.
 * Add volume level control and other audio options.
 * Incorporate more accessibility features from: https://github.com/philschatz/puzzlescript
@@ -211,14 +219,17 @@ BuildKit build.
 
 ## References
 
-PuzzleScript project:
+PuzzleScript project
 https://github.com/increpare/PuzzleScript
 
 Accessible PuzzleScript
 https://github.com/philschatz/puzzlescript
 
-PuzzleScript Plus:
+PuzzleScript Plus
 https://github.com/Auroriax/PuzzleScriptPlus
+
+Pattern:Script
+https://github.com/ClementSparrow/Pattern-Script/
 
 For making the retroarch core, I followed this tutorial:
 https://web.archive.org/web/20190219134028/http://www.beardypig.com/2016/01/22/emulator-build-along-2/
@@ -229,8 +240,8 @@ https://github.com/Narkhos/Puzzlescript-Wrapper
 QuickJS
 https://bellard.org/quickjs/
 
-Docs for using V8:
+Docs for using V8
 https://v8.dev/docs/
 
-Linaro toolchain:
+Linaro toolchain
 https://releases.linaro.org/components/toolchain/binaries/
