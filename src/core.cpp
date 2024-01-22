@@ -77,9 +77,19 @@ void retro_cheat_reset()
     // Empty
 }
 
-void retro_cheat_set(unsigned /*index*/, bool /*enabled*/, const char */*code*/)
+void retro_cheat_set(unsigned index, bool enabled, const char *code)
 {
-    // Empty
+    if (enabled) {
+        std::string code_string(code);
+        if (code_string == "next") {
+            event::push(event::Event(true, 'N'));
+            debug_print("puzzlescript: Cheat: Next Level\n");
+        }
+        else if (code_string == "previous") {
+            event::push(event::Event(true, 'P'));
+            debug_print("puzzlescript: Cheat: Previous Level\n");
+        }
+    }
 }
 
 void update_variables()
