@@ -1,0 +1,5 @@
+[submodule "src/quickjs"]
+	path = src/quickjs
+	url = https://github.com/bellard/quickjs.git
+	branch = master
+	ignore = dirty
