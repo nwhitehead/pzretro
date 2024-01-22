@@ -257,6 +257,28 @@ void retro_set_input_state(retro_input_state_t cb)
     input_state_cb = cb;
 }
 
+/**
+ * Initialize the input descriptors.
+ * 
+ * @see RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS
+ */
+void retro_init_input_descriptors()
+{
+	struct retro_input_descriptor desc[] = {
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A, "Action Button" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_L, "Escape" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_Y, "Undo" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_START, "Restart" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT, "Left" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_UP, "Up" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_RIGHT, "Right" },
+		{ 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_DOWN, "Down" },
+		{ 0 },
+	};
+
+	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
+}
+
 void retro_init()
 {
     struct retro_log_callback log;
@@ -272,6 +294,8 @@ void retro_init()
         js::set_debug_print(debug_print);
         js::set_error_print(error_print);
     }
+
+    retro_init_input_descriptors();
 }
 
 void retro_deinit()
