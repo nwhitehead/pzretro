@@ -1,6 +1,6 @@
 SRC_DIR = $(CORE_DIR)/src
 LIBRETRO_DIR = $(SRC_DIR)/libretro
-QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs-2021-03-27
+QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs
 
 INCFLAGS := \
 	-I$(SRC_DIR) \
@@ -16,6 +16,7 @@ CXXFLAGS += -DUSE_PRECOMPILED_BUNDLE
 
 SOURCES_C += \
     $(QUICKJS_SRC_DIR)/quickjs.c \
+    $(QUICKJS_SRC_DIR)/libbf.c \
     $(QUICKJS_SRC_DIR)/libregexp.c \
     $(QUICKJS_SRC_DIR)/libunicode.c \
     $(QUICKJS_SRC_DIR)/cutils.c \
