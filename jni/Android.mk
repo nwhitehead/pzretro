@@ -10,7 +10,7 @@ COREFLAGS := $(COREDEFINES) -DPSS_STYLE=1 $(INCFLAGS)
 
 GIT_VERSION := " $(shell git rev-parse --short HEAD || echo unknown)"
 ifneq ($(GIT_VERSION)," unknown")
-	COREFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
+	COREFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\" -DCONFIG_VERSION=\"\"
 endif
 
 include $(CLEAR_VARS)
