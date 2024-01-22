@@ -10,8 +10,11 @@ COREFLAGS := $(COREDEFINES) -DPSS_STYLE=1 $(INCFLAGS)
 
 GIT_VERSION := " $(shell git rev-parse --short HEAD || echo unknown)"
 ifneq ($(GIT_VERSION)," unknown")
-	COREFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\" -DCONFIG_VERSION=\"\"
+	COREFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
+
+# Add CONFIG_VERSION for QuickJS fixes
+COREFLAGS += -DCONFIG_VERSION=\"2021-01-13\"
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := retro
