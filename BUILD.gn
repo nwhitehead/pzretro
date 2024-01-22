@@ -9,7 +9,7 @@ cflags = [
 cflags_c = [
     "-std=c99",
     "-D_GNU_SOURCE",
-    "-DCONFIG_VERSION=\"2021-01-13\"",
+    "-DCONFIG_VERSION=\"2024-01-13\"",
 ]
 cflags_cc = [
     "-std=c++17",
