@@ -22,7 +22,7 @@ SOURCES_C += \
     $(QUICKJS_SRC_DIR)/cutils.c \
     $(QUICKJS_SRC_DIR)/quickjs-libc.c
 
-CFLAGS += -D_GNU_SOURCE -DCONFIG_VERSION=\"2021-03-27\"
+CFLAGS += -D_GNU_SOURCE -DCONFIG_VERSION=\"2024-01-13\"
 
 CXXFLAGS += -pthread
 CFLAGS += -pthread

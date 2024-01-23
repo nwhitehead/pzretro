@@ -9,7 +9,7 @@ cflags = [
 cflags_c = [
     "-std=c99",
     "-D_GNU_SOURCE",
-    "-DCONFIG_VERSION=\"2021-03-27\"",
+    "-DCONFIG_VERSION=\"2024-01-13\"",
 ]
 cflags_cc = [
     "-std=c++17",
@@ -103,14 +103,15 @@ action("generate_internal_data") {
 
 source_set("quickjs") {
     sources = [
-        "src/quickjs-2021-03-27/quickjs.c",
-        "src/quickjs-2021-03-27/libregexp.c",
-        "src/quickjs-2021-03-27/libunicode.c",
-        "src/quickjs-2021-03-27/cutils.c",
-        "src/quickjs-2021-03-27/quickjs-libc.c",
+        "src/quickjs/quickjs.c",
+        "src/quickjs/libbf.c",
+        "src/quickjs/libregexp.c",
+        "src/quickjs/libunicode.c",
+        "src/quickjs/cutils.c",
+        "src/quickjs/quickjs-libc.c",
     ]
     include_dirs = [
-        "src/quickjs-2021-03-27",
+        "src/quickjs",
     ]
     cflags += [ 
         "-Wno-error", 
@@ -134,7 +135,7 @@ shared_library("puzzlescript_libretro") {
     ]
     include_dirs = [
         target_gen_dir,
-        "src/quickjs-2021-03-27",
+        "src/quickjs",
         "src/libretro",
         "src/stb",
     ]

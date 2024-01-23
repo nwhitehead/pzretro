@@ -13,6 +13,9 @@ ifneq ($(GIT_VERSION)," unknown")
 	COREFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
+# Add CONFIG_VERSION for QuickJS fixes
+COREFLAGS += -DCONFIG_VERSION=\"2024-01-13\"
+
 include $(CLEAR_VARS)
 LOCAL_MODULE    := retro
 LOCAL_SRC_FILES := $(SOURCES_C) $(SOURCES_CXX)
