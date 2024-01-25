@@ -1,11 +1,15 @@
 SRC_DIR = $(CORE_DIR)/src
-LIBRETRO_DIR = $(SRC_DIR)/libretro/include
+LIBRETRO_DIR = $(SRC_DIR)/libretro
 QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs
 
 INCFLAGS := \
 	-I$(SRC_DIR) \
-	-I$(LIBRETRO_DIR) \
+	-I$(LIBRETRO_DIR)/include \
     -I$(QUICKJS_SRC_DIR)
+
+ifneq (,$(findstring msvc2003,$(platform)))
+	INCFLAGS += -I$(LIBRETRO_DIR)/include/compat/msvc
+endif
 
 COREDEFINES = \
 	-D__LIBRETRO__
