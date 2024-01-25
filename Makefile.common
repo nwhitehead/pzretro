@@ -1,5 +1,5 @@
 SRC_DIR = $(CORE_DIR)/src
-LIBRETRO_DIR = $(SRC_DIR)/libretro
+LIBRETRO_DIR = $(SRC_DIR)/libretro/include
 QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs
 
 INCFLAGS := \
