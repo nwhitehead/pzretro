@@ -369,7 +369,7 @@ void retro_run()
     for (auto const & binding : joypad_keys) {
         auto const & key{binding.first};
         auto const & val{binding.second};
-        if (!joypad_old_state[key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
+        if (!joypad_old_state[(int)key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
             if (key == RETRO_DEVICE_ID_JOYPAD_LEFT) {
                 // Check for SELECT cheatcodes
                 if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT)) {

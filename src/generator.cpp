@@ -79,7 +79,7 @@ std::vector<float> Generator::generate()
     {
         fdphase = -fdphase;
     }
-    iphase = abs((int)fphase);
+    iphase = std::abs((int)fphase);
     ipp = 0;
     for (int i = 0; i < 1024; i++) 
     {
@@ -180,7 +180,7 @@ std::vector<float> Generator::generate()
 
         // Phaser step
         fphase += fdphase;
-        iphase = abs(static_cast<int>(fphase));
+        iphase = std::abs(static_cast<int>(fphase));
         if (iphase > 1023) iphase = 1023;
 
         if (flthp_d != 0.0f)
