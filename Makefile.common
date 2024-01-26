@@ -28,6 +28,6 @@ SOURCES_C += \
 
 CFLAGS += -D_GNU_SOURCE -DCONFIG_VERSION=\"2024-01-13\"
 
-CXXFLAGS += -pthread
-CFLAGS += -pthread
-LDFLAGS += -pthread -ldl
+CXXFLAGS += -lpthread
+CFLAGS += -lpthread
+LDFLAGS += -lpthread -ldl
