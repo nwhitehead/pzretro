@@ -136,7 +136,7 @@ shared_library("puzzlescript_libretro") {
     include_dirs = [
         target_gen_dir,
         "src/quickjs",
-        "src/libretro",
+        "src/libretro/include",
         "src/stb",
     ]
 }

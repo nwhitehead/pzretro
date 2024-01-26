@@ -3,3 +3,8 @@
 	url = https://github.com/bellard/quickjs.git
 	branch = master
 	ignore = dirty
+[submodule "src/libretro"]
+	path = src/libretro
+	url = https://github.com/libretro/libretro-common.git
+	branch = master
+	ignore = dirty
