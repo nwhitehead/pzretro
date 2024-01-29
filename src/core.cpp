@@ -366,10 +366,15 @@ void retro_run()
 
     // Get input for frame
     input_poll_cb();
-    for (auto const & binding : joypad_keys) {
-        auto const & key{binding.first};
-        auto const & val{binding.second};
-        if (!joypad_old_state[(int)key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
+
+    // Iterate through the map
+    for (std::map<int, char>::iterator binding = joypad_keys.begin(); binding != joypad_keys.end(); binding++) {
+        // Grab the key and the value for the input in PuzzleScript.
+        int key = binding->first;
+        char val = binding->second;
+
+        // Check the state value.
+        if (!joypad_old_state[key] && input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key)) {
             if (key == RETRO_DEVICE_ID_JOYPAD_LEFT) {
                 // Check for SELECT cheatcodes
                 if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_SELECT)) {
