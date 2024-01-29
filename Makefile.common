@@ -5,7 +5,7 @@ QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs
 INCFLAGS := \
 	-I$(SRC_DIR) \
 	-I$(LIBRETRO_DIR)/include \
-    -I$(QUICKJS_SRC_DIR)
+	-I$(QUICKJS_SRC_DIR)
 
 ifneq (,$(findstring msvc2003,$(platform)))
 	INCFLAGS += -I$(LIBRETRO_DIR)/include/compat/msvc
@@ -28,6 +28,9 @@ SOURCES_C += \
 
 CFLAGS += -D_GNU_SOURCE -DCONFIG_VERSION=\"2024-01-13\"
 
+# Add pthread to everything but msvc
+ifeq (,$(findstring msvc,$(platform)))
 CXXFLAGS += -lpthread
 CFLAGS += -lpthread
 LDFLAGS += -lpthread -ldl
+endif
