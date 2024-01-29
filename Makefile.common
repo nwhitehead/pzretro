@@ -1,6 +1,6 @@
 SRC_DIR = $(CORE_DIR)/src
 LIBRETRO_DIR = $(SRC_DIR)/libretro
-QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs
+QUICKJS_SRC_DIR = $(SRC_DIR)/quickjs-ng
 
 INCFLAGS := \
 	-I$(SRC_DIR) \

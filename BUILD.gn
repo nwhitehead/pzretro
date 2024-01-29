@@ -103,15 +103,15 @@ action("generate_internal_data") {
 
 source_set("quickjs") {
     sources = [
-        "src/quickjs/quickjs.c",
-        "src/quickjs/libbf.c",
-        "src/quickjs/libregexp.c",
-        "src/quickjs/libunicode.c",
-        "src/quickjs/cutils.c",
-        "src/quickjs/quickjs-libc.c",
+        "src/quickjs-ng/quickjs.c",
+        "src/quickjs-ng/libbf.c",
+        "src/quickjs-ng/libregexp.c",
+        "src/quickjs-ng/libunicode.c",
+        "src/quickjs-ng/cutils.c",
+        "src/quickjs-ng/quickjs-libc.c",
     ]
     include_dirs = [
-        "src/quickjs",
+        "src/quickjs-ng",
     ]
     cflags += [ 
         "-Wno-error", 
@@ -135,7 +135,7 @@ shared_library("puzzlescript_libretro") {
     ]
     include_dirs = [
         target_gen_dir,
-        "src/quickjs",
+        "src/quickjs-ng",
         "src/libretro/include",
         "src/stb",
     ]

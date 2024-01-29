@@ -240,6 +240,9 @@ https://github.com/Narkhos/Puzzlescript-Wrapper
 QuickJS
 https://bellard.org/quickjs/
 
+QuickJS-NG
+https://github.com/quickjs-ng/quickjs
+
 Docs for using V8
 https://v8.dev/docs/
 
