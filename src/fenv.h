@@ -26,7 +26,7 @@
  * 
  * @see quickjs.c
  */
-int fesetround(int /* value */) {
+int fesetround(int rounding_mode) {
     return 0;
 }
 
