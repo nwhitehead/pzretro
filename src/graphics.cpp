@@ -1,6 +1,7 @@
 #include "graphics.h"
 
 #include <algorithm>
+#include <mutex>
 
 namespace graphics {
 
