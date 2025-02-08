@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# This ./configure file is set up to allow use of the standard make build practices.
+
+PACKAGE_NAME=pzretro
