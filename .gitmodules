@@ -13,3 +13,13 @@
 	url = https://github.com/quickjs-ng/quickjs.git
 	branch = master
 	ignore = dirty
+[submodule "data/PuzzleScript"]
+	path = data/PuzzleScript
+	url = https://github.com/increpare/PuzzleScript.git
+	branch = master
+	ignore = dirty
+[submodule "data/PuzzleScriptPlus"]
+	path = data/PuzzleScriptPlus
+	url = https://github.com/Auroriax/PuzzleScriptPlus.git
+	branch = master
+	ignore = dirty
