@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "libretro.h"
+#include "libretro_core_options.h"
 
 #include "audio.h"
 #include "event.h"
@@ -83,7 +84,7 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
         std::string code_string(code);
         if (code_string == "next") {
             event::push(event::Event(true, 'N'));
-            debug_print("puzzlescript: Cheat: Next Level\n");
+            debug_print("puzzlescript: Cheat: Next Level\n"); 
         }
         else if (code_string == "previous") {
             event::push(event::Event(true, 'P'));
@@ -221,16 +222,6 @@ bool retro_unserialize(const void *data, size_t size)
     }
 }
 
-namespace { // anonymous
-
-struct retro_variable variables[] = {
-    { "pzretro_custom_font", "Use custom anti-aliased font; off|on" },
-    { "pzretro_use_puzzlescript_plus", "Use extended PuzzleScriptPlus engine; off|on" },
-    { NULL, NULL },
-};
-
-} // anonymous
-
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;
@@ -239,7 +230,8 @@ void retro_set_environment(retro_environment_t cb)
     bool no_rom = true;
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 
-    cb(RETRO_ENVIRONMENT_SET_VARIABLES, variables);
+    // Set up the core options, which are retrieved with update_variables().
+    libretro_set_core_options(cb);
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
