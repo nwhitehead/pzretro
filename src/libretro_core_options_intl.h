@@ -11,9 +11,10 @@
 
 /*
  ********************************
- * VERSION: 1.3
+ * VERSION: 2.0
  ********************************
  *
+ * - 2.0: Add support for core options v2 interface
  * - 1.3: Move translations to libretro_core_options_intl.h
  *        - libretro_core_options_intl.h includes BOM and utf-8
  *          fix for MSVC 2010-2013
@@ -72,6 +73,16 @@ extern "C" {
 /* RETRO_LANGUAGE_GREEK */
 
 /* RETRO_LANGUAGE_TURKISH */
+
+/* RETRO_LANGUAGE_SLOVAK */
+
+/* RETRO_LANGUAGE_PERSIAN */
+
+/* RETRO_LANGUAGE_HEBREW */
+
+/* RETRO_LANGUAGE_ASTURIAN */
+
+/* RETRO_LANGUAGE_FINNISH */
 
 #ifdef __cplusplus
 }

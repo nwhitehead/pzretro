@@ -231,7 +231,8 @@ void retro_set_environment(retro_environment_t cb)
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 
     // Set up the core options, which are retrieved with update_variables().
-    libretro_set_core_options(cb);
+    bool categories_supported;
+    libretro_set_core_options(cb, &categories_supported);
 }
 
 void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
